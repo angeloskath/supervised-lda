@@ -1,6 +1,6 @@
 
 CC = g++
-CFLAGS = -std=c++11 -O3 -Wall -g
+CFLAGS = -std=c++11 -Wall -g -O3
 LDFLAGS = -lm
 
 INCLUDE_DIRS = include/
@@ -8,16 +8,16 @@ INCLUDE_DIRS = include/
 SOURCES = $(wildcard src/*.cpp) $(wildcard src/*/*.cpp) $(wildcard src/*/*/*.cpp)
 OBJECTS = $(patsubst src/%.cpp, build/%.o, $(SOURCES))
 
-all: slda
+all: bin/slda
 
-build/%.o : src/%.cpp build_dir
+build/%.o : src/%.cpp build
 	$(CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIRS)
 
-slda: $(OBJECTS)
+bin/slda: $(OBJECTS)
 	mkdir -p bin
-	$(CC) $(CFLAGS) $(OBJECTS) $(LDFLAGS) slda.cpp -o bin/slda
+	$(CC) $(CFLAGS) $(OBJECTS) $(LDFLAGS) -I $(INCLUDE_DIRS) slda.cpp -o bin/slda
 
-build_dir:
+build:
 	mkdir -p build
 
 clean:
