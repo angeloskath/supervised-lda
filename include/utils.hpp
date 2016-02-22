@@ -17,5 +17,20 @@ Scalar digamma(Scalar x) {
     return p+std::log(x)-0.5/x-1/(x-1)-1/(x-2)-1/(x-3)-1/(x-4)-1/(x-5)-1/(x-6);
 }
 
+template <typename Scalar>
+struct CwiseDigamma
+{
+    const Scalar operator()(const Scalar &x) const {
+        return digamma(x);
+    }
+};
+
+template <typename Scalar>
+struct CwiseLgamma
+{
+    const Scalar operator()(const Scalar &x) const {
+        return std::lgamma(x);
+    }
+};
 
 #endif // UTILS_H
