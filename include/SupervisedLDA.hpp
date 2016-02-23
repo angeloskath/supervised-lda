@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 
 using namespace Eigen;  // Should we be using the namespace?

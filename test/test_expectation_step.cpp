@@ -2,7 +2,7 @@
 #include <cmath>
 #include <vector>
 
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include "test/utils.hpp"
