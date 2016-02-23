@@ -72,6 +72,17 @@ class SupervisedLDA
             int max_iter,
             Scalar convergence_tolerance
         );
+        
+        /**
+         * This function calculates all necessary parameters, that
+         * will be used for the maximazation step.
+         */
+        void doc_m_step(
+           const VectorXi &x,
+           const MatrixX &phi,
+           MatrixX &b,
+           VectorX &expected_zbar
+        );
 
         /**
          * The value of the ELBO.
@@ -100,7 +111,7 @@ class SupervisedLDA
             const MatrixX &phi,
             MatrixX &h
         );
-
+        
     private:
         size_t K_;
         size_t max_iter_;

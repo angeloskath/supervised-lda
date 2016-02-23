@@ -97,6 +97,19 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
     return new_likelihood;
 }
 
+template <typename Scalar>
+void SupervisedLDA<Scalar>::doc_m_step(
+    const VectorXi &X,
+    const MatrixX &phi,
+    MatrixX &b,
+    VectorX &expected_zbar
+) {
+    auto t1 = X.cast<Scalar>().transpose().array() / X.sum();
+    auto t2 = phi.array().rowwise() * t1;
+
+    b.array() += t2;
+    expected_zbar = t2.rowwise().sum();
+}
 
 template <typename Scalar>
 Scalar SupervisedLDA<Scalar>::compute_likelihood(
