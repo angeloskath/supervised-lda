@@ -102,13 +102,13 @@ void SupervisedLDA<Scalar>::doc_m_step(
     const VectorXi &X,
     const MatrixX &phi,
     MatrixX &b,
-    VectorX &expected_zbar
+    VectorX &expected_z_bar
 ) {
     auto t1 = X.cast<Scalar>().transpose().array() / X.sum();
     auto t2 = phi.array().rowwise() * t1;
 
     b.array() += t2;
-    expected_zbar = t2.rowwise().sum();
+    expected_z_bar = t2.rowwise().sum();
 }
 
 template <typename Scalar>

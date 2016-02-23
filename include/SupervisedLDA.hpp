@@ -78,10 +78,10 @@ class SupervisedLDA
          * will be used for the maximazation step.
          */
         void doc_m_step(
-           const VectorXi &x,
+           const VectorXi &X,
            const MatrixX &phi,
            MatrixX &b,
-           VectorX &expected_zbar
+           VectorX &expected_z_bar
         );
 
         /**
