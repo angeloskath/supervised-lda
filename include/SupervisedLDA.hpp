@@ -48,7 +48,6 @@ class SupervisedLDA
          */
         void partial_fit(const MatrixXi &X, const VectorXi &y);
 
-    protected:
         /**
          * Maximize the ELBO w.r.t phi and gamma
          *
@@ -61,14 +60,17 @@ class SupervisedLDA
          *  )
          * \gamma = \alpha + \sum_{n=1}^N \phi_n
          */
-        void doc_e_step(
+        Scalar doc_e_step(
             const VectorXi &X,
             int y,
             const VectorX &alpha,
             const MatrixX &beta,
             const MatrixX &eta,
             MatrixX &phi,
-            VectorX &gamma
+            VectorX &gamma,
+            int fixed_point_iterations,
+            int max_iter,
+            Scalar convergence_tolerance
         );
 
         /**
@@ -85,6 +87,13 @@ class SupervisedLDA
             const MatrixX &h
         );
 
+        /**
+         * h \in \mathbb{R}^{K \times V}
+         *
+         * h_{n} = \sum_{y \in Y} \left(
+         *      \prod_{l=1, l \neq n}^V \phi_l^T \left( exp(\frac{X_l}{\sum X} \eta^T y) \right)
+         *  \right) exp(\frac{X_n}{\sum X} \eta^T y)
+         */
         void compute_h(
             const VectorXi &X,
             const MatrixX &eta,

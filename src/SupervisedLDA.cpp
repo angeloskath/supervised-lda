@@ -1,5 +1,6 @@
 
 #include <cmath>
+#include <iostream>
 
 #include "utils.hpp"
 
@@ -22,6 +23,7 @@ void SupervisedLDA<Scalar>::compute_h(
     MatrixX &h
 ) {
     MatrixX exp_eta(h.rows(), h.cols());
+    VectorX products(phi.cols());
     int num_words = X.sum();
     int num_classes = eta.cols();
 
@@ -29,8 +31,9 @@ void SupervisedLDA<Scalar>::compute_h(
     for (int y=0; y<num_classes; y++) {
         auto eta_scaled = eta.col(y) * (X.cast<Scalar>() / num_words).transpose();
         exp_eta = eta_scaled.array().exp();
+        products = (exp_eta.transpose() * phi).diagonal();
 
-        auto t1 = (exp_eta.transpose() * phi).diagonal();
+        auto t1 = (products.prod() / products.array()).matrix();
         auto t2 = exp_eta * t1.asDiagonal();
 
         h += t2;
@@ -39,18 +42,21 @@ void SupervisedLDA<Scalar>::compute_h(
 
 
 template <typename Scalar>
-void SupervisedLDA<Scalar>::doc_e_step(
+Scalar SupervisedLDA<Scalar>::doc_e_step(
     const VectorXi &X,
     int y,
     const VectorX &alpha,
     const MatrixX &beta,
     const MatrixX &eta,
     MatrixX &phi,
-    VectorX &gamma
+    VectorX &gamma,
+    int fixed_point_iterations,
+    int max_iter,
+    Scalar convergence_tolerance
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
 
-    int num_topics = K_;
+    int num_topics = gamma.rows();
     int num_words = X.sum();
     int voc_size = X.rows();
 
@@ -62,30 +68,33 @@ void SupervisedLDA<Scalar>::doc_e_step(
     MatrixX phi_old(num_topics, voc_size);
 
     // to check for convergence
-    Scalar old_likelihood = -INFINITY, new_likelihood;
+    Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
-    while (true) {
+    while (max_iter-- > 0) {
         compute_h(X, eta, phi, h);
 
         new_likelihood = compute_likelihood(X, y, alpha, beta, eta, phi, gamma, h);
-        if ((new_likelihood - old_likelihood)/old_likelihood < 1e-2) {
+        if ((new_likelihood - old_likelihood)/(-old_likelihood) < convergence_tolerance) {
             break;
         }
         old_likelihood = new_likelihood;
 
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<fixed_point_iterations; i++) {
             phi_old = phi;
 
             auto t1 = gamma.unaryExpr(cwise_digamma);
             auto t2 = eta.col(y) * (X.cast<Scalar>().transpose() / num_words);
+            // TODO: h.transpose() * phi_old can be cached
             auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
 
-            phi = beta.array() * ((t2.colwise() + t1).array() + t3.array()).exp();
+            phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
             phi = phi.array().rowwise() / phi.colwise().sum().array();
         }
 
         gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
     }
+
+    return new_likelihood;
 }
 
 
@@ -109,23 +118,24 @@ Scalar SupervisedLDA<Scalar>::compute_likelihood(
     VectorX t1 = gamma.unaryExpr(cwise_digamma).array() - digamma(gamma.sum());
 
     // E_q[log p(\theta | \alpha)]
-    likelihood += ((alpha.array() - 1.0).matrix() * t1).value();
+    likelihood += ((alpha.array() - 1.0).matrix().transpose() * t1).value();
     likelihood += std::lgamma(alpha.sum()) - alpha.unaryExpr(cwise_lgamma).sum();
 
     // E_q[log p(z | \theta)]
-    likelihood += (phi * t1).sum();
+    likelihood += (phi.transpose() * t1).sum();
 
     // E_q[log p(w | z, \beta)]
-    likelihood += (phi.array() * beta.array().log()).sum();
+    auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
+    likelihood += (phi_scaled * beta.array().log()).sum();
 
     // H(q)
-    likelihood += -((gamma.array() - 1).matrix() * t1).value();
+    likelihood += -((gamma.array() - 1).matrix().transpose() * t1).value();
     likelihood += -std::lgamma(gamma.sum()) + gamma.unaryExpr(cwise_lgamma).sum();
     likelihood += -(phi.array() * phi.array().log()).sum();
 
     // E_q[log p(y | z,n)] approximated using Jensens inequality
     likelihood += (eta.col(y).transpose() * phi * X.cast<Scalar>()).value() / X.sum();
-    likelihood += -(h.transpose() * phi).diagonal().array().log().sum();
+    likelihood += - std::log((h.col(0).transpose() * phi.col(0)).value());
 
     return likelihood;
 }
