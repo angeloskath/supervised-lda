@@ -3,6 +3,12 @@
 
 #include <cmath>
 
+#include <Eigen/Core>
+
+
+using namespace Eigen;
+
+
 /**
  * @brief This function is used for the calculation of the digamma function,
  * which is the logarithmic derivative of the Gamma Function. The digamma
@@ -25,6 +31,7 @@ Scalar digamma(Scalar x) {
     return result;
 }
 
+
 template <typename Scalar>
 struct CwiseDigamma
 {
@@ -33,6 +40,7 @@ struct CwiseDigamma
     }
 };
 
+
 template <typename Scalar>
 struct CwiseLgamma
 {
@@ -40,5 +48,42 @@ struct CwiseLgamma
         return std::lgamma(x);
     }
 };
+
+
+/**
+ * Reshape a matrix into a vector by copying the matrix into the vector in a
+ * way to avoid errors by Eigen expressions.
+ */
+template <typename Scalar>
+void reshape_into(
+    const Matrix<Scalar, Dynamic, Dynamic> &src,
+    Matrix<Scalar, Dynamic, 1> &dst
+) {
+    size_t srcR = src.rows();
+    size_t srcC = src.cols();
+
+    for (int c=0; c<srcC; c++) {
+        dst.segment(c*srcR, srcR) = src.col(c);
+    }
+}
+
+
+/**
+ * Reshape a vector into a matrix by copying the vector into the matrix in a
+ * way to avoid errors by Eigen expressions.
+ */
+template <typename Scalar>
+void reshape_into(
+    const Matrix<Scalar, Dynamic, 1> &src,
+    Matrix<Scalar, Dynamic, Dynamic> &dst
+) {
+    size_t dstR = dst.rows();
+    size_t dstC = dst.cols();
+
+    for (int c=0; c<dstC; c++) {
+        dst.col(c) = src.segment(c*dstR, dstR);
+    }
+}
+
 
 #endif // UTILS_H

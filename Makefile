@@ -1,6 +1,6 @@
 
 CC = g++
-CFLAGS = -std=c++11 -Wall -g -O3
+CFLAGS = -std=c++11 -Wall -g -O3 -DNDEBUG
 LDFLAGS = -lm
 LDFLAGS_TEST = -lgtest
 

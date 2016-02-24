@@ -85,6 +85,27 @@ class SupervisedLDA
         );
 
         /**
+         * Maximize the ELBO w.r.t \beta and \eta.
+         *
+         * @param expected_Z_bar Is the expected values of Z_bar for every
+         *                       document
+         * @param b              The unnormalized new betas
+         * @param y              The class indexes for every document
+         * @param beta           The topic word distributions
+         * @param eta            The classification parameters
+         * @return               The likelihood of the Multinomial logistic
+         *                       regression
+         */
+        Scalar m_step(
+            const MatrixX &expected_z_bar,
+            const MatrixX &b,
+            const VectorXi &y,
+            MatrixX &beta,
+            MatrixX &eta,
+            Scalar L
+        );
+
+        /**
          * The value of the ELBO.
          */
         Scalar compute_likelihood(

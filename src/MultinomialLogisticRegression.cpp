@@ -8,7 +8,7 @@ MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
 ) : X_(X), y_(y), L_(L) {}
 
 template <typename Scalar>
-Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) {
+Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
     Scalar likelihood = 0;
     VectorX t(eta.cols());
 
@@ -29,7 +29,7 @@ Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) {
 }
 
 template <typename Scalar>
-void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, MatrixX &grad) {
+void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, MatrixX &grad) const {
     grad.fill(0);
     VectorX t(eta.cols());
 

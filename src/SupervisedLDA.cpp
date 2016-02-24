@@ -2,7 +2,12 @@
 #include <cmath>
 #include <iostream>
 
+
+#include <cppoptlib/solver/lbfgssolver.h>
+
 #include "utils.hpp"
+#include "MatrixProblem.hpp"
+#include "MultinomialLogisticRegression.hpp"
 
 #include "SupervisedLDA.hpp"
 
@@ -109,6 +114,35 @@ void SupervisedLDA<Scalar>::doc_m_step(
 
     b.array() += t2;
     expected_z_bar = t2.rowwise().sum();
+}
+
+template <typename Scalar>
+Scalar SupervisedLDA<Scalar>::m_step(
+    const MatrixX &expected_z_bar,
+    const MatrixX &b,
+    const VectorXi &y,
+    MatrixX &beta,
+    MatrixX &eta,
+    Scalar L
+) {
+    // we maximized w.r.t \beta during each doc_m_step
+    beta = b.array().rowwise() / b.array().colwise().sum();
+
+    // we need to maximize w.r.t to \eta
+    MultinomialLogisticRegression<Scalar> mlr(expected_z_bar, y, L);
+    MatrixProblem<MultinomialLogisticRegression<Scalar>, Scalar> problem(
+        mlr,
+        eta.rows(),
+        eta.cols()
+    );
+    cppoptlib::LbfgsSolver<Scalar> solver;
+
+    VectorX eta0(eta.rows() * eta.cols());
+    reshape_into(eta, eta0);
+    solver.minimize(problem, eta0);
+    reshape_into(eta0, eta);
+
+    return mlr.value(eta);
 }
 
 template <typename Scalar>
