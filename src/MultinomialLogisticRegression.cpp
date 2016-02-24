@@ -1,11 +1,13 @@
 #include "MultinomialLogisticRegression.hpp"
 
+
 template <typename Scalar>
 MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
     const MatrixX &X,
     const VectorXi &y,
     Scalar L
 ) : X_(X), y_(y), L_(L) {}
+
 
 template <typename Scalar>
 Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
@@ -25,8 +27,11 @@ Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
     
     // Add suitable normalization to the final likelihood
     auto norm = L_ * eta.squaredNorm() / 2;
-    return likelihood + norm;
+
+    // we need to return the negative for maximization instead of minimization
+    return - likelihood - norm;
 }
+
 
 template <typename Scalar>
 void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, MatrixX &grad) const {
@@ -34,15 +39,16 @@ void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, MatrixX
     VectorX t(eta.cols());
 
     for (int d=0; d<y_.rows(); d++) {
-        grad.col(y_[d]) += X_.col(d);
+        grad.col(y_[d]) -= X_.col(d);
 
         t = (eta.transpose() * X_.col(d)).array().exp();
-        grad -= (X_.col(d) * t.transpose()) / t.sum();
+        grad += (X_.col(d) * t.transpose()) / t.sum();
     }
 
     // Add suitable normalization for the gradient
-    grad.array() += eta.array() * L_;
+    grad.array() -= eta.array() * L_;
 }
+
 
 // template instatiation
 template class MultinomialLogisticRegression<float>;

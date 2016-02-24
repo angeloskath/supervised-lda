@@ -1,19 +1,17 @@
 
 #include <cmath>
-#include <iostream>
-
-
-#include <cppoptlib/solver/lbfgssolver.h>
 
 #include "utils.hpp"
-#include "MatrixProblem.hpp"
 #include "MultinomialLogisticRegression.hpp"
+#include "GradientDescent.hpp"
 
 #include "SupervisedLDA.hpp"
+
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
 }
+
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
@@ -102,6 +100,7 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
     return new_likelihood;
 }
 
+
 template <typename Scalar>
 void SupervisedLDA<Scalar>::doc_m_step(
     const VectorXi &X,
@@ -116,6 +115,7 @@ void SupervisedLDA<Scalar>::doc_m_step(
     expected_z_bar = t2.rowwise().sum();
 }
 
+
 template <typename Scalar>
 Scalar SupervisedLDA<Scalar>::m_step(
     const MatrixX &expected_z_bar,
@@ -129,21 +129,31 @@ Scalar SupervisedLDA<Scalar>::m_step(
     beta = b.array().rowwise() / b.array().colwise().sum();
 
     // we need to maximize w.r.t to \eta
+    Progress<Scalar> progress{
+        ProgressState::Maximization,
+        -INFINITY,
+        0,
+        0
+    };
     MultinomialLogisticRegression<Scalar> mlr(expected_z_bar, y, L);
-    MatrixProblem<MultinomialLogisticRegression<Scalar>, Scalar> problem(
-        mlr,
-        eta.rows(),
-        eta.cols()
-    );
-    cppoptlib::LbfgsSolver<Scalar> solver;
+    GradientDescent<MultinomialLogisticRegression<Scalar>, MatrixX> minimizer(
+        std::make_shared<ConstantLineSearch<MultinomialLogisticRegression<Scalar>, MatrixX> >(
+            0.01
+        ),
+        [this, &progress](Scalar value, Scalar gradNorm, size_t iterations) {
+            progress.value = value;
+            progress.partial_iteration = iterations;
 
-    VectorX eta0(eta.rows() * eta.cols());
-    reshape_into(eta, eta0);
-    solver.minimize(problem, eta0);
-    reshape_into(eta0, eta);
+            this->get_progress_visitor()->visit(progress);
+
+            return iterations < 100 && gradNorm > 1e-3;
+        }
+    );
+    minimizer.minimize(mlr, eta);
 
     return mlr.value(eta);
 }
+
 
 template <typename Scalar>
 Scalar SupervisedLDA<Scalar>::compute_likelihood(

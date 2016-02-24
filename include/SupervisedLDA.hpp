@@ -3,8 +3,11 @@
 
 
 #include <cstddef>
+#include <memory>
 
 #include <Eigen/Core>
+
+#include "ProgressVisitor.hpp"
 
 
 using namespace Eigen;  // Should we be using the namespace?
@@ -132,10 +135,33 @@ class SupervisedLDA
             const MatrixX &phi,
             MatrixX &h
         );
+
+        /**
+         * Set the progress visitor for this lda instance.
+         */
+        void set_progress_visitor(std::shared_ptr<IProgressVisitor<Scalar> > visitor) {
+            visitor_ = visitor;
+        }
+
+        /**
+         * Get the progress visitor for this lda instance.
+         */
+        std::shared_ptr<IProgressVisitor<Scalar> > get_progress_visitor() {
+            if (visitor_) {
+                return visitor_;
+            } else {
+                // return a noop visitor
+                return std::make_shared<FunctionVisitor<Scalar> >(
+                    [](Progress<Scalar> p){}
+                );
+            }
+        }
         
     private:
         size_t K_;
         size_t max_iter_;
+
+        std::shared_ptr<IProgressVisitor<Scalar> > visitor_;
 };
 
 
