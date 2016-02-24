@@ -182,9 +182,7 @@ Scalar SupervisedLDA<Scalar>::m_step(
     };
     MultinomialLogisticRegression<Scalar> mlr(expected_z_bar, y, L);
     GradientDescent<MultinomialLogisticRegression<Scalar>, MatrixX> minimizer(
-        std::make_shared<ConstantLineSearch<MultinomialLogisticRegression<Scalar>, MatrixX> >(
-            0.01
-        ),
+        std::make_shared<ArmijoLineSearch<MultinomialLogisticRegression<Scalar>, MatrixX> >(),
         [this, &progress](Scalar value, Scalar gradNorm, size_t iterations) {
             progress.value = value;
             progress.partial_iteration = iterations;
