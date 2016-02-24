@@ -52,7 +52,9 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
         y,
         beta,
         eta,
-        L
+        L,
+        1000,
+        1e-3
     );
 
     ASSERT_GT(progress.size(), 0);

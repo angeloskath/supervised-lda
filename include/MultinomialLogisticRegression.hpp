@@ -32,7 +32,7 @@ class MultinomialLogisticRegression
          * E_q[Z]y - \frac{\sum_{y=1}^C E_q[Z]y exp(\eta^T E_q[Z]y}{\sum_{y=1}^C exp(\eta^T E_q[Z]y)}
          * 
          */
-        void gradient(const MatrixX &eta, MatrixX &grad) const;
+        void gradient(const MatrixX &eta, Ref<MatrixX> grad) const;
 
     private:
         const MatrixX &X_;

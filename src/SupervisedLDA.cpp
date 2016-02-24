@@ -16,7 +16,8 @@ SupervisedLDA<Scalar>::SupervisedLDA(
     Scalar m_step_tolerance,
     size_t e_step_iterations,
     size_t m_step_iterations,
-    size_t fixed_point_iterations
+    size_t fixed_point_iterations,
+    Scalar regularization_penalty
 ) {
     topics_ = topics;
     iterations_ = iterations;
@@ -24,16 +25,17 @@ SupervisedLDA<Scalar>::SupervisedLDA(
     m_step_tolerance_ = m_step_tolerance;
     e_step_iterations_ = e_step_iterations;
     m_step_iterations_ = m_step_iterations;
-    fixed_point_iterations_ = fixed_point_iterations;    
+    fixed_point_iterations_ = fixed_point_iterations;
+    regularization_penalty_ = regularization_penalty;
 }
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::initialize_model_parameters(
     const MatrixXi &X,
     const VectorXi &y,
-    VectorX &alpha,
-    MatrixX &beta,
-    MatrixX &eta,
+    Ref<VectorX> alpha,
+    Ref<MatrixX> beta,
+    Ref<MatrixX> eta,
     size_t topics
 ) {
     alpha = VectorX::Constant(topics, 1.0 / topics);
@@ -55,11 +57,78 @@ void SupervisedLDA<Scalar>::initialize_model_parameters(
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
+    for (int i=0; i<iterations_; i++) {
+        partial_fit(X, y);
+    }
 }
 
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
+    // This means we have never been called before so allocate whatever needs
+    // to be allocated and initialize the model parameters
+    if (beta_.rows() == 0) {
+        initialize_model_parameters(
+            X,
+            y,
+            alpha_,
+            beta_,
+            eta_,
+            topics_
+        );
+    }
+
+    // allocate space for the variational parameters (they are both per
+    // document)
+    MatrixX phi(topics_, X.rows());
+    VectorX gamma(topics_);
+
+    // allocate space for accumulating values to use in the maximization step
+    MatrixX expected_z_bar(topics_, X.cols());
+    MatrixX b(topics_, X.rows());
+
+    // consider moving the following to another function so that the above
+    // allocations do not happen again and again for every iteration
+    Scalar likelihood = 0;
+    for (int d=0; d<X.cols(); d++) {
+        likelihood += doc_e_step(
+            X.col(d),
+            y[d],
+            alpha_,
+            beta_,
+            eta_,
+            phi,
+            gamma,
+            fixed_point_iterations_,
+            e_step_iterations_,
+            e_step_tolerance_
+        );
+
+        doc_m_step(
+            X.col(d),
+            phi,
+            b,
+            expected_z_bar.col(d)
+        );
+    }
+
+    get_progress_visitor()->visit(Progress<Scalar>{
+        ProgressState::Expectation,
+        likelihood,
+        0,
+        0
+    });
+
+    m_step(
+        expected_z_bar,
+        b,
+        y,
+        beta_,
+        eta_,
+        regularization_penalty_,
+        m_step_iterations_,
+        m_step_tolerance_
+    );
 }
 
 
@@ -68,7 +137,7 @@ void SupervisedLDA<Scalar>::compute_h(
     const VectorXi &X,
     const MatrixX &eta,
     const MatrixX &phi,
-    MatrixX &h
+    Ref<MatrixX> h
 ) {
     MatrixX exp_eta(h.rows(), h.cols());
     VectorX products(phi.cols());
@@ -96,11 +165,11 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
     const VectorX &alpha,
     const MatrixX &beta,
     const MatrixX &eta,
-    MatrixX &phi,
-    VectorX &gamma,
-    int fixed_point_iterations,
-    int max_iter,
-    Scalar convergence_tolerance
+    Ref<MatrixX> phi,
+    Ref<VectorX> gamma,
+    size_t fixed_point_iterations,
+    size_t e_step_iterations,
+    Scalar e_step_tolerance
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
 
@@ -118,11 +187,11 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
-    while (max_iter-- > 0) {
+    while (e_step_iterations-- > 0) {
         compute_h(X, eta, phi, h);
 
         new_likelihood = compute_likelihood(X, y, alpha, beta, eta, phi, gamma, h);
-        if ((new_likelihood - old_likelihood)/(-old_likelihood) < convergence_tolerance) {
+        if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance) {
             break;
         }
         old_likelihood = new_likelihood;
@@ -150,8 +219,8 @@ template <typename Scalar>
 void SupervisedLDA<Scalar>::doc_m_step(
     const VectorXi &X,
     const MatrixX &phi,
-    MatrixX &b,
-    VectorX &expected_z_bar
+    Ref<MatrixX> b,
+    Ref<VectorX> expected_z_bar
 ) {
     auto t1 = X.cast<Scalar>().transpose().array() / X.sum();
     auto t2 = phi.array().rowwise() * t1;
@@ -166,35 +235,44 @@ Scalar SupervisedLDA<Scalar>::m_step(
     const MatrixX &expected_z_bar,
     const MatrixX &b,
     const VectorXi &y,
-    MatrixX &beta,
-    MatrixX &eta,
-    Scalar L
+    Ref<MatrixX> beta,
+    Ref<MatrixX> eta,
+    Scalar L,
+    Scalar m_step_iterations,
+    Scalar m_step_tolerance
 ) {
     // we maximized w.r.t \beta during each doc_m_step
     beta = b.array().rowwise() / b.array().colwise().sum();
 
     // we need to maximize w.r.t to \eta
-    Progress<Scalar> progress{
-        ProgressState::Maximization,
-        -INFINITY,
-        0,
-        0
-    };
+    Scalar initial_value = INFINITY;
     MultinomialLogisticRegression<Scalar> mlr(expected_z_bar, y, L);
     GradientDescent<MultinomialLogisticRegression<Scalar>, MatrixX> minimizer(
         std::make_shared<ArmijoLineSearch<MultinomialLogisticRegression<Scalar>, MatrixX> >(),
-        [this, &progress](Scalar value, Scalar gradNorm, size_t iterations) {
-            progress.value = value;
-            progress.partial_iteration = iterations;
+        [this, &initial_value, m_step_tolerance, m_step_iterations](
+            Scalar value,
+            Scalar gradNorm,
+            size_t iterations
+        ) {
+            this->get_progress_visitor()->visit(Progress<Scalar>{
+                ProgressState::Maximization,
+                value,
+                iterations,
+                0
+            });
 
-            this->get_progress_visitor()->visit(progress);
+            Scalar relative_improvement = (initial_value - value) / initial_value;
+            initial_value = value;
 
-            return iterations < 100 && gradNorm > 1e-3;
+            return (
+                iterations < m_step_iterations &&
+                relative_improvement > m_step_tolerance
+            );
         }
     );
     minimizer.minimize(mlr, eta);
 
-    return mlr.value(eta);
+    return initial_value;
 }
 
 

@@ -43,7 +43,8 @@ class SupervisedLDA
             Scalar m_step_tolerance = 1e-4,
             size_t e_step_iterations = 10,
             size_t m_step_iterations = 20,
-            size_t fixed_point_iterations = 20
+            size_t fixed_point_iterations = 20,
+            Scalar regularization_penalty = 0.001
         );
 
         /**
@@ -83,13 +84,13 @@ class SupervisedLDA
             const VectorX &alpha,
             const MatrixX &beta,
             const MatrixX &eta,
-            MatrixX &phi,
-            VectorX &gamma,
-            int fixed_point_iterations,
-            int max_iter,
-            Scalar convergence_tolerance
+            Ref<MatrixX> phi,
+            Ref<VectorX> gamma,
+            size_t fixed_point_iterations,
+            size_t e_step_iterations,
+            Scalar e_step_tolerance
         );
-        
+
         /**
          * This function calculates all necessary parameters, that
          * will be used for the maximazation step.
@@ -97,8 +98,8 @@ class SupervisedLDA
         void doc_m_step(
            const VectorXi &X,
            const MatrixX &phi,
-           MatrixX &b,
-           VectorX &expected_z_bar
+           Ref<MatrixX> b,
+           Ref<VectorX> expected_z_bar
         );
 
         /**
@@ -117,9 +118,11 @@ class SupervisedLDA
             const MatrixX &expected_z_bar,
             const MatrixX &b,
             const VectorXi &y,
-            MatrixX &beta,
-            MatrixX &eta,
-            Scalar L
+            Ref<MatrixX> beta,
+            Ref<MatrixX> eta,
+            Scalar L,
+            Scalar m_step_iterations,
+            Scalar m_step_tolerance
         );
 
         /**
@@ -147,7 +150,7 @@ class SupervisedLDA
             const VectorXi &X,
             const MatrixX &eta,
             const MatrixX &phi,
-            MatrixX &h
+            Ref<MatrixX> h
         );
 
         /**
@@ -179,9 +182,9 @@ class SupervisedLDA
         void initialize_model_parameters(
             const MatrixXi &X,
             const VectorXi &y,
-            VectorX &alpha,
-            MatrixX &beta,
-            MatrixX &eta,
+            Ref<VectorX> alpha,
+            Ref<MatrixX> beta,
+            Ref<MatrixX> eta,
             size_t topics
         );
 
@@ -202,6 +205,8 @@ class SupervisedLDA
         size_t m_step_iterations_;
         // The maximum number of iterations while maximizing phi in E-step
         size_t fixed_point_iterations_;
+        // The regularization penalty for the multinomial logistic regression
+        Scalar regularization_penalty_;
 
         VectorX alpha_;
         MatrixX beta_;

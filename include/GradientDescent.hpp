@@ -18,7 +18,7 @@ class LineSearch
 
         virtual Scalar search(
             const ProblemType &problem,
-            ParameterType &x0,
+            Ref<ParameterType> x0,
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) = 0;
@@ -39,7 +39,7 @@ class ConstantLineSearch : public LineSearch<ProblemType, ParameterType>
 
         Scalar search(
             const ProblemType &problem,
-            ParameterType &x0,
+            Ref<ParameterType> x0,
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) {
@@ -73,7 +73,7 @@ class ArmijoLineSearch : public LineSearch<ProblemType, ParameterType>
 
         Scalar search(
             const ProblemType &problem,
-            ParameterType &x0,
+            Ref<ParameterType> x0,
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) {
@@ -116,7 +116,7 @@ class GradientDescent
             progress_(progress)
         {}
 
-        void minimize(const ProblemType &problem, ParameterType &x0) {
+        void minimize(const ProblemType &problem, Ref<ParameterType> x0) {
             // allocate memory for the gradient
             ParameterType grad(x0.rows(), x0.cols());
 

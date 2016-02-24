@@ -34,7 +34,7 @@ Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
 
 
 template <typename Scalar>
-void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, MatrixX &grad) const {
+void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, Ref<MatrixX> grad) const {
     grad.fill(0);
     VectorX t(eta.cols());
 
