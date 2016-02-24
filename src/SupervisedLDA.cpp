@@ -142,6 +142,61 @@ void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
     );
 }
 
+template <typename Scalar>
+typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::transform(const MatrixXi& X) {
+    // space for the variational parameters
+    MatrixX phi(topics_, X.rows());
+    VectorX gamma(topics_);
+
+    // space for the representation and an unused b parameter
+    MatrixX expected_z_bar(topics_, X.cols());
+    MatrixX b(topics_, X.rows());
+
+    for (int d=0; d<X.rows(); d++) {
+        doc_e_step(
+            X.col(d),
+            -1,
+            alpha_,
+            beta_,
+            eta_,
+            phi,
+            gamma,
+            fixed_point_iterations_,
+            e_step_iterations_,
+            e_step_tolerance_
+        );
+
+        doc_m_step(
+            X.col(d),
+            phi,
+            b,
+            expected_z_bar.col(d)
+        );
+    }
+
+    return expected_z_bar;
+}
+
+template <typename Scalar>
+typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::decision_function(const MatrixXi &X) {
+    MatrixX scores(eta_.cols(), X.cols());
+
+    scores = (eta_.transpose() * transform(X)).eval();
+
+    return scores;
+}
+
+template <typename Scalar>
+VectorXi SupervisedLDA<Scalar>::predict(const MatrixXi &X) {
+    VectorXi predictions(X.cols());
+    MatrixX scores = decision_function(X);
+
+    for (int d=0; d<X.cols(); d++) {
+        scores.col(d).maxCoeff( &predictions[d] );
+    }
+
+    return predictions;
+}
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::compute_h(
@@ -207,16 +262,24 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
         }
         old_likelihood = new_likelihood;
 
-        for (int i=0; i<fixed_point_iterations; i++) {
-            phi_old = phi;
+        // supervised inference
+        if (y >= 0) {
+            for (int i=0; i<fixed_point_iterations; i++) {
+                phi_old = phi;
 
-            auto t1 = gamma.unaryExpr(cwise_digamma);
-            auto t2 = eta.col(y) * (X.cast<Scalar>().transpose() / num_words);
-            // TODO: h.transpose() * phi_old can be cached
-            auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
+                auto t1 = gamma.unaryExpr(cwise_digamma);
+                auto t2 = eta.col(y) * (X.cast<Scalar>().transpose() / num_words);
+                // TODO: h.transpose() * phi_old can be cached
+                auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
 
-            phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
-            phi.array() += 1.0;
+                phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
+                phi.array() += 1.0;
+                phi = phi.array().rowwise() / phi.colwise().sum().array();
+            }
+        }
+        // unsupervised inference
+        else {
+            phi = beta.array() * gamma.unaryExpr(cwise_digamma).array().exp();
             phi = phi.array().rowwise() / phi.colwise().sum().array();
         }
 
@@ -350,6 +413,11 @@ Scalar SupervisedLDA<Scalar>::compute_likelihood(
     likelihood += -(phi.array() * phi.array().log()).sum();
     if (std::isnan(likelihood)) {
         std::cout << "7" << std::endl;
+        return likelihood;
+    }
+
+    // unsupervised
+    if (y < 0) {
         return likelihood;
     }
 

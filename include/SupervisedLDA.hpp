@@ -66,6 +66,22 @@ class SupervisedLDA
         void partial_fit(const MatrixXi &X, const VectorXi &y);
 
         /**
+         * Transform the word counts X into topic proportions and return a new
+         * matrix.
+         */
+        MatrixX transform(const MatrixXi &X);
+
+        /**
+         * Return the class scores according to the model parameters.
+         */
+        MatrixX decision_function(const MatrixXi &X);
+
+        /**
+         * Use the model to predict the class indexes for the word counts X.
+         */
+        VectorXi predict(const MatrixXi &X);
+
+        /**
          * Maximize the ELBO w.r.t phi and gamma
          *
          * We use the following update functions until convergence.
