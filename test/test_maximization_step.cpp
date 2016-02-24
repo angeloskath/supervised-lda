@@ -57,7 +57,7 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
         1e-3
     );
 
-    ASSERT_GT(progress.size(), 0);
+    ASSERT_GT(progress.size(), 2);
     for (int i=1; i<progress.size(); i++) {
         ASSERT_EQ(i-1, progress[i-1].partial_iteration);
         EXPECT_GT(progress[i-1].value, progress[i].value) << "Iteration:" << i;

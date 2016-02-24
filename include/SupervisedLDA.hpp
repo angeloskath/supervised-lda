@@ -4,7 +4,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <stdlib.h>
 
 #include <Eigen/Core>
 

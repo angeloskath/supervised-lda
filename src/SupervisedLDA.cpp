@@ -1,5 +1,6 @@
 
 #include <cmath>
+#include <random>
 
 #include "utils.hpp"
 #include "MultinomialLogisticRegression.hpp"
@@ -43,13 +44,18 @@ void SupervisedLDA<Scalar>::initialize_model_parameters(
     // calculate the number of classes, which is C
     eta = MatrixX::Zero(topics, y.maxCoeff() + 1);
     
-    beta = MatrixX::Zero(topics, X.rows());
-    int rn = rand() % X.cols();
+    beta = MatrixX::Constant(topics, X.rows(), 1.0);
+    std::mt19937 rng;
+    rng.seed(0);
+    std::uniform_int_distribution<> initializations(10, static_cast<int>(X.cols()/2));
+    std::uniform_int_distribution<> document(0, X.cols()-1);
+    auto N = initializations(rng);
+
     // Initialize _beta
     for (int k=0; k<topics_; k++) {
         // Choose randomly a bunch of documents to initialize beta
-        for (int r=0; r<rn; r++) {
-            beta.row(k) += X.cast<Scalar>().col(r).transpose();
+        for (int r=0; r<N; r++) {
+            beta.row(k) += X.cast<Scalar>().col(document(rng)).transpose();
         }
         beta.row(k) = beta.row(k) / beta.row(k).sum();
     }
@@ -68,6 +74,10 @@ void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
     // This means we have never been called before so allocate whatever needs
     // to be allocated and initialize the model parameters
     if (beta_.rows() == 0) {
+        alpha_ = VectorX(topics_);
+        eta_ = MatrixX(topics_, y.maxCoeff() + 1);
+        beta_ = MatrixX(topics_, X.rows());
+
         initialize_model_parameters(
             X,
             y,
@@ -110,14 +120,14 @@ void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
             b,
             expected_z_bar.col(d)
         );
-    }
 
-    get_progress_visitor()->visit(Progress<Scalar>{
-        ProgressState::Expectation,
-        likelihood,
-        0,
-        0
-    });
+        get_progress_visitor()->visit(Progress<Scalar>{
+            ProgressState::Expectation,
+            likelihood,
+            static_cast<size_t>(d),
+            0
+        });
+    }
 
     m_step(
         expected_z_bar,
@@ -261,7 +271,7 @@ Scalar SupervisedLDA<Scalar>::m_step(
                 0
             });
 
-            Scalar relative_improvement = (initial_value - value) / initial_value;
+            Scalar relative_improvement = (initial_value - value) / value;
             initial_value = value;
 
             return (
