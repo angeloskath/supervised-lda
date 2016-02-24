@@ -9,6 +9,51 @@
 
 
 template <typename Scalar>
+SupervisedLDA<Scalar>::SupervisedLDA(
+    size_t topics,
+    size_t iterations,
+    Scalar e_step_tolerance,
+    Scalar m_step_tolerance,
+    size_t e_step_iterations,
+    size_t m_step_iterations,
+    size_t fixed_point_iterations
+) {
+    topics_ = topics;
+    iterations_ = iterations;
+    e_step_tolerance_ = e_step_tolerance;
+    m_step_tolerance_ = m_step_tolerance;
+    e_step_iterations_ = e_step_iterations;
+    m_step_iterations_ = m_step_iterations;
+    fixed_point_iterations_ = fixed_point_iterations;    
+}
+
+template <typename Scalar>
+void SupervisedLDA<Scalar>::initialize_model_parameters(
+    const MatrixXi &X,
+    const VectorXi &y,
+    VectorX &alpha,
+    MatrixX &beta,
+    MatrixX &eta,
+    size_t topics
+) {
+    alpha = VectorX::Constant(topics, 1.0 / topics);
+    // Eigen has no unique function, therefore we use maxcoeff instead to
+    // calculate the number of classes, which is C
+    eta = MatrixX::Zero(topics, y.maxCoeff() + 1);
+    
+    beta = MatrixX::Zero(topics, X.rows());
+    int rn = rand() % X.cols();
+    // Initialize _beta
+    for (int k=0; k<topics_; k++) {
+        // Choose randomly a bunch of documents to initialize beta
+        for (int r=0; r<rn; r++) {
+            beta.row(k) += X.cast<Scalar>().col(r).transpose();
+        }
+        beta.row(k) = beta.row(k) / beta.row(k).sum();
+    }
+}
+
+template <typename Scalar>
 void SupervisedLDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
 }
 

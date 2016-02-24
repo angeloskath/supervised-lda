@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <stdlib.h>
 
 #include <Eigen/Core>
 
@@ -23,14 +24,27 @@ class SupervisedLDA
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
-        SupervisedLDA(size_t K) : SupervisedLDA(K, 20) {}
         /**
-         * @param K        The number of topics for this model
-         * @param max_iter The maximum number of iterations to perform
+         * @param topics                 The number of topics for this model
+         * @param iterations             The maximum number of EM iterations
+         * @param e_step_tolerance       The convergence tolerance for the maximazation of
+         *                               ELBO w.r.t. phi and gamma in E-step
+         * @param m_step_tolerance       The convergence tolerance for the maximazation of
+         *                               ELBO w.r.t. eta in M-step
+         * @param e_step_iterations      The maximum number of E-step iterations
+         * @param m_step_iterations      The maximum number of M-step iterations
+         * @param fixed_point_iterations The maximum number of iterations while maximizing
+         *                               phi in E-step
          */
-        SupervisedLDA(size_t K, size_t max_iter) : K_(K),
-                                                   max_iter_(max_iter)
-        {}
+        SupervisedLDA(
+            size_t topics,
+            size_t iterations = 20,
+            Scalar e_step_tolerance = 1e-4,
+            Scalar m_step_tolerance = 1e-4,
+            size_t e_step_iterations = 10,
+            size_t m_step_iterations = 20,
+            size_t fixed_point_iterations = 20
+        );
 
         /**
          * Compute a supervised topic model for word counts X and classes y.
@@ -156,10 +170,42 @@ class SupervisedLDA
                 );
             }
         }
-        
+
+    protected:
+        /**
+         * This function is used for the inisialization of model parameters, namely
+         * eta, beta, alpha
+         */
+        void initialize_model_parameters(
+            const MatrixXi &X,
+            const VectorXi &y,
+            VectorX &alpha,
+            MatrixX &beta,
+            MatrixX &eta,
+            size_t topics
+        );
+
     private:
-        size_t K_;
-        size_t max_iter_;
+        // Obviously the total number of topics
+        size_t topics_;
+        // The maximum number of EM iterations
+        size_t iterations_;
+        // The convergence tolerance for the maximazation of the ELBO w.r.t.
+        // phi and gamma in E-step
+        Scalar e_step_tolerance_;
+        // The convergence tolerance for the maximazation of the ELBO w.r.t.
+        // eta in M-step
+        Scalar m_step_tolerance_;
+        // The maximum number of iterations in E-step
+        size_t e_step_iterations_;
+        // The maximum number of iterations in M-step
+        size_t m_step_iterations_;
+        // The maximum number of iterations while maximizing phi in E-step
+        size_t fixed_point_iterations_;
+
+        VectorX alpha_;
+        MatrixX beta_;
+        MatrixX eta_;
 
         std::shared_ptr<IProgressVisitor<Scalar> > visitor_;
 };

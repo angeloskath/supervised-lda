@@ -15,6 +15,10 @@ class TestMultinomialLogisticRegression : public ParameterizedTest<T> {};
 
 TYPED_TEST_CASE(TestMultinomialLogisticRegression, ForFloatAndDouble);
 
+/**
+  * In this test we check if the gradient is correct by appling
+  * a finite difference method.
+  */
 TYPED_TEST(TestMultinomialLogisticRegression, gradient) {
     
     // eta is typically of size KxC, where K is the number of topics and C the
