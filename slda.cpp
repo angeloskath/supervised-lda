@@ -5,6 +5,33 @@
 #include "SupervisedLDA.hpp"
 #include "ProgressVisitor.hpp"
 
+void split_training_test_set(
+    const MatrixXi &X,
+    const VectorXi &y,
+    MatrixXi &train_X,
+    MatrixXi &test_X,
+    VectorXi &train_Y,
+    VectorXi &test_Y) 
+{
+    auto n = X.cols()/2;
+    train_X.array() = X.block(0, 0, X.rows(), n);
+    test_X.array() = X.block(0, n, X.rows(), X.cols()-n);
+    train_Y.array() = y.segment(0, n);
+    train_Y.array() = y.segment(n, n);
+
+}
+
+double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
+    double accuracy = 0.0;
+
+    for (int i=0; i<y_pred.rows(); i++) {
+        if (y_pred(i) == y_true(i)) {
+            accuracy += 1.0/y_pred.rows();
+        }
+    }
+
+    return accuracy;
+}
 
 int main(int argc, char **argv) {
 
@@ -27,6 +54,12 @@ int main(int argc, char **argv) {
             std::cin >> X(v, d);
         }
     }
+    MatrixXi X_train(V, D/2);
+    VectorXi y_train(D/2);
+    MatrixXi X_test(V, D/2);
+    VectorXi y_test(D/2);
+    
+    split_training_test_set(X, y, X_train, X_test, y_train, y_test);
 
     double likelihood;
     bool expectation;
@@ -49,7 +82,12 @@ int main(int argc, char **argv) {
         }
     }));
 
-    lda.fit(X, y);
+    lda.fit(X_train, y_train);
+    VectorXi train_predictions = lda.predict(X_train);
+    VectorXi test_predictions = lda.predict(X_test);
+
+    std::cout << "Training Accuracy: " << accuracy_score(y_train, train_predictions) << std::endl;
+    std::cout << "Test Accuracy: " << accuracy_score(y_test, test_predictions) << std::endl;
 
     return 0;
 }
