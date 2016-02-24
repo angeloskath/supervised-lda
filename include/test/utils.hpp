@@ -3,7 +3,7 @@
 
 
 #include <gtest/gtest.h>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 
 typedef ::testing::Types<float, double> ForFloatAndDouble;
