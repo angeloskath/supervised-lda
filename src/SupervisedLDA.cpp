@@ -1,6 +1,7 @@
 
 #include <cmath>
 #include <random>
+#include <iostream>
 
 #include "utils.hpp"
 #include "MultinomialLogisticRegression.hpp"
@@ -215,6 +216,7 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
             auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
 
             phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
+            phi.array() += 1.0;
             phi = phi.array().rowwise() / phi.colwise().sum().array();
         }
 
@@ -252,7 +254,9 @@ Scalar SupervisedLDA<Scalar>::m_step(
     Scalar m_step_tolerance
 ) {
     // we maximized w.r.t \beta during each doc_m_step
-    beta = b.array().rowwise() / b.array().colwise().sum();
+    beta = b;
+    beta.array() += 1.0;
+    beta = beta.array().rowwise() / beta.array().colwise().sum();
 
     // we need to maximize w.r.t to \eta
     Scalar initial_value = INFINITY;
@@ -307,23 +311,59 @@ Scalar SupervisedLDA<Scalar>::compute_likelihood(
 
     // E_q[log p(\theta | \alpha)]
     likelihood += ((alpha.array() - 1.0).matrix().transpose() * t1).value();
+    if (std::isnan(likelihood)) {
+        std::cout << "1" << std::endl;
+        return likelihood;
+    }
     likelihood += std::lgamma(alpha.sum()) - alpha.unaryExpr(cwise_lgamma).sum();
+    if (std::isnan(likelihood)) {
+        std::cout << "2" << std::endl;
+        return likelihood;
+    }
 
     // E_q[log p(z | \theta)]
     likelihood += (phi.transpose() * t1).sum();
+    if (std::isnan(likelihood)) {
+        std::cout << "3" << std::endl;
+        return likelihood;
+    }
 
     // E_q[log p(w | z, \beta)]
     auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
     likelihood += (phi_scaled * beta.array().log()).sum();
+    if (std::isnan(likelihood)) {
+        std::cout << "4" << std::endl;
+        return likelihood;
+    }
 
     // H(q)
     likelihood += -((gamma.array() - 1).matrix().transpose() * t1).value();
+    if (std::isnan(likelihood)) {
+        std::cout << "5" << std::endl;
+        return likelihood;
+    }
     likelihood += -std::lgamma(gamma.sum()) + gamma.unaryExpr(cwise_lgamma).sum();
+    if (std::isnan(likelihood)) {
+        std::cout << "6" << std::endl;
+        return likelihood;
+    }
     likelihood += -(phi.array() * phi.array().log()).sum();
+    if (std::isnan(likelihood)) {
+        std::cout << "7" << std::endl;
+        return likelihood;
+    }
 
     // E_q[log p(y | z,n)] approximated using Jensens inequality
     likelihood += (eta.col(y).transpose() * phi * X.cast<Scalar>()).value() / X.sum();
+    if (std::isnan(likelihood)) {
+        std::cout << "8" << std::endl;
+        return likelihood;
+    }
     likelihood += - std::log((h.col(0).transpose() * phi.col(0)).value());
+    if (std::isnan(likelihood)) {
+        std::cout << "9" << std::endl;
+        return likelihood;
+    }
 
     return likelihood;
 }
