@@ -43,7 +43,7 @@ class SupervisedLDA
             size_t e_step_iterations = 10,
             size_t m_step_iterations = 20,
             size_t fixed_point_iterations = 20,
-            Scalar regularization_penalty = 0.001
+            Scalar regularization_penalty = 0.05
         );
 
         /**

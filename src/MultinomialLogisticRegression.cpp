@@ -29,7 +29,7 @@ Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
     auto norm = L_ * eta.squaredNorm() / 2;
 
     // we need to return the negative for maximization instead of minimization
-    return - likelihood - norm;
+    return - likelihood + norm;
 }
 
 
@@ -46,7 +46,7 @@ void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, Ref<Mat
     }
 
     // Add suitable normalization for the gradient
-    grad.array() -= eta.array() * L_;
+    grad.array() += eta.array() * L_;
 }
 
 
