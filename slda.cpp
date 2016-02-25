@@ -11,13 +11,12 @@ void split_training_test_set(
     MatrixXi &train_X,
     MatrixXi &test_X,
     VectorXi &train_Y,
-    VectorXi &test_Y) 
-{
-    auto n = X.cols()/2;
-    train_X.array() = X.block(0, 0, X.rows(), n);
-    test_X.array() = X.block(0, n, X.rows(), X.cols()-n);
-    train_Y.array() = y.head(n);
-    test_Y.array() = y.tail(n);
+    VectorXi &test_Y
+) {
+    train_X = X.block(0, 0, X.rows(), train_X.cols());
+    test_X = X.block(0, train_X.cols(), X.rows(), test_X.cols());
+    train_Y = y.head(train_Y.rows());
+    test_Y = y.tail(test_Y.rows());
 }
 
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
@@ -34,12 +33,13 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
 int main(int argc, char **argv) {
 
-    if (argc < 3) {
-        std::cerr << "Usage:\n\t" << argv[0] << " TOPICS ITER" << std::endl;
+    if (argc < 5) {
+        std::cerr << "Usage:\n\t" << argv[0] << " TOPICS ITER TRAIN TEST" << std::endl;
         return 1;
     }
 
     SupervisedLDA<double> lda(std::atoi(argv[1]), std::atoi(argv[2]), 1e-3, 1e-3);
+    int train = std::atoi(argv[3]), test = std::atoi(argv[4]);
 
     int D, V;
     std::cin >> D >> V;
@@ -53,10 +53,10 @@ int main(int argc, char **argv) {
             std::cin >> X(v, d);
         }
     }
-    MatrixXi X_train(V, D/2);
-    VectorXi y_train(D/2);
-    MatrixXi X_test(V, D/2);
-    VectorXi y_test(D/2);
+    MatrixXi X_train(V, train);
+    VectorXi y_train(train);
+    MatrixXi X_test(V, test);
+    VectorXi y_test(test);
     
     split_training_test_set(X, y, X_train, X_test, y_train, y_test);
 

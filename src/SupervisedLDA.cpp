@@ -102,6 +102,10 @@ void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
     // allocations do not happen again and again for every iteration
     Scalar likelihood = 0;
     for (int d=0; d<X.cols(); d++) {
+        if (X.col(d).sum() == 0) {
+            continue;
+        }
+
         likelihood += doc_e_step(
             X.col(d),
             y[d],
