@@ -16,9 +16,8 @@ void split_training_test_set(
     auto n = X.cols()/2;
     train_X.array() = X.block(0, 0, X.rows(), n);
     test_X.array() = X.block(0, n, X.rows(), X.cols()-n);
-    train_Y.array() = y.segment(0, n);
-    train_Y.array() = y.segment(n, n);
-
+    train_Y.array() = y.head(n);
+    test_Y.array() = y.tail(n);
 }
 
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
@@ -40,7 +39,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    SupervisedLDA<double> lda(std::atoi(argv[1]), std::atoi(argv[2]));
+    SupervisedLDA<double> lda(std::atoi(argv[1]), std::atoi(argv[2]), 1e-3, 1e-3);
 
     int D, V;
     std::cin >> D >> V;

@@ -45,10 +45,10 @@ void SupervisedLDA<Scalar>::initialize_model_parameters(
     // calculate the number of classes, which is C
     eta = MatrixX::Zero(topics, y.maxCoeff() + 1);
     
-    beta = MatrixX::Constant(topics, X.rows(), 1.0);
+    beta = MatrixX::Constant(topics, X.rows(), 1);
     std::mt19937 rng;
     rng.seed(0);
-    std::uniform_int_distribution<> initializations(10, static_cast<int>(X.cols()/2));
+    std::uniform_int_distribution<> initializations(10, 50);
     std::uniform_int_distribution<> document(0, X.cols()-1);
     auto N = initializations(rng);
 
@@ -96,7 +96,7 @@ void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
 
     // allocate space for accumulating values to use in the maximization step
     MatrixX expected_z_bar(topics_, X.cols());
-    MatrixX b(topics_, X.rows());
+    MatrixX b = MatrixX::Zero(topics_, X.rows());
 
     // consider moving the following to another function so that the above
     // allocations do not happen again and again for every iteration
@@ -152,7 +152,7 @@ typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::transform(const M
     MatrixX expected_z_bar(topics_, X.cols());
     MatrixX b(topics_, X.rows());
 
-    for (int d=0; d<X.rows(); d++) {
+    for (int d=0; d<X.cols(); d++) {
         doc_e_step(
             X.col(d),
             -1,
@@ -273,13 +273,15 @@ Scalar SupervisedLDA<Scalar>::doc_e_step(
                 auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
 
                 phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
-                phi.array() += 1.0;
                 phi = phi.array().rowwise() / phi.colwise().sum().array();
             }
         }
         // unsupervised inference
         else {
-            phi = beta.array() * gamma.unaryExpr(cwise_digamma).array().exp();
+
+            auto t1 = gamma.unaryExpr(cwise_digamma).array();
+            auto t2 = digamma(gamma.sum());
+            phi = beta.array().colwise() * (t1 - t2).exp();
             phi = phi.array().rowwise() / phi.colwise().sum().array();
         }
 
@@ -297,11 +299,11 @@ void SupervisedLDA<Scalar>::doc_m_step(
     Ref<MatrixX> b,
     Ref<VectorX> expected_z_bar
 ) {
-    auto t1 = X.cast<Scalar>().transpose().array() / X.sum();
+    auto t1 = X.cast<Scalar>().transpose().array();
     auto t2 = phi.array().rowwise() * t1;
 
     b.array() += t2;
-    expected_z_bar = t2.rowwise().sum();
+    expected_z_bar = t2.rowwise().sum() / X.sum();
 }
 
 
@@ -318,8 +320,7 @@ Scalar SupervisedLDA<Scalar>::m_step(
 ) {
     // we maximized w.r.t \beta during each doc_m_step
     beta = b;
-    beta.array() += 1.0;
-    beta = beta.array().rowwise() / beta.array().colwise().sum();
+    beta = beta.array().colwise() / beta.array().rowwise().sum();
 
     // we need to maximize w.r.t to \eta
     Scalar initial_value = INFINITY;
@@ -410,7 +411,7 @@ Scalar SupervisedLDA<Scalar>::compute_likelihood(
         std::cout << "6" << std::endl;
         return likelihood;
     }
-    likelihood += -(phi.array() * phi.array().log()).sum();
+    likelihood += -(phi.array() * (phi.array() + 1e-44).log()).sum();
     if (std::isnan(likelihood)) {
         std::cout << "7" << std::endl;
         return likelihood;
