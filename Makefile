@@ -13,23 +13,20 @@ TEST_BINARIES = $(patsubst test/%.cpp, bin/%, $(TEST_SOURCES))
 
 all: bin/slda
 
-build/%.o : src/%.cpp include/%.hpp build
+build/%.o : src/%.cpp include/%.hpp
+	@mkdir -p build
 	$(CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIRS)
 
-bin/slda: $(OBJECTS) bin
+bin/slda: $(OBJECTS)
+	@mkdir -p bin
 	$(CC) $(CFLAGS) $(OBJECTS) slda.cpp $(LDFLAGS) -I $(INCLUDE_DIRS) -o bin/slda
 
-bin/%: test/%.cpp $(OBJECTS) bin
+bin/%: test/%.cpp $(OBJECTS)
+	@mkdir -p bin
 	$(CC) $(CFLAGS) $(OBJECTS) -I $(INCLUDE_DIRS) $< -o $@ $(LDFLAGS) $(LDFLAGS_TEST)
 
 check: $(TEST_BINARIES)
 	$(foreach test, $(TEST_BINARIES), $(test);)
-
-build:
-	mkdir -p build
-
-bin:
-	mkdir -p bin
 
 clean:
 	rm -rf build
