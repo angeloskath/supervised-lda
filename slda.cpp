@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <utility>
 
 #include <docopt/docopt.h>
 
@@ -25,6 +26,7 @@ void split_training_test_set(
     test_Y = y.tail(test_Y.rows());
 }
 
+
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
     double accuracy = 0.0;
 
@@ -36,6 +38,25 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
     return accuracy;
 }
+
+
+void save_lda(
+    std::string model_path,
+    typename SupervisedLDA<double>::LDAState lda_state
+) {
+    std::fstream model(
+        model_path,
+        std::ios::out | std::ios::binary
+    );
+
+    for (auto v : lda_state.vectors) {
+        model << NumpyOutput<double>(*v);
+    }
+    for (auto m : lda_state.matrices) {
+        model << NumpyOutput<double>(*m);
+    }
+}
+
 
 class TrainingProgress : public IProgressVisitor<double>
 {
@@ -75,6 +96,8 @@ class TrainingProgress : public IProgressVisitor<double>
                     currently_in_expectation_ = false;
                     std::cout << "log p(y | \\bar{z}, eta): " << -progress.value << std::endl;
                     break;
+                case IterationFinished:
+                    break;
             }
         }
 
@@ -84,6 +107,62 @@ class TrainingProgress : public IProgressVisitor<double>
         double likelihood_;
 };
 
+
+class SnapshotEvery : public IProgressVisitor<double>
+{
+    public:
+        SnapshotEvery(std::string path, int every=10)
+            : path_(std::move(path)), every_(every), seen_so_far_(0)
+        {}
+
+        void visit(Progress<double> progress) {
+            switch (progress.state) {
+                case IterationFinished:
+                    seen_so_far_ ++;
+                    if (seen_so_far_ % every_) {
+                        snapsot(progress.lda_state);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void snapsot(typename SupervisedLDA<double>::LDAState lda_state) {
+            std::stringstream actual_path;
+            actual_path << path_;
+            actual_path.fill('0');
+            actual_path.width(3);
+            actual_path << seen_so_far_;
+
+            save_lda(actual_path.str(), lda_state);
+        }
+
+    private:
+        std::string path_;
+        int every_;
+        int seen_so_far_;
+};
+
+
+class BroadcastVisitor : public IProgressVisitor<double>
+{
+    public:
+        BroadcastVisitor(
+            std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors
+        ) : visitors_(std::move(visitors))
+        {}
+
+        void visit(Progress<double> progress) {
+            for (auto visitor : visitors_) {
+                visitor->visit(progress);
+            }
+        }
+
+    private:
+        std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors_;
+};
+
 static const char * USAGE =
 R"(Supervised LDA and other flavors of LDA.
 
@@ -91,7 +170,8 @@ R"(Supervised LDA and other flavors of LDA.
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
-                   [--regularization_penalty=L] [-q | --quiet] DATA
+                   [--regularization_penalty=L] [-q | --quiet]
+                   [--snapshot_every=N] DATA MODEL
         slda test MODEL DATA
         slda (-h | --help)
 
@@ -112,6 +192,7 @@ R"(Supervised LDA and other flavors of LDA.
                                      \phi [default: 20]
         -L L, --regularization_penalty=L  The regularization penalty for the Multinomiali
                                           Logistic Regression [default: 0.05]
+        --snapshot_every=N      Snapshot the model every N iterations [default: -1]
 )";
 
 int main(int argc, char **argv) {
@@ -153,11 +234,25 @@ int main(int argc, char **argv) {
         data >> ni;
         y = ni;
 
+        std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors;
         if (!args["--quiet"].asBool()) {
-            lda.set_progress_visitor(std::make_shared<TrainingProgress>());
+            visitors.push_back(std::make_shared<TrainingProgress>());
         }
 
+        if (args["--snapshot_every"].asLong() > 0) {
+            visitors.push_back(std::make_shared<SnapshotEvery>(
+                args["MODEL"].asString(),
+                args["--snapshot_every"].asLong()
+            ));
+        }
+
+        lda.set_progress_visitor(
+            std::make_shared<BroadcastVisitor>(visitors)
+        );
+
         lda.fit(X, y);
+
+        save_lda(args["MODEL"].asString(), lda.get_state());
     } else {
         std::cout << "Not implemented yet" << std::endl;
     }

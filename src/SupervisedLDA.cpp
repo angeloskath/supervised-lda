@@ -20,7 +20,8 @@ SupervisedLDA<Scalar>::SupervisedLDA(
     size_t m_step_iterations,
     size_t fixed_point_iterations,
     Scalar regularization_penalty
-) {
+) : parameters_(8)
+{
     topics_ = topics;
     iterations_ = iterations;
     e_step_tolerance_ = e_step_tolerance;
@@ -29,7 +30,17 @@ SupervisedLDA<Scalar>::SupervisedLDA(
     m_step_iterations_ = m_step_iterations;
     fixed_point_iterations_ = fixed_point_iterations;
     regularization_penalty_ = regularization_penalty;
+
+    parameters_[0] = topics;
+    parameters_[1] = iterations;
+    parameters_[2] = e_step_tolerance;
+    parameters_[3] = m_step_tolerance;
+    parameters_[4] = e_step_iterations;
+    parameters_[5] = m_step_iterations;
+    parameters_[6] = fixed_point_iterations;
+    parameters_[7] = regularization_penalty;
 }
+
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::initialize_model_parameters(
@@ -61,6 +72,7 @@ void SupervisedLDA<Scalar>::initialize_model_parameters(
         beta.row(k) = beta.row(k) / beta.row(k).sum();
     }
 }
+
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
@@ -144,7 +156,16 @@ void SupervisedLDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
         m_step_iterations_,
         m_step_tolerance_
     );
+
+    get_progress_visitor()->visit(Progress<Scalar>{
+        ProgressState::IterationFinished,
+        0,
+        0,
+        0,
+        get_state()
+    });
 }
+
 
 template <typename Scalar>
 typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::transform(const MatrixXi& X) {
@@ -181,6 +202,7 @@ typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::transform(const M
     return expected_z_bar;
 }
 
+
 template <typename Scalar>
 typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::decision_function(const MatrixXi &X) {
     MatrixX scores(eta_.cols(), X.cols());
@@ -189,6 +211,7 @@ typename SupervisedLDA<Scalar>::MatrixX SupervisedLDA<Scalar>::decision_function
 
     return scores;
 }
+
 
 template <typename Scalar>
 VectorXi SupervisedLDA<Scalar>::predict(const MatrixXi &X) {
@@ -201,6 +224,7 @@ VectorXi SupervisedLDA<Scalar>::predict(const MatrixXi &X) {
 
     return predictions;
 }
+
 
 template <typename Scalar>
 void SupervisedLDA<Scalar>::compute_h(

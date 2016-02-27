@@ -2,7 +2,12 @@
 #define _PROGRESS_VISITOR_HPP_
 
 
-enum ProgressState { Expectation, Maximization };
+template <typename Scalar>
+class SupervisedLDA;
+
+
+enum ProgressState { Expectation, Maximization, IterationFinished };
+
 
 template <typename Scalar>
 struct Progress
@@ -21,7 +26,11 @@ struct Progress
 
     /** The iteration of the EM pair  */
     size_t iteration;
+
+    /** The current lda state */
+    typename SupervisedLDA<Scalar>::LDAState lda_state;
 };
+
 
 template <typename Scalar>
 class IProgressVisitor
@@ -29,6 +38,7 @@ class IProgressVisitor
     public:
         virtual void visit(Progress<Scalar> progress) = 0;
 };
+
 
 template <typename Scalar>
 class FunctionVisitor : public IProgressVisitor<Scalar>

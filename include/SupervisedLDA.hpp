@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -23,6 +24,12 @@ class SupervisedLDA
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
+        struct LDAState
+        {
+            std::vector<const VectorX *> vectors;
+            std::vector<const MatrixX *> matrices;
+        };
+
         /**
          * @param topics                 The number of topics for this model
          * @param iterations             The maximum number of EM iterations
@@ -189,6 +196,17 @@ class SupervisedLDA
             }
         }
 
+        /**
+         * Return an LDAState object containing all that is needed to create
+         * another similar lda object.
+         */
+        LDAState get_state() {
+            return {
+                {&parameters_, &alpha_},
+                {&beta_, &eta_}
+            };
+        }
+
     protected:
         /**
          * This function is used for the inisialization of model parameters, namely
@@ -223,11 +241,18 @@ class SupervisedLDA
         // The regularization penalty for the multinomial logistic regression
         Scalar regularization_penalty_;
 
+        // The parameters of the model
         VectorX alpha_;
         MatrixX beta_;
         MatrixX eta_;
 
+        // A visitor whom we inform in case of progress etc
         std::shared_ptr<IProgressVisitor<Scalar> > visitor_;
+
+        // A vector containing all the parameters needed to recreate the
+        // model's behaviour (tolerances, regularization penalty etc)  which
+        // can also be serialized and added to LDAState
+        VectorX parameters_;
 };
 
 
