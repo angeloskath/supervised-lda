@@ -192,6 +192,23 @@ class BroadcastVisitor : public IProgressVisitor<double>
         std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors_;
 };
 
+void parse_input_data(std::string datapath, MatrixXi &X, MatrixXi &y) {
+    // read the data in
+    std::fstream data(
+        datapath,
+        std::ios::in | std::ios::binary
+    );
+    NumpyInput<int> ni;
+
+    // read the data
+    data >> ni;
+    X = ni;
+
+    // and the labels
+    data >> ni;
+    y = ni;
+}
+
 static const char * USAGE =
 R"(Supervised LDA and other flavors of LDA.
 
@@ -202,6 +219,7 @@ R"(Supervised LDA and other flavors of LDA.
                    [--regularization_penalty=L] [-q | --quiet]
                    [--snapshot_every=N] DATA MODEL
         slda test MODEL DATA
+        slda transform MODEL DATA OUTPUT
         slda (-h | --help)
 
     Options:
@@ -245,23 +263,10 @@ int main(int argc, char **argv) {
             args["--fixed_point_iterations"].asLong(),
             std::stof(args["--regularization_penalty"].asString())
         );
-
-        // read the data in
-        std::fstream data(
-            args["DATA"].asString(),
-            std::ios::in | std::ios::binary
-        );
-        NumpyInput<int> ni;
-
-        // read the data
-        MatrixXi X;
-        data >> ni;
-        X = ni;
-
-        // and the labels
-        MatrixXi y;
-        data >> ni;
-        y = ni;
+        
+        MatrixXi X, y;
+        // Parse data from input file
+        parse_input_data(args["DATA"].asString(), X, y);
 
         std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors;
         if (!args["--quiet"].asBool()) {
@@ -282,7 +287,13 @@ int main(int argc, char **argv) {
         lda.fit(X, y);
 
         save_lda(args["MODEL"].asString(), lda.get_state());
-    } else {
+    } 
+    else if (args["transform"].asBool()) {
+        MatrixXi X, y;
+        // Parse data from input file
+        parse_input_data(args["DATA"].asString(), X, y);
+    } 
+    else {
         std::cout << "Not implemented yet" << std::endl;
     }
 

@@ -17,7 +17,7 @@ build/%.o : src/%.cpp include/%.hpp
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIRS)
 
-bin/slda: $(OBJECTS)
+bin/slda: slda.cpp $(OBJECTS)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $(OBJECTS) slda.cpp $(LDFLAGS) -I $(INCLUDE_DIRS) -o bin/slda
 
