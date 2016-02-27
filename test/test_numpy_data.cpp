@@ -23,10 +23,10 @@ TYPED_TEST_CASE(TestNumpyData, ForFloatAndDouble);
 TYPED_TEST(TestNumpyData, SimpleReadWrite) {
     MatrixX<TypeParam> A = MatrixX<TypeParam>::Random(10, 20);
     MatrixX<TypeParam> B;
-    NumpyInput<TypeParam> input;
+    numpy_format::NumpyInput<TypeParam> input;
 
     std::stringstream ss;
-    ss << NumpyOutput<TypeParam>(A);
+    ss << numpy_format::NumpyOutput<TypeParam>(A);
     ss.seekg(0);
     ss >> input;
 
@@ -54,7 +54,7 @@ TYPED_TEST(TestNumpyData, SimpleRead) {
         )
     );
 
-    NumpyInput<double> ni_doubles;
+    numpy_format::NumpyInput<double> ni_doubles;
 
     ss_doubles >> ni_doubles;
     MatrixX<double> doubles = ni_doubles;
@@ -79,7 +79,7 @@ TYPED_TEST(TestNumpyData, SimpleRead) {
         )
     );
 
-    NumpyInput<float> ni_floats;
+    numpy_format::NumpyInput<float> ni_floats;
 
     ss_floats >> ni_floats;
     MatrixX<float> floats = ni_floats;
@@ -89,6 +89,17 @@ TYPED_TEST(TestNumpyData, SimpleRead) {
     EXPECT_NEAR(0.905776, floats(1, 1), 1e-4);
 }
 
+TYPED_TEST(TestNumpyData, SaveLoad) {
+    // Create a temporary name
+    std::string filename = std::tmpnam(nullptr);
+
+    MatrixX<TypeParam> A = MatrixX<TypeParam>::Random(10, 20);
+
+    numpy_format::save(filename, A);
+    MatrixX<TypeParam> B = numpy_format::load<TypeParam>(filename);
+
+    ASSERT_TRUE(A==B);
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

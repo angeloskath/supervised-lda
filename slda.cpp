@@ -12,21 +12,6 @@
 #include "SupervisedLDA.hpp"
 
 
-void split_training_test_set(
-    const MatrixXi &X,
-    const VectorXi &y,
-    MatrixXi &train_X,
-    MatrixXi &test_X,
-    VectorXi &train_Y,
-    VectorXi &test_Y
-) {
-    train_X = X.block(0, 0, X.rows(), train_X.cols());
-    test_X = X.block(0, train_X.cols(), X.rows(), test_X.cols());
-    train_Y = y.head(train_Y.rows());
-    test_Y = y.tail(test_Y.rows());
-}
-
-
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
     double accuracy = 0.0;
 
@@ -50,10 +35,10 @@ void save_lda(
     );
 
     for (auto v : lda_state.vectors) {
-        model << NumpyOutput<double>(*v);
+        model << numpy_format::NumpyOutput<double>(*v);
     }
     for (auto m : lda_state.matrices) {
-        model << NumpyOutput<double>(*m);
+        model << numpy_format::NumpyOutput<double>(*m);
     }
 }
 
@@ -61,7 +46,7 @@ void save_lda(
 SupervisedLDA<double> load_lda(std::string model_path) {
     // we will be needing those
     SupervisedLDA<double>::LDAState lda_state;
-    NumpyInput<double> ni;
+    numpy_format::NumpyInput<double> ni;
     std::vector<VectorXd> vectors;
     std::vector<MatrixXd> matrices;
 
@@ -72,15 +57,25 @@ SupervisedLDA<double> load_lda(std::string model_path) {
     );
 
     // read matrices and push them to the vectors
-    while (!model.eof()) {
-        model >> ni;
-        if (ni.shape().size() > 1 && ni.shape()[1] > 1) {
-            matrices.push_back(ni);
-            lda_state.matrices.push_back(&matrices.back());
-        } else {
-            vectors.push_back(ni);
-            lda_state.vectors.push_back(&vectors.back());
+    try {
+        while (!model.eof()) {
+            model >> ni;
+            if (ni.shape().size() > 1 && ni.shape()[1] > 1) {
+                matrices.push_back(ni);
+            } else {
+                vectors.push_back(ni);
+            }
         }
+    } catch (const std::runtime_error &) {
+        // the file was read and we tried to read again most likely
+    }
+
+    // add their addresses into the lda_state
+    for (auto &v : vectors) {
+        lda_state.vectors.push_back(&v);
+    }
+    for (auto &m : matrices) {
+        lda_state.matrices.push_back(&m);
     }
 
     return SupervisedLDA<double>(lda_state);
@@ -192,13 +187,13 @@ class BroadcastVisitor : public IProgressVisitor<double>
         std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors_;
 };
 
-void parse_input_data(std::string datapath, MatrixXi &X, MatrixXi &y) {
+void parse_input_data(std::string data_path, MatrixXi &X, MatrixXi &y) {
     // read the data in
     std::fstream data(
-        datapath,
+        data_path,
         std::ios::in | std::ios::binary
     );
-    NumpyInput<int> ni;
+    numpy_format::NumpyInput<int> ni;
 
     // read the data
     data >> ni;
@@ -218,8 +213,8 @@ R"(Supervised LDA and other flavors of LDA.
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [-q | --quiet]
                    [--snapshot_every=N] DATA MODEL
-        slda test MODEL DATA
         slda transform MODEL DATA OUTPUT
+        slda evaluate MODEL DATA
         slda (-h | --help)
 
     Options:
@@ -292,7 +287,23 @@ int main(int argc, char **argv) {
         MatrixXi X, y;
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
+
+        // Load LDA model from file
+        SupervisedLDA<double> lda = load_lda(args["MODEL"].asString());
+
+        MatrixXd doc_topic_distribution = lda.transform(X);
+        numpy_format::save(args["OUTPUT"].asString(), doc_topic_distribution);
     } 
+    else if (args["evaluate"].asBool()){
+        MatrixXi X, y;
+        // Parse data from input file
+        parse_input_data(args["DATA"].asString(), X, y);
+
+        // Load LDA model from file
+        SupervisedLDA<double> lda = load_lda(args["MODEL"].asString());
+        MatrixXi y_predicted = lda.predict(X);
+        std::cout << "Accuracy score: " << accuracy_score(y, y_predicted) << std::endl;
+    }
     else {
         std::cout << "Not implemented yet" << std::endl;
     }
