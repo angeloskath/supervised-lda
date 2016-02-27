@@ -43,6 +43,27 @@ SupervisedLDA<Scalar>::SupervisedLDA(
 
 
 template <typename Scalar>
+SupervisedLDA<Scalar>::SupervisedLDA(
+    LDAState lda_state
+) {
+    parameters_ = *lda_state.vectors[0];
+    alpha_ = *lda_state.vectors[1];
+
+    beta_ = *lda_state.matrices[0];
+    eta_ = *lda_state.matrices[0];
+
+    topics_ = parameters_[0];
+    iterations_ = parameters_[1];
+    e_step_tolerance_ = parameters_[2];
+    m_step_tolerance_ = parameters_[3];
+    e_step_iterations_ = parameters_[4];
+    m_step_iterations_ = parameters_[5];
+    fixed_point_iterations_ = parameters_[6];
+    regularization_penalty_ = parameters_[7];
+}
+
+
+template <typename Scalar>
 void SupervisedLDA<Scalar>::initialize_model_parameters(
     const MatrixXi &X,
     const VectorXi &y,

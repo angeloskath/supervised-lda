@@ -54,6 +54,12 @@ class SupervisedLDA
         );
 
         /**
+         * @param lda_state All the information required to rebuild the
+         *                  SupervisedLDA model as it was
+         */
+        SupervisedLDA(LDAState lda_state);
+
+        /**
          * Compute a supervised topic model for word counts X and classes y.
          *
          * Perform as many em iterations as configured and stop when reaching

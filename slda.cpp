@@ -58,6 +58,35 @@ void save_lda(
 }
 
 
+SupervisedLDA<double> load_lda(std::string model_path) {
+    // we will be needing those
+    SupervisedLDA<double>::LDAState lda_state;
+    NumpyInput<double> ni;
+    std::vector<VectorXd> vectors;
+    std::vector<MatrixXd> matrices;
+
+    // open the file
+    std::fstream model(
+        model_path,
+        std::ios::in | std::ios::binary
+    );
+
+    // read matrices and push them to the vectors
+    while (!model.eof()) {
+        model >> ni;
+        if (ni.shape().size() > 1 && ni.shape()[1] > 1) {
+            matrices.push_back(ni);
+            lda_state.matrices.push_back(&matrices.back());
+        } else {
+            vectors.push_back(ni);
+            lda_state.vectors.push_back(&vectors.back());
+        }
+    }
+
+    return SupervisedLDA<double>(lda_state);
+}
+
+
 class TrainingProgress : public IProgressVisitor<double>
 {
     public:
@@ -130,7 +159,7 @@ class SnapshotEvery : public IProgressVisitor<double>
 
         void snapsot(typename SupervisedLDA<double>::LDAState lda_state) {
             std::stringstream actual_path;
-            actual_path << path_;
+            actual_path << path_ << "_";
             actual_path.fill('0');
             actual_path.width(3);
             actual_path << seen_so_far_;

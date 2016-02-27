@@ -170,6 +170,8 @@ class NumpyInput
     public:
         NumpyInput() {}
 
+        const std::vector<size_t> & shape() const { return shape_; }
+
         template <int Rows, int Cols, int Options>
         operator Eigen::Matrix<Scalar, Rows, Cols, Options>() const {
             // get the needed rows, cols
