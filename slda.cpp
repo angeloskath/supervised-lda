@@ -119,7 +119,7 @@ class SnapshotEvery : public IProgressVisitor<double>
             switch (progress.state) {
                 case IterationFinished:
                     seen_so_far_ ++;
-                    if (seen_so_far_ % every_) {
+                    if (seen_so_far_ % every_ == 0) {
                         snapsot(progress.lda_state);
                     }
                     break;
