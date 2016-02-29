@@ -1,5 +1,5 @@
 
-CC = g++
+CC = g++-4.9
 CFLAGS = -std=c++11 -Wall -O3 -msse2
 LDFLAGS = -lm -ldocopt
 LDFLAGS_TEST = -lgtest
