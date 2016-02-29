@@ -1,4 +1,3 @@
-
 #include "SeededInitialization.hpp"
 #include "SupervisedEStep.hpp"
 #include "SupervisedMStep.hpp"
@@ -36,7 +35,6 @@ std::shared_ptr<IEStep<Scalar> > InternalsFactory<Scalar>::create_e_step(
     std::vector<Scalar> parameters
 ) {
     std::shared_ptr<IEStep<Scalar> > e_step = nullptr;
-
     switch (id) {
         case IEStep<Scalar>::BatchUnsupervised:
             e_step = std::make_shared<UnsupervisedEStep<Scalar> >();

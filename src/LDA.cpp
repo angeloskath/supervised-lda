@@ -23,7 +23,9 @@ LDA<Scalar>::LDA(
     m_step_(m_step),
     iterations_(iterations),
     event_dispatcher_(std::make_shared<EventDispatcher>())
-{}
+{
+    set_up_event_dispatcher();
+}
 
 
 template <typename Scalar>
@@ -60,6 +62,19 @@ LDA<Scalar>::LDA(
         lda_state.ids[4],
         lda_state.parameters[4]
     );
+
+    set_up_event_dispatcher();
+}
+
+
+template <typename Scalar>
+void LDA<Scalar>::set_up_event_dispatcher() {
+    auto event_dispatcher = get_event_dispatcher();
+
+    unsupervised_e_step_->set_event_dispatcher(event_dispatcher);
+    unsupervised_m_step_->set_event_dispatcher(event_dispatcher);
+    e_step_->set_event_dispatcher(event_dispatcher);
+    m_step_->set_event_dispatcher(event_dispatcher);
 }
 
 

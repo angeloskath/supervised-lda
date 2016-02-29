@@ -4,6 +4,11 @@
 #include <functional>
 #include <memory>
 
+#include <Eigen/Core>
+
+
+using namespace Eigen;
+
 
 /**
  * LineSearch is an interface that is meant to be used to update the parameter

@@ -3,6 +3,8 @@
 
 #include <Eigen/Core>
 
+
+#include "Events.hpp"
 #include "ISerializable.hpp"
 
 using namespace Eigen;
@@ -11,7 +13,7 @@ using namespace Eigen;
   * Interface that implements an e-step iteration for a single document
   */
 template <typename Scalar>
-class IEStep : public ISerializable<Scalar>
+class IEStep : public ISerializable<Scalar>, public EventDispatcherComposition
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;

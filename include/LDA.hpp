@@ -119,6 +119,12 @@ class LDA
         }
 
     private:
+        /**
+         * Pass the event dispatcher down to the implementations so that they
+         * can communicate with the outside world.
+         */
+        void set_up_event_dispatcher();
+
         // The internal modules used for the implementation
         std::shared_ptr<IInitialization<Scalar> > initialization_;
         std::shared_ptr<IEStep<Scalar> > unsupervised_e_step_;

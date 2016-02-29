@@ -108,26 +108,21 @@ class TrainingProgress : public IEventListener
     public:
         TrainingProgress() {
             em_iterations_ = 1;
-            currently_in_expectation_ = false;
+            output_em_step_ = true;
+            likelihood_ = 0;
         }
 
         void on_event(std::shared_ptr<Event> event) {
             if (event->id() == "ExpectationProgressEvent") {
+                if (output_em_step_) {
+                    output_em_step_ = false;
+
+                    std::cout << "E-M Iteration " << em_iterations_ << std::endl;
+                }
                 auto progress = std::static_pointer_cast<ExpectationProgressEvent<double> >(event);
 
-                // we are coming from Maximization so output the global
-                // iteration number
-                if (!currently_in_expectation_) {
-                    std::cout << std::endl
-                              << "E-M Iteration " << em_iterations_
-                              << std::endl;
-                    em_iterations_ ++;
-                    likelihood_ = 0;
-                }
-
                 // update the flags and member variables with the progress
-                currently_in_expectation_ = true;
-                likelihood_ += progress->likelihood();
+                likelihood_ += std::isinf(progress->likelihood()) ? 0 : progress->likelihood();
 
                 // if we have seen 100 iterations print out a progress
                 if ((progress->iteration()+1) % 100 == 0) {
@@ -137,20 +132,20 @@ class TrainingProgress : public IEventListener
             else if (event->id() == "MaximizationProgressEvent") {
                 auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
 
-                // we are coming from Expectation so output the computed
-                // log likelihood
-                if (currently_in_expectation_) {
-                    std::cout << "Likelihood: " << likelihood_ << std::endl;
-                }
-                currently_in_expectation_ = false;
                 std::cout << "log p(y | \\bar{z}, eta): " << progress->likelihood() << std::endl;
+            }
+            else if (event->id() == "EpochProgressEvent") {
+                    std::cout << "Likelihood: " << likelihood_ << std::endl << std::endl;
+                    likelihood_ = 0;
+                    em_iterations_ ++;
+                    output_em_step_ = true;
             }
         }
 
     private:
         int em_iterations_;
-        bool currently_in_expectation_;
         double likelihood_;
+        bool output_em_step_;
 };
 
 

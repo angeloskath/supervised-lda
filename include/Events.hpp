@@ -107,4 +107,28 @@ class EventDispatcher : public IEventDispatcher
 };
 
 
+/**
+ * This helper class allows us to have an event dispatcher composition just by
+ * extending from it.
+ */
+class EventDispatcherComposition
+{
+    public:
+        EventDispatcherComposition() :
+            event_dispatcher_(std::make_shared<EventDispatcher>())
+        {}
+
+        std::shared_ptr<IEventDispatcher> get_event_dispatcher() {
+            return event_dispatcher_;
+        }
+
+        void set_event_dispatcher(std::shared_ptr<IEventDispatcher> dispatcher) {
+            event_dispatcher_ = dispatcher;
+        }
+
+    private:
+        std::shared_ptr<IEventDispatcher> event_dispatcher_;
+};
+
+
 #endif  // _EVENTS_HPP_

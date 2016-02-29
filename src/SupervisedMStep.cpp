@@ -1,6 +1,8 @@
-#include "SupervisedMStep.hpp"
-#include "MultinomialLogisticRegression.hpp"
+#include <iostream>
 #include "GradientDescent.hpp"
+#include "MultinomialLogisticRegression.hpp"
+#include "ProgressEvents.hpp"
+#include "SupervisedMStep.hpp"
 
 template <typename Scalar>
 Scalar SupervisedMStep<Scalar>::m_step(
@@ -29,12 +31,10 @@ Scalar SupervisedMStep<Scalar>::m_step(
             Scalar gradNorm,
             size_t iterations
         ) {
-            //this->get_progress_visitor()->visit(Progress<Scalar>{
-            //    ProgressState::Maximization,
-            //    value,
-            //    iterations,
-            //    0
-            //});
+            this->get_event_dispatcher()->template dispatch<MaximizationProgressEvent<Scalar> >(
+                iterations,
+                -value  // minus the value to be minimized is the log likelihood
+            );
 
             Scalar relative_improvement = (initial_value - value) / value;
             initial_value = value;
