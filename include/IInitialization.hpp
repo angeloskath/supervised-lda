@@ -24,11 +24,12 @@ class IInitialization : public ISerializable<Scalar>
           * Function used for the initialization of model parameters, namely
           * alpha, beta, eta
           *
-          * @param X The word counts in column-major order for a single document
-          * @param y The class label as integer for the current document
-          * @param alpha The Dirichlet priors
-          * @param beta The over word topic distributiosn
-          * @param eta The classification parameters
+          * @param X      The word counts in column-major order for a single 
+          *               document
+          * @param y      The class label as integer for the current document
+          * @param alpha  The Dirichlet priors
+          * @param beta   The over word topic distributiosn
+          * @param eta    The classification parameters
           */
         virtual void initialize_model_parameters(
             const MatrixXi &X,

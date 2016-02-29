@@ -1,29 +1,19 @@
-#ifndef _IMSTEP_HPP_
-#define _IMSTEP_HPP_
+#ifndef _UNSUPERVISEDMSTEP_HPP_
+#define _UNSUPERVISEDMSTEP_HPP_
 
-#include <Eigen/Core>
-
-#include "ISerializable.hpp"
-
-using namespace Eigen;
+#include "IMStep.hpp"
 
 template <typename Scalar>
-class IMStep : public ISerializable<Scalar>
+class UnsupervisedMStep : public IMStep<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
     
     public:
-        enum Type
-        {
-            BatchUnsupervised = 0,
-            BatchSupervised,
-            OnlineUnsupervised,
-            OnlineSupervised
-        };
-
+        UnsupervisedMStep() {}
+        
         /**
-         * Maximize the ELBO.
+         * Maximize the ELBO w.r.t to \beta.
          *
          * @param expected_Z_bar Is the expected values of Z_bar for every
          *                       document
@@ -40,7 +30,7 @@ class IMStep : public ISerializable<Scalar>
             const VectorXi &y,
             Ref<MatrixX> beta,
             Ref<MatrixX> eta
-        )=0;
+        ) override;
 
         /**
          * This function calculates all necessary parameters, that
@@ -53,12 +43,12 @@ class IMStep : public ISerializable<Scalar>
          * @param expected_Z_bar Is the expected values of Z_bar for every
          *                       document
          */
-        virtual void doc_m_step(
+        void doc_m_step(
            const VectorXi &X,
            const MatrixX &phi,
            Ref<MatrixX> b,
            Ref<VectorX> expected_z_bar
-        )=0;
-};
+        ) override;
 
-#endif  // _IMSTEP_HPP_
+};
+#endif  // _UNSUPERVISEDMSTEP_HPP_ 

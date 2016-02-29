@@ -27,13 +27,15 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
          *  )
          * \gamma = \alpha + \sum_{n=1}^N \phi_n
          *
-         * @param X The word counts in column-major order for a single document
-         * @param y The class label as integer for the current document
-         * @param alpha The Dirichlet priors
-         * @param beta The over word topic distributiosn
-         * @param eta The classification parameters
-         * @param phi The multinomial parameters
-         * @param gamma The Dirichlet parameters
+         * @param X       The word counts in column-major order for a single 
+         *                document
+         * @param y       The class label as integer for the current document
+         * @param alpha   The Dirichlet priors
+         * @param beta    The over word topic distributiosn
+         * @param eta     The classification parameters
+         * @param phi     The Multinomial parameters
+         * @param gamma   The Dirichlet parameters
+         * @return        The likelihood so far
          */
         Scalar doc_e_step(
             const VectorXi &X,
@@ -49,16 +51,17 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
         /**
          * The value of the ELBO.
          *
-         * @param X The word counts in column-major order for a single 
-         *          document
-         * @param y The class label as integer for the current document
-         * @param alpha The Dirichlet priors
-         * @param beta The over word topic distributiosn
-         * @param eta The classification parameters
-         * @param phi The multinomial parameters
-         * @param gamma The Dirichlet parameters
-         * @param h The output of the equation implemented in function
-         *          compute_h
+         * @param X       The word counts in column-major order for a single 
+         *                document
+         * @param y       The class label as integer for the current document
+         * @param alpha   The Dirichlet priors
+         * @param beta    The over word topic distributiosn
+         * @param eta     The classification parameters
+         * @param phi     The Multinomial parameters
+         * @param gamma   The Dirichlet parameters
+         * @param h       The output of the equation implemented in function
+         *                compute_h
+         * @return        The likelihood
          */
         Scalar compute_likelihood(
             const VectorXi &X,
@@ -78,11 +81,11 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
          *      \prod_{l=1, l \neq n}^V \phi_l^T \left( exp(\frac{X_l}{\sum X} \eta^T y) \right)
          *  \right) exp(\frac{X_n}{\sum X} \eta^T y)
          *
-         * @param X The word counts in column-major order for a single 
-         *          document
-         * @param eta The classification parameters
-         * @param phi The multinomial parameters
-         * @param h The output value
+         * @param X       The word counts in column-major order for a single 
+         *                document
+         * @param eta     The classification parameters
+         * @param phi     The Multinomial parameters
+         * @param h       The output value
          */
         void compute_h(
             const VectorXi &X,
