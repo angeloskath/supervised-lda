@@ -52,7 +52,6 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
         std::vector<Scalar> get_parameters() override;
         void set_parameters(std::vector<Scalar> parameters) override;
     
-    protected:
         /**
          * The value of the ELBO.
          *

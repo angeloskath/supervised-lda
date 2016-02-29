@@ -7,7 +7,7 @@
 
 #include "test/utils.hpp"
 
-#include "SupervisedLDA.hpp"
+#include "SupervisedEStep.hpp"
 
 
 using namespace Eigen;
@@ -20,7 +20,7 @@ class TestExpectationStep : public ParameterizedTest<T> {};
 TYPED_TEST_CASE(TestExpectationStep, ForFloatAndDouble);
 
 TYPED_TEST(TestExpectationStep, ComputeH) {
-    SupervisedLDA<TypeParam> lda(0);
+    SupervisedEStep<TypeParam> e_step;
 
     VectorXi X(10);
     X << 10, 9, 8, 7, 6, 5, 4, 3, 2, 1;
@@ -31,7 +31,7 @@ TYPED_TEST(TestExpectationStep, ComputeH) {
     phi = phi.array().rowwise() / phi.colwise().sum().array();
     MatrixX<TypeParam> h(5, 10);
 
-    lda.compute_h(X, eta, phi, h);
+    e_step.compute_h(X, eta, phi, h);
 
     VectorX<TypeParam> hphi = (h.transpose() * phi).diagonal();
 
@@ -59,8 +59,7 @@ TYPED_TEST(TestExpectationStep, ComputeH) {
 
 
 TYPED_TEST(TestExpectationStep, ComputeLikelihood) {
-    SupervisedLDA<TypeParam> lda(0);
-
+    SupervisedEStep<TypeParam> e_step;
     for (int i=0; i<100; i++) {
         VectorX<TypeParam> Xtmp = VectorX<TypeParam>::Random(10).array().abs() * 5;
         VectorXi X = Xtmp.template cast<int>();
@@ -77,9 +76,18 @@ TYPED_TEST(TestExpectationStep, ComputeLikelihood) {
         phi.array().rowwise() /= phi.colwise().sum().array();
         beta.array() -= beta.minCoeff() - 0.001;
         beta.array().rowwise() /= beta.colwise().sum().array();
-        lda.compute_h(X, eta, phi, h);
+        e_step.compute_h(X, eta, phi, h);
 
-        TypeParam likelihood = lda.compute_likelihood(X, y, alpha, beta, eta, phi, gamma, h);
+        TypeParam likelihood = e_step.compute_likelihood(
+            X,
+            y,
+            alpha,
+            beta,
+            eta,
+            phi,
+            gamma,
+            h
+        );
 
         ASSERT_FALSE(std::isnan(likelihood)) << phi.array().log();
         EXPECT_GT(0, likelihood);
@@ -88,7 +96,6 @@ TYPED_TEST(TestExpectationStep, ComputeLikelihood) {
 
 
 TYPED_TEST(TestExpectationStep, DocEStep) {
-    SupervisedLDA<TypeParam> lda(0);
 
     VectorX<TypeParam> Xtmp = VectorX<TypeParam>::Random(10).array().abs() * 5;
     VectorXi X = Xtmp.template cast<int>();
@@ -108,17 +115,19 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
     TypeParam convergence_tolerance = 0;
     std::vector<TypeParam> likelihoods(10);
     for (int i=0; i<10; i++) {
-        likelihoods[i] = lda.doc_e_step(
+        SupervisedEStep<TypeParam> e_step(
+            i,
+            fixed_point_iterations,
+            convergence_tolerance
+        );
+        likelihoods[i] = e_step.doc_e_step(
             X,
             y,
             alpha,
             beta,
             eta,
             phi,
-            gamma,
-            fixed_point_iterations,
-            i,
-            convergence_tolerance
+            gamma
         );
     }
     for (int i=1; i<10; i++) {
