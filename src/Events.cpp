@@ -2,6 +2,14 @@
 #include "Events.hpp"
 
 
+Event::Event(std::string id) : id_(id) {}
+
+
+const std::string & Event::id() const {
+    return id_;
+}
+
+
 FunctionEventListener::FunctionEventListener(
     std::function<void(std::shared_ptr<Event>)> listener
 ) : listener_(listener)

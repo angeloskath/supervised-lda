@@ -5,6 +5,7 @@
 
 #include "LDA.hpp"
 #include "InternalsFactory.hpp"
+#include "ProgressEvents.hpp"
 
 
 template <typename Scalar>
@@ -20,7 +21,8 @@ LDA<Scalar>::LDA(
     unsupervised_m_step_(unsupervised_m_step),
     e_step_(e_step),
     m_step_(m_step),
-    iterations_(iterations)
+    iterations_(iterations),
+    event_dispatcher_(std::make_shared<EventDispatcher>())
 {}
 
 
@@ -28,7 +30,8 @@ template <typename Scalar>
 LDA<Scalar>::LDA(
     LDAState lda_state,
     size_t iterations
-) : iterations_(iterations)
+) : iterations_(iterations),
+    event_dispatcher_(std::make_shared<EventDispatcher>())
 {
     // extract the model parameters
     alpha_ = *lda_state.alpha;
@@ -106,7 +109,7 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
             continue;
         }
 
-        likelihood += e_step_->doc_e_step(
+        likelihood = e_step_->doc_e_step(
             X.col(d),
             y[d],
             alpha_,
@@ -123,12 +126,10 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
             expected_z_bar.col(d)
         );
 
-        get_progress_visitor()->visit(Progress<Scalar>{
-            ProgressState::Expectation,
-            likelihood,
+        get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
             ++cnt,
-            0
-        });
+            likelihood
+        );
     }
 
     m_step_->m_step(
@@ -139,13 +140,7 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
         eta_
     );
 
-    get_progress_visitor()->visit(Progress<Scalar>{
-        ProgressState::IterationFinished,
-        0,
-        0,
-        0,
-        get_state()
-    });
+    get_event_dispatcher()->template dispatch<EpochProgressEvent<Scalar> >(get_state());
 }
 
 

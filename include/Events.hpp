@@ -70,6 +70,18 @@ class IEventDispatcher
             return l;
         }
 
+        /**
+         * The created object is returned so that the listener can be removed.
+         */
+        template <class ListenerType, typename... Args>
+        std::shared_ptr<IEventListener> add_listener(Args... args) {
+            auto l = std::make_shared<ListenerType>(args...);
+
+            add_listener(l);
+
+            return l;
+        }
+
         template <class EventType, typename... Args>
         void dispatch(Args... args) {
             auto event = std::make_shared<EventType>(args...);

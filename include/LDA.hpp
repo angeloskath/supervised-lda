@@ -8,7 +8,7 @@
 #include "IInitialization.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
-#include "ProgressVisitor.hpp"
+#include "Events.hpp"
 
 
 using namespace Eigen;
@@ -91,24 +91,10 @@ class LDA
         VectorXi predict(const MatrixXi &X);
 
         /**
-         * Set the progress visitor for this lda instance.
-         */
-        void set_progress_visitor(std::shared_ptr<IProgressVisitor<Scalar> > visitor) {
-            visitor_ = visitor;
-        }
-
-        /**
          * Get the progress visitor for this lda instance.
          */
-        std::shared_ptr<IProgressVisitor<Scalar> > get_progress_visitor() {
-            if (visitor_) {
-                return visitor_;
-            } else {
-                // return a noop visitor
-                return std::make_shared<FunctionVisitor<Scalar> >(
-                    [](Progress<Scalar> p){}
-                );
-            }
+        std::shared_ptr<IEventDispatcher> get_event_dispatcher() {
+            return event_dispatcher_;
         }
 
         LDAState get_state() {
@@ -148,8 +134,9 @@ class LDA
         // Member variables that affect the behaviour of fit
         size_t iterations_;
 
-        // A visitor whom we inform in case of progress etc
-        std::shared_ptr<IProgressVisitor<Scalar> > visitor_;
+        // An event dispatcher that we will use to communicate with the
+        // external components
+        std::shared_ptr<IEventDispatcher> event_dispatcher_;
 };
 
 

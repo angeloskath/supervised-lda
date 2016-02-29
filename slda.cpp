@@ -4,16 +4,18 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <utility>
 
 #include <docopt/docopt.h>
 
+#include "Events.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
-#include "NumpyFormat.hpp"
-#include "ProgressVisitor.hpp"
 #include "LDABuilder.hpp"
 #include "LDA.hpp"
+#include "NumpyFormat.hpp"
+#include "ProgressEvents.hpp"
 
 
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
@@ -101,7 +103,7 @@ LDA<double> load_lda(std::string model_path, size_t iterations=20) {
 }
 
 
-class TrainingProgress : public IProgressVisitor<double>
+class TrainingProgress : public IEventListener
 {
     public:
         TrainingProgress() {
@@ -109,38 +111,39 @@ class TrainingProgress : public IProgressVisitor<double>
             currently_in_expectation_ = false;
         }
 
-        void visit(Progress<double> progress) {
-            switch (progress.state) {
-                case Expectation:
-                    // we are coming from Maximization so output the global
-                    // iteration number
-                    if (!currently_in_expectation_) {
-                        std::cout << std::endl
-                                  << "E-M Iteration " << em_iterations_
-                                  << std::endl;
-                        em_iterations_ ++;
-                    }
+        void on_event(std::shared_ptr<Event> event) {
+            if (event->id() == "ExpectationProgressEvent") {
+                auto progress = std::static_pointer_cast<ExpectationProgressEvent<double> >(event);
 
-                    // update the flags and member variables with the progress
-                    currently_in_expectation_ = true;
-                    likelihood_ = progress.value;
+                // we are coming from Maximization so output the global
+                // iteration number
+                if (!currently_in_expectation_) {
+                    std::cout << std::endl
+                              << "E-M Iteration " << em_iterations_
+                              << std::endl;
+                    em_iterations_ ++;
+                    likelihood_ = 0;
+                }
 
-                    // if we have seen 100 iterations print out a progress
-                    if ((progress.partial_iteration+1) % 100 == 0) {
-                        std::cout << progress.partial_iteration+1 << std::endl;
-                    }
-                    break;
-                case Maximization:
-                    // we are coming from Expectation so output the computed
-                    // log likelihood
-                    if (currently_in_expectation_) {
-                        std::cout << "Likelihood: " << likelihood_ << std::endl;
-                    }
-                    currently_in_expectation_ = false;
-                    std::cout << "log p(y | \\bar{z}, eta): " << -progress.value << std::endl;
-                    break;
-                case IterationFinished:
-                    break;
+                // update the flags and member variables with the progress
+                currently_in_expectation_ = true;
+                likelihood_ += progress->likelihood();
+
+                // if we have seen 100 iterations print out a progress
+                if ((progress->iteration()+1) % 100 == 0) {
+                    std::cout << progress->iteration()+1 << std::endl;
+                }
+            }
+            else if (event->id() == "MaximizationProgressEvent") {
+                auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
+
+                // we are coming from Expectation so output the computed
+                // log likelihood
+                if (currently_in_expectation_) {
+                    std::cout << "Likelihood: " << likelihood_ << std::endl;
+                }
+                currently_in_expectation_ = false;
+                std::cout << "log p(y | \\bar{z}, eta): " << progress->likelihood() << std::endl;
             }
         }
 
@@ -151,23 +154,21 @@ class TrainingProgress : public IProgressVisitor<double>
 };
 
 
-class SnapshotEvery : public IProgressVisitor<double>
+class SnapshotEvery : public IEventListener
 {
     public:
         SnapshotEvery(std::string path, int every=10)
             : path_(std::move(path)), every_(every), seen_so_far_(0)
         {}
 
-        void visit(Progress<double> progress) {
-            switch (progress.state) {
-                case IterationFinished:
-                    seen_so_far_ ++;
-                    if (seen_so_far_ % every_ == 0) {
-                        snapsot(progress.lda_state);
-                    }
-                    break;
-                default:
-                    break;
+        void on_event(std::shared_ptr<Event> event) {
+            if (event->id() == "EpochProgressEvent") {
+                auto progress = std::static_pointer_cast<EpochProgressEvent<double> >(event);
+
+                seen_so_far_ ++;
+                if (seen_so_far_ % every_ == 0) {
+                    snapsot(progress->lda_state());
+                }
             }
         }
 
@@ -185,25 +186,6 @@ class SnapshotEvery : public IProgressVisitor<double>
         std::string path_;
         int every_;
         int seen_so_far_;
-};
-
-
-class BroadcastVisitor : public IProgressVisitor<double>
-{
-    public:
-        BroadcastVisitor(
-            std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors
-        ) : visitors_(std::move(visitors))
-        {}
-
-        void visit(Progress<double> progress) {
-            for (auto visitor : visitors_) {
-                visitor->visit(progress);
-            }
-        }
-
-    private:
-        std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors_;
 };
 
 void parse_input_data(std::string data_path, MatrixXi &X, MatrixXi &y) {
@@ -291,21 +273,16 @@ int main(int argc, char **argv) {
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
 
-        std::vector<std::shared_ptr<IProgressVisitor<double> > > visitors;
         if (!args["--quiet"].asBool()) {
-            visitors.push_back(std::make_shared<TrainingProgress>());
+            lda.get_event_dispatcher()->add_listener<TrainingProgress>();
         }
 
         if (args["--snapshot_every"].asLong() > 0) {
-            visitors.push_back(std::make_shared<SnapshotEvery>(
+            lda.get_event_dispatcher()->add_listener<SnapshotEvery>(
                 args["MODEL"].asString(),
                 args["--snapshot_every"].asLong()
-            ));
+            );
         }
-
-        lda.set_progress_visitor(
-            std::make_shared<BroadcastVisitor>(visitors)
-        );
 
         lda.fit(X, y);
 
