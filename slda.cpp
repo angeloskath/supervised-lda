@@ -223,7 +223,7 @@ R"(Supervised LDA and other flavors of LDA.
         --e_step_tolerance=ET   The minimum accepted relative increase in log
                                 likelihood during the E step [default: 1e-4]
         --m_step_iterations=MI  The maximum number of iterations to perform
-                                in the M step [default: 20]
+                                in the M step [default: 200]
         --m_step_tolerance=MT   The minimum accepted relative increase in log
                                 likelihood during the M step [default: 1e-4]
         --fixed_point_iterations=FI  The number of fixed point iterations to compute
