@@ -117,6 +117,27 @@ Scalar SupervisedEStep<Scalar>::compute_likelihood(
     return likelihood;
 }
 
+template <typename Scalar>
+int SupervisedEStep<Scalar>::get_id() {
+    return IEStep<Scalar>::BatchSupervised;
+}
+
+template <typename Scalar>
+std::vector<Scalar> SupervisedEStep<Scalar>::get_parameters() {
+    return {
+        static_cast<Scalar>(e_step_iterations_),
+        static_cast<Scalar>(fixed_point_iterations_),
+        e_step_tolerance_
+    };
+}
+
+template <typename Scalar>
+void SupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+    e_step_iterations_ = static_cast<size_t>(parameters[0]);
+    fixed_point_iterations_ = static_cast<size_t>(parameters[1]);
+    e_step_tolerance_ = parameters[2];
+}
+
 // Template instantiation
 template class SupervisedEStep<float>;
 template class SupervisedEStep<double>;

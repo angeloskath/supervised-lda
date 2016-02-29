@@ -30,6 +30,11 @@ class SeededInitialization : public IInitialization<Scalar>
             Ref<MatrixX> beta,
             Ref<MatrixX> eta
         );
+        
+        // Implement ISerializable
+        int get_id() override;
+        std::vector<Scalar> get_parameters() override;
+        void set_parameters(std::vector<Scalar> parameters) override;
 
     private:
         // The total number of topics used

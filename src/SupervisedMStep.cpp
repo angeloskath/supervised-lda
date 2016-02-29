@@ -50,3 +50,25 @@ Scalar SupervisedMStep<Scalar>::m_step(
     return initial_value;
 
 }
+
+template <typename Scalar>
+int SupervisedMStep<Scalar>::get_id() {
+    return IMStep<Scalar>::BatchSupervised;
+}
+
+template <typename Scalar>
+std::vector<Scalar> SupervisedMStep<Scalar>::get_parameters() {
+    return {
+        static_cast<Scalar>(m_step_iterations_),
+        m_step_tolerance_,
+        regularization_penalty_
+    };
+}
+
+template <typename Scalar>
+void SupervisedMStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+    m_step_iterations_ = static_cast<size_t>(parameters[0]);
+    m_step_tolerance_ = parameters[1];
+    regularization_penalty_ = parameters[2];
+}
+

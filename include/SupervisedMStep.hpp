@@ -37,6 +37,11 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
             Ref<MatrixX> beta,
             Ref<MatrixX> eta
         );
+        
+        // Implement ISerializable
+        int get_id() override;
+        std::vector<Scalar> get_parameters() override;
+        void set_parameters(std::vector<Scalar> parameters) override;
     
     private:
         // The maximum number of iterations in M-step

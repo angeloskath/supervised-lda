@@ -46,6 +46,11 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
             Ref<MatrixX> phi,
             Ref<VectorX> gamma
         ) override;
+        
+        // Implement ISerializable
+        int get_id() override;
+        std::vector<Scalar> get_parameters() override;
+        void set_parameters(std::vector<Scalar> parameters) override;
     
     protected:
         /**

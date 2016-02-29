@@ -32,3 +32,18 @@ void SeededInitialization<Scalar>::initialize_model_parameters(
     }
 }
 
+template <typename Scalar>
+int SeededInitialization<Scalar>::get_id() {
+    return IInitialization<Scalar>::Seeded;
+}
+
+template <typename Scalar>
+std::vector<Scalar> SeededInitialization<Scalar>::get_parameters() {
+    return {
+        static_cast<Scalar>(topics_)
+    };
+}
+template <typename Scalar>
+void SeededInitialization<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+    topics_ = static_cast<size_t>(parameters[0]);
+}

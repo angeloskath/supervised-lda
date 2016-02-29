@@ -111,6 +111,7 @@ template <typename Scalar>
 int UnsupervisedEStep<Scalar>::get_id() {
     return IEStep<Scalar>::BatchUnsupervised;
 }
+
 template <typename Scalar>
 std::vector<Scalar> UnsupervisedEStep<Scalar>::get_parameters() {
     return {
@@ -118,6 +119,7 @@ std::vector<Scalar> UnsupervisedEStep<Scalar>::get_parameters() {
         e_step_tolerance_
     };
 }
+
 template <typename Scalar>
 void UnsupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
     e_step_iterations_ = static_cast<size_t>(parameters[0]);
