@@ -65,7 +65,7 @@ namespace numpy_format {
         for (size_t i=0; i<N; i++) {
             d.v = data[i];
 
-            for (int j=0; j<sizeof(Scalar)/2; j++) {
+            for (size_t j=0; j<sizeof(Scalar)/2; j++) {
                 std::swap(d.c[j], d.c[sizeof(Scalar)-j-1]);
             }
         }
@@ -180,7 +180,7 @@ namespace numpy_format {
                 // get the needed rows, cols
                 int rows = shape_[0];
                 int cols = 1;
-                for (int i=1; i<shape_.size(); i++) {
+                for (size_t i=1; i<shape_.size(); i++) {
                     cols *= shape_[i];
                 }
 

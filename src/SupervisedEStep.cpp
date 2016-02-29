@@ -47,7 +47,7 @@ Scalar SupervisedEStep<Scalar>::doc_e_step(
         }
         old_likelihood = new_likelihood;
         
-        for (int i=0; i<fixed_point_iterations_; i++) {
+        for (size_t i=0; i<fixed_point_iterations_; i++) {
             phi_old = phi;
 
             auto t1 = gamma.unaryExpr(cwise_digamma);

@@ -11,6 +11,8 @@ Scalar UnsupervisedMStep<Scalar>::m_step(
     // we maximized w.r.t \beta during each doc_m_step
     beta = b;
     beta = beta.array().colwise() / beta.array().rowwise().sum();
+
+    return 0;
 }
 
 template <typename Scalar>

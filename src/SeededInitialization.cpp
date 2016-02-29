@@ -23,7 +23,7 @@ void SeededInitialization<Scalar>::initialize_model_parameters(
     auto N = initializations(rng);
 
     // Initialize _beta
-    for (int k=0; k<topics_; k++) {
+    for (size_t k=0; k<topics_; k++) {
         // Choose randomly a bunch of documents to initialize beta
         for (int r=0; r<N; r++) {
             beta.row(k) += X.cast<Scalar>().col(document(rng)).transpose();
