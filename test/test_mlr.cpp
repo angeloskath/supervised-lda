@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include <stdlib.h>
 
@@ -7,6 +8,7 @@
 #include "test/utils.hpp"
 
 #include "MultinomialLogisticRegression.hpp"
+#include "GradientDescent.hpp"
 
 using namespace Eigen;
 
@@ -19,7 +21,7 @@ TYPED_TEST_CASE(TestMultinomialLogisticRegression, ForFloatAndDouble);
   * In this test we check if the gradient is correct by appling
   * a finite difference method.
   */
-TYPED_TEST(TestMultinomialLogisticRegression, gradient) {
+TYPED_TEST(TestMultinomialLogisticRegression, Gradient) {
     
     // eta is typically of size KxC, where K is the number of topics and C the
     // number of different classes.
@@ -72,6 +74,85 @@ TYPED_TEST(TestMultinomialLogisticRegression, gradient) {
                 EXPECT_LT(absolute_error, 1e-5);
             }
         }
+    }
+}
+
+/**
+  * In this test we check whether the minimizer works as expected on the Fisher
+  * Iris dataset. We have isolated three classed from Fisher Iris and just two
+  * features, from the total four.
+  * We compare the results from our Minimizer with the corresponding results from
+  * LogisticRegression's implementation of SKlearn with the same initial parameters.
+  */
+TYPED_TEST(TestMultinomialLogisticRegression, Minimizer) {
+    
+    // X contains the two features from Fisher Iris 
+    MatrixX<TypeParam> Xin(150, 2);
+    Xin << 5.1, 3.5, 4.9, 3., 4.7, 3.2, 4.6, 3.1, 5., 3.6, 5.4, 3.9, 4.6, 3.4, 5., 3.4,
+    4.4, 2.9, 4.9, 3.1, 5.4, 3.7, 4.8, 3.4, 4.8, 3., 4.3, 3., 5.8, 4., 5.7, 4.4,
+    5.4, 3.9, 5.1, 3.5, 5.7, 3.8, 5.1, 3.8, 5.4, 3.4, 5.1, 3.7, 4.6, 3.6, 5.1, 3.3,
+    4.8, 3.4, 5., 3., 5., 3.4, 5.2, 3.5, 5.2, 3.4, 4.7, 3.2, 4.8, 3.1, 5.4, 3.4,
+    5.2, 4.1, 5.5, 4.2, 4.9, 3.1, 5., 3.2, 5.5, 3.5, 4.9, 3.1, 4.4, 3., 5.1, 3.4,
+    5., 3.5, 4.5, 2.3, 4.4, 3.2, 5., 3.5, 5.1, 3.8, 4.8, 3., 5.1, 3.8, 4.6, 3.2,
+    5.3, 3.7, 5., 3.3, 7., 3.2, 6.4, 3.2, 6.9, 3.1, 5.5, 2.3, 6.5, 2.8, 5.7, 2.8,
+    6.3, 3.3, 4.9, 2.4, 6.6, 2.9, 5.2, 2.7, 5., 2., 5.9, 3., 6., 2.2, 6.1, 2.9,
+    5.6, 2.9, 6.7, 3.1, 5.6, 3., 5.8, 2.7, 6.2, 2.2, 5.6, 2.5, 5.9, 3.2, 6.1, 2.8,
+    6.3, 2.5, 6.1, 2.8, 6.4, 2.9, 6.6, 3., 6.8, 2.8, 6.7, 3., 6., 2.9, 5.7, 2.6,
+    5.5, 2.4, 5.5, 2.4, 5.8, 2.7, 6., 2.7, 5.4, 3., 6., 3.4, 6.7, 3.1, 6.3, 2.3,
+    5.6, 3., 5.5, 2.5, 5.5, 2.6, 6.1, 3., 5.8, 2.6, 5., 2.3, 5.6, 2.7, 5.7, 3.,
+    5.7, 2.9, 6.2, 2.9, 5.1, 2.5, 5.7, 2.8, 6.3, 3.3, 5.8, 2.7, 7.1, 3., 6.3, 2.9,
+    6.5, 3., 7.6, 3., 4.9, 2.5, 7.3, 2.9, 6.7, 2.5, 7.2, 3.6, 6.5, 3.2, 6.4, 2.7,
+    6.8, 3., 5.7, 2.5, 5.8, 2.8, 6.4, 3.2, 6.5, 3., 7.7, 3.8, 7.7, 2.6, 6., 2.2,
+    6.9, 3.2, 5.6, 2.8, 7.7, 2.8, 6.3, 2.7, 6.7, 3.3, 7.2, 3.2, 6.2, 2.8, 6.1, 3.,
+    6.4, 2.8, 7.2, 3., 7.4, 2.8, 7.9, 3.8, 6.4, 2.8, 6.3, 2.8, 6.1, 2.6, 7.7, 3.,
+    6.3, 3.4, 6.4, 3.1, 6., 3., 6.9, 3.1, 6.7, 3.1, 6.9, 3.1, 5.8, 2.7, 6.8, 3.2,
+    6.7, 3.3, 6.7, 3., 6.3, 2.5, 6.5, 3., 6.2, 3.4, 5.9, 3.;
+
+    MatrixX<TypeParam> X(2, 150);
+    X = Xin.transpose();
+
+    // y is a vector of size Dx1, which contains class labels
+    VectorXi y(150);
+    y << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2;
+    
+    TypeParam regularization_penalty = 1e-2;
+    MultinomialLogisticRegression<TypeParam> mlr(
+        X,
+        y,
+        regularization_penalty
+    );
+    
+    MatrixX<TypeParam> eta = MatrixX<TypeParam>::Zero(2, 3);
+    
+    int iterations = 500;
+    GradientDescent<MultinomialLogisticRegression<TypeParam>, MatrixX<TypeParam>> minimizer(
+        std::make_shared<ArmijoLineSearch<MultinomialLogisticRegression<TypeParam>, MatrixX<TypeParam>> >(),
+        [&iterations](
+            TypeParam value,
+            TypeParam gradNorm,
+            size_t iterations
+        ) {
+            return iterations-- > 0;
+        }
+    );
+    minimizer.minimize(mlr, eta);
+    
+    MatrixX<TypeParam> lbfgs_eta(2, 3);
+    lbfgs_eta << -4.57679568, 2.03822995, 2.53856573, 8.12944469, -3.53562038, -4.59382431;
+
+    VectorX<TypeParam> cosine_similarities = (lbfgs_eta.transpose() * eta).diagonal();
+    cosine_similarities.array() /= eta.colwise().norm().array();
+    cosine_similarities.array() /= lbfgs_eta.colwise().norm().array();
+
+    const double pi = std::acos(-1);
+    for (int i=0; i<cosine_similarities.rows(); i++) {
+        EXPECT_LT(std::cos(2*pi/180), cosine_similarities[i]);
     }
 }
 
