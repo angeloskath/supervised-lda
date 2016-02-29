@@ -23,6 +23,10 @@ class ISerializable
          * A set of parameters from which the object can be recreated.
          */
         virtual std::vector<Scalar> get_parameters() = 0;
+        /**
+         * Recreate the internal state from the given parameters.
+         */
+        virtual void set_parameters(std::vector<Scalar> parameters) = 0;
 };
 
 

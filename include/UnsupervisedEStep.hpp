@@ -15,10 +15,9 @@ class UnsupervisedEStep : public IEStep<Scalar>
     public:
         UnsupervisedEStep(
             size_t e_step_iterations = 10,
-            size_t fixed_point_iterations = 20,
             Scalar e_step_tolerance = 1e-4
         );
-            
+
         /**
          * Maximize the ELBO w.r.t to phi and gamma
          *
@@ -41,7 +40,12 @@ class UnsupervisedEStep : public IEStep<Scalar>
             Ref<MatrixX> phi,
             Ref<VectorX> gamma
         ) override;
-        
+
+        // Implement ISerializable
+        int get_id() override;
+        std::vector<Scalar> get_parameters() override;
+        void set_parameters(std::vector<Scalar> parameters) override;
+
     protected:
         /**
          * The value of the ELBO.
@@ -62,12 +66,10 @@ class UnsupervisedEStep : public IEStep<Scalar>
             const MatrixX &phi,
             const VectorX &gamma
         );
-        
+
     private:
         // The maximum number of iterations in E-step
         size_t e_step_iterations_;
-        // The maximum number of iterations while maximizing phi in E-step
-        size_t fixed_point_iterations_;
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step
         Scalar e_step_tolerance_;

@@ -4,11 +4,9 @@
 template <typename Scalar>
 UnsupervisedEStep<Scalar>::UnsupervisedEStep(
     size_t e_step_iterations,
-    size_t fixed_point_iterations,
     Scalar e_step_tolerance
 ) {
     e_step_iterations_ = e_step_iterations;
-    fixed_point_iterations_ = fixed_point_iterations;
     e_step_tolerance_ = e_step_tolerance;
 }
 
@@ -107,6 +105,25 @@ Scalar UnsupervisedEStep<Scalar>::compute_likelihood(
     
     return likelihood;
 }
+
+
+template <typename Scalar>
+int UnsupervisedEStep<Scalar>::get_id() {
+    return IEStep<Scalar>::BatchUnsupervised;
+}
+template <typename Scalar>
+std::vector<Scalar> UnsupervisedEStep<Scalar>::get_parameters() {
+    return {
+        static_cast<Scalar>(e_step_iterations_),
+        e_step_tolerance_
+    };
+}
+template <typename Scalar>
+void UnsupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+    e_step_iterations_ = static_cast<size_t>(parameters[0]);
+    e_step_tolerance_ = parameters[1];
+}
+
 
 // Template instantiation
 template class UnsupervisedEStep<float>;
