@@ -42,17 +42,17 @@ class InternalsFactory : public IInternalsFactory<Scalar>
         std::shared_ptr<IInitialization<Scalar> > create_initialization(
             int id,
             std::vector<Scalar> parameters
-        );
+        ) override;
 
         std::shared_ptr<IEStep<Scalar> > create_e_step(
             int id,
             std::vector<Scalar> parameters
-        );
+        ) override;
 
         std::shared_ptr<IMStep<Scalar> > create_m_step(
             int id,
             std::vector<Scalar> parameters
-        );
+        ) override;
 };
 
 

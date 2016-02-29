@@ -10,18 +10,17 @@ template <typename Scalar>
 LDABuilder<Scalar>::LDABuilder(
     std::shared_ptr<IInternalsFactory<Scalar> > factory
 ) : factory_(factory),
-    topics_(100),
     iterations_(20),
     initialization_type_(IInitialization<Scalar>::Seeded),
-    initialization_parameters_(),
+    initialization_parameters_({100}),
     unsupervised_e_step_iterations_(10),
     unsupervised_e_step_tolerance_(1e-2),
     unsupervised_m_step_iterations_(10),
     unsupervised_m_step_tolerance_(1e-2),
     e_step_type_(IEStep<Scalar>::BatchUnsupervised),
-    e_step_parameters_(std::vector<Scalar>{10, 1e-2}),
+    e_step_parameters_({10, 1e-2}),
     m_step_type_(IMStep<Scalar>::BatchUnsupervised),
-    m_step_parameters_(std::vector<Scalar>{10, 1e-2})
+    m_step_parameters_({10, 1e-2})
 {}
 
 
@@ -65,17 +64,8 @@ LDABuilder<Scalar>::operator LDA<Scalar>() const {
         ),
 
         // and the rest of the parameters to create an LDA model
-        topics_,
         iterations_
     );
-}
-
-
-template <typename Scalar>
-LDABuilder<Scalar> & LDABuilder<Scalar>::set_topics(size_t topics) {
-    topics_ = topics;
-
-    return *this;
 }
 
 

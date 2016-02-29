@@ -34,9 +34,9 @@ class IInitialization : public ISerializable<Scalar>
         virtual void initialize_model_parameters(
             const MatrixXi &X,
             const VectorXi &y,
-            Ref<VectorX> alpha,
-            Ref<MatrixX> beta,
-            Ref<MatrixX> eta
+            VectorX &alpha,
+            MatrixX &beta,
+            MatrixX &eta
         )=0;
 };
 

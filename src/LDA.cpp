@@ -14,14 +14,12 @@ LDA<Scalar>::LDA(
     std::shared_ptr<IMStep<Scalar> > unsupervised_m_step,
     std::shared_ptr<IEStep<Scalar> > e_step,
     std::shared_ptr<IMStep<Scalar> > m_step,
-    size_t topics,
     size_t iterations
 ) : initialization_(initialization),
     unsupervised_e_step_(unsupervised_e_step),
     unsupervised_m_step_(unsupervised_m_step),
     e_step_(e_step),
     m_step_(m_step),
-    topics_(topics),
     iterations_(iterations)
 {}
 
@@ -29,10 +27,8 @@ LDA<Scalar>::LDA(
 template <typename Scalar>
 LDA<Scalar>::LDA(
     LDAState lda_state,
-    size_t topics,
     size_t iterations
-) : topics_(topics),
-    iterations_(iterations)
+) : iterations_(iterations)
 {
     // extract the model parameters
     alpha_ = *lda_state.alpha;
@@ -66,7 +62,7 @@ LDA<Scalar>::LDA(
 
 template <typename Scalar>
 void LDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
-    for (size_t i=0; i<topics_; i++) {
+    for (size_t i=0; i<iterations_; i++) {
         partial_fit(X, y);
     }
 }
@@ -77,10 +73,6 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
     // This means we have never been called before so allocate whatever needs
     // to be allocated and initialize the model parameters
     if (beta_.rows() == 0) {
-        alpha_ = VectorX(topics_);
-        eta_ = MatrixX(topics_, y.maxCoeff() + 1);
-        beta_ = MatrixX(topics_, X.rows());
-
         initialization_->initialize_model_parameters(
             X,
             y,
@@ -92,18 +84,19 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
 
     // allocate space for the variational parameters (they are both per
     // document)
-    MatrixX phi(topics_, X.rows());
-    VectorX gamma(topics_);
+    MatrixX phi(beta_.rows(), X.rows());
+    VectorX gamma(beta_.rows());
 
     // allocate space for accumulating values to use in the maximization step
-    MatrixX expected_z_bar(topics_, X.cols());
-    MatrixX b = MatrixX::Zero(topics_, X.rows());
+    MatrixX expected_z_bar(beta_.rows(), X.cols());
+    MatrixX b = MatrixX::Zero(beta_.rows(), X.rows());
 
     // create an array with shuffled indexes which we use to view the dataset
     // in a randomized fashion
     std::vector<int> idxs(X.cols());
     std::iota(idxs.begin(), idxs.end(), 0);
     std::random_shuffle(idxs.begin(), idxs.end());
+    size_t cnt = 0;
 
     // consider moving the following to another function so that the above
     // allocations do not happen again and again for every iteration
@@ -133,7 +126,7 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
         get_progress_visitor()->visit(Progress<Scalar>{
             ProgressState::Expectation,
             likelihood,
-            static_cast<size_t>(d),
+            ++cnt,
             0
         });
     }
@@ -159,12 +152,12 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
 template <typename Scalar>
 typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
     // space for the variational parameters
-    MatrixX phi(topics_, X.rows());
-    VectorX gamma(topics_);
+    MatrixX phi(beta_.rows(), X.rows());
+    VectorX gamma(beta_.rows());
 
     // space for the representation and an unused b parameter
-    MatrixX expected_z_bar(topics_, X.cols());
-    MatrixX b(topics_, X.rows());
+    MatrixX expected_z_bar(beta_.rows(), X.cols());
+    MatrixX b(beta_.rows(), X.rows());
 
     for (int d=0; d<X.cols(); d++) {
         unsupervised_e_step_->doc_e_step(

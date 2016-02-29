@@ -7,14 +7,12 @@
 
 #include "InternalsFactory.hpp"
 
-
 template <typename Scalar>
 std::shared_ptr<IInitialization<Scalar> > InternalsFactory<Scalar>::create_initialization(
     int id,
     std::vector<Scalar> parameters
 ) {
     std::shared_ptr<IInitialization<Scalar> > init = nullptr;
-
     switch (id) {
         case IInitialization<Scalar>::Seeded:
             init = std::make_shared<SeededInitialization<Scalar> >();

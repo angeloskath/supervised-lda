@@ -44,7 +44,6 @@ class LDA
             std::shared_ptr<IMStep<Scalar> > unsupervised_m_step,
             std::shared_ptr<IEStep<Scalar> > e_step,
             std::shared_ptr<IMStep<Scalar> > m_step,
-            size_t topics = 100,
             size_t iterations = 20
         );
 
@@ -53,7 +52,6 @@ class LDA
          */
         LDA(
             LDAState lda_state,
-            size_t topics = 100,
             size_t iterations = 20
         );
 
@@ -148,7 +146,6 @@ class LDA
         MatrixX eta_;
 
         // Member variables that affect the behaviour of fit
-        size_t topics_;
         size_t iterations_;
 
         // A visitor whom we inform in case of progress etc

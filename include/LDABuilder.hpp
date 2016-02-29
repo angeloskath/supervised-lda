@@ -41,7 +41,6 @@ class LDABuilder : public ILDABuilder<Scalar>
         LDABuilder(std::shared_ptr<IInternalsFactory<Scalar> > factory);
 
         // set generic parameters
-        LDABuilder & set_topics(size_t topics);
         LDABuilder & set_iterations(size_t topics);
 
         // set the initialization
@@ -103,7 +102,6 @@ class LDABuilder : public ILDABuilder<Scalar>
         std::shared_ptr<IInternalsFactory<Scalar> > factory_;
 
         // generic lda parameters
-        size_t topics_;
         size_t iterations_;
 
         // initialization

@@ -6,9 +6,9 @@ template <typename Scalar>
 void SeededInitialization<Scalar>::initialize_model_parameters(
     const MatrixXi &X,
     const VectorXi &y,
-    Ref<VectorX> alpha,
-    Ref<MatrixX> beta,
-    Ref<MatrixX> eta
+    VectorX &alpha,
+    MatrixX &beta,
+    MatrixX &eta
 ) {
     alpha = VectorX::Constant(topics_, 1.0 / topics_);
     // Eigen has no unique function, therefore we use maxcoeff instead to

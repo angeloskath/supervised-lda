@@ -97,7 +97,7 @@ LDA<double> load_lda(std::string model_path, size_t iterations=20) {
     eta = ni;
     lda_state.eta = &eta;
 
-    return LDA<double>(lda_state, beta.rows(), iterations);
+    return LDA<double>(lda_state, iterations);
 }
 
 
@@ -269,8 +269,11 @@ int main(int argc, char **argv) {
         // create the lda model
         LDA<double> lda =
             LDABuilder<double>().
-                set_topics(args["--topics"].asLong()).
                 set_iterations(args["--iterations"].asLong()).
+                set_initialization(
+                    IInitialization<double>::Seeded,
+                    args["--topics"].asLong()
+                ).
                 set_e_step(
                     IEStep<double>::BatchSupervised,
                     args["--e_step_iterations"].asLong(),

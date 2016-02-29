@@ -26,10 +26,10 @@ class SeededInitialization : public IInitialization<Scalar>
         void initialize_model_parameters(
             const MatrixXi &X,
             const VectorXi &y,
-            Ref<VectorX> alpha,
-            Ref<MatrixX> beta,
-            Ref<MatrixX> eta
-        );
+            VectorX &alpha,
+            MatrixX &beta,
+            MatrixX &eta
+        ) override;
         
         // Implement ISerializable
         int get_id() override;
