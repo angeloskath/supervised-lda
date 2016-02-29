@@ -72,3 +72,7 @@ void SupervisedMStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
     regularization_penalty_ = parameters[2];
 }
 
+// Template instantiation
+template class SupervisedMStep<float>;
+template class SupervisedMStep<double>;
+

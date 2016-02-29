@@ -43,7 +43,13 @@ std::vector<Scalar> SeededInitialization<Scalar>::get_parameters() {
         static_cast<Scalar>(topics_)
     };
 }
+
 template <typename Scalar>
 void SeededInitialization<Scalar>::set_parameters(std::vector<Scalar> parameters) {
     topics_ = static_cast<size_t>(parameters[0]);
 }
+
+// Template instantiation
+template class SeededInitialization<float>;
+template class SeededInitialization<double>;
+
