@@ -1,23 +1,33 @@
-#ifndef _IEMSTEP_HPP_
-#define _IEMSTEP_HPP_
+#ifndef _IMSTEP_HPP_
+#define _IMSTEP_HPP_
 
 #include <Eigen/Core>
+
+#include "ISerializable.hpp"
 
 using namespace Eigen;
 
 template <typename Scalar>
-class IMStep
+class IMStep : public ISerializable<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
     
     public:
+        enum Type
+        {
+            BatchUnsupervised = 0,
+            BatchSupervised,
+            OnlineUnsupervised,
+            OnlineSupervised
+        };
+
         virtual Scalar m_step(
             const MatrixX &expected_z_bar,
             const MatrixX &b,
             const VectorXi &y,
             Ref<MatrixX> beta,
-            Ref<MatrixX> eta,
+            Ref<MatrixX> eta
         )=0;
 
         /**
@@ -32,4 +42,4 @@ class IMStep
         )=0;
 };
 
-#endif //  _IEMSTEP_HPP_
+#endif  // _IMSTEP_HPP_

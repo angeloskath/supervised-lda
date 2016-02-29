@@ -1,5 +1,6 @@
 
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -7,9 +8,12 @@
 
 #include <docopt/docopt.h>
 
+#include "IEStep.hpp"
+#include "IMStep.hpp"
 #include "NumpyFormat.hpp"
 #include "ProgressVisitor.hpp"
-#include "SupervisedLDA.hpp"
+#include "LDABuilder.hpp"
+#include "LDA.hpp"
 
 
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
@@ -27,28 +31,40 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
 void save_lda(
     std::string model_path,
-    typename SupervisedLDA<double>::LDAState lda_state
+    typename LDA<double>::LDAState lda_state
 ) {
     std::fstream model(
         model_path,
         std::ios::out | std::ios::binary
     );
 
-    for (auto v : lda_state.vectors) {
-        model << numpy_format::NumpyOutput<double>(*v);
+    model << numpy_format::NumpyOutput<int>(
+        lda_state.ids,
+        std::vector<size_t>{5, 1},
+        true
+    );
+
+    for (int i=0; i<5; i++) {
+        model << numpy_format::NumpyOutput<double>(
+            lda_state.parameters[i].data(),
+            std::vector<size_t>{lda_state.parameters[i].size(), 1},
+            true
+        );
     }
-    for (auto m : lda_state.matrices) {
-        model << numpy_format::NumpyOutput<double>(*m);
-    }
+
+    model << numpy_format::NumpyOutput<double>(*lda_state.alpha);
+    model << numpy_format::NumpyOutput<double>(*lda_state.beta);
+    model << numpy_format::NumpyOutput<double>(*lda_state.eta);
 }
 
 
-SupervisedLDA<double> load_lda(std::string model_path) {
+LDA<double> load_lda(std::string model_path, size_t iterations=20) {
     // we will be needing those
-    SupervisedLDA<double>::LDAState lda_state;
+    LDA<double>::LDAState lda_state;
     numpy_format::NumpyInput<double> ni;
-    std::vector<VectorXd> vectors;
-    std::vector<MatrixXd> matrices;
+    VectorXd alpha;
+    MatrixXd beta;
+    MatrixXd eta;
 
     // open the file
     std::fstream model(
@@ -56,29 +72,28 @@ SupervisedLDA<double> load_lda(std::string model_path) {
         std::ios::in | std::ios::binary
     );
 
-    // read matrices and push them to the vectors
-    try {
-        while (!model.eof()) {
-            model >> ni;
-            if (ni.shape().size() > 1 && ni.shape()[1] > 1) {
-                matrices.push_back(ni);
-            } else {
-                vectors.push_back(ni);
-            }
-        }
-    } catch (const std::runtime_error &) {
-        // the file was read and we tried to read again most likely
+    // read the implementation ids
+    model >> ni;
+    std::memcpy(lda_state.ids, ni.data(), ni.shape()[0] * sizeof(int));
+    for (int i=0; i<5; i++) {
+        model >> ni;
+        lda_state.parameters[i].resize(ni.shape()[0]);
+        std::memcpy(lda_state.parameters[i].data(), ni.data(), ni.shape()[0] * sizeof(double));
     }
 
-    // add their addresses into the lda_state
-    for (auto &v : vectors) {
-        lda_state.vectors.push_back(&v);
-    }
-    for (auto &m : matrices) {
-        lda_state.matrices.push_back(&m);
-    }
+    model >> ni;
+    alpha = ni;
+    lda_state.alpha = &alpha;
 
-    return SupervisedLDA<double>(lda_state);
+    model >> ni;
+    beta = ni;
+    lda_state.beta = &beta;
+
+    model >> ni;
+    eta = ni;
+    lda_state.eta = &eta;
+
+    return LDA<double>(lda_state, beta.rows(), iterations);
 }
 
 
@@ -152,7 +167,7 @@ class SnapshotEvery : public IProgressVisitor<double>
             }
         }
 
-        void snapsot(typename SupervisedLDA<double>::LDAState lda_state) {
+        void snapsot(typename LDA<double>::LDAState lda_state) {
             std::stringstream actual_path;
             actual_path << path_ << "_";
             actual_path.fill('0');
@@ -248,16 +263,22 @@ int main(int argc, char **argv) {
 
     if (args["train"].asBool()) {
         // create the lda model
-        SupervisedLDA<double> lda(
-            args["--topics"].asLong(),
-            args["--iterations"].asLong(),
-            std::stof(args["--e_step_tolerance"].asString()),
-            std::stof(args["--m_step_tolerance"].asString()),
-            args["--e_step_iterations"].asLong(),
-            args["--m_step_iterations"].asLong(),
-            args["--fixed_point_iterations"].asLong(),
-            std::stof(args["--regularization_penalty"].asString())
-        );
+        LDA<double> lda =
+            LDABuilder<double>().
+                set_topics(args["--topics"].asLong()).
+                set_iterations(args["--iterations"].asLong()).
+                set_e_step(
+                    IEStep<double>::BatchSupervised,
+                    args["--e_step_iterations"].asLong(),
+                    std::stof(args["--e_step_tolerance"].asString()),
+                    args["--fixed_point_iterations"].asLong()
+                ).
+                set_m_step(
+                    IMStep<double>::BatchSupervised,
+                    args["--m_step_iterations"].asLong(),
+                    std::stof(args["--m_step_tolerance"].asString()),
+                    std::stof(args["--regularization_penalty"].asString())
+                );
         
         MatrixXi X, y;
         // Parse data from input file
@@ -289,7 +310,7 @@ int main(int argc, char **argv) {
         parse_input_data(args["DATA"].asString(), X, y);
 
         // Load LDA model from file
-        SupervisedLDA<double> lda = load_lda(args["MODEL"].asString());
+        LDA<double> lda = load_lda(args["MODEL"].asString());
 
         MatrixXd doc_topic_distribution = lda.transform(X);
         numpy_format::save(args["OUTPUT"].asString(), doc_topic_distribution);
@@ -300,7 +321,7 @@ int main(int argc, char **argv) {
         parse_input_data(args["DATA"].asString(), X, y);
 
         // Load LDA model from file
-        SupervisedLDA<double> lda = load_lda(args["MODEL"].asString());
+        LDA<double> lda = load_lda(args["MODEL"].asString());
         MatrixXi y_predicted = lda.predict(X);
         std::cout << "Accuracy score: " << accuracy_score(y, y_predicted) << std::endl;
     }

@@ -171,6 +171,8 @@ namespace numpy_format {
         public:
             NumpyInput() {}
 
+            const bool fortran_contiguous() const { return fortran_; }
+            const Scalar * data() const { return data_.data(); }
             const std::vector<size_t> & shape() const { return shape_; }
 
             template <int Rows, int Cols, int Options>

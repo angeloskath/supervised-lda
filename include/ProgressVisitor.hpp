@@ -3,7 +3,7 @@
 
 
 template <typename Scalar>
-class SupervisedLDA;
+class LDA;
 
 
 enum ProgressState { Expectation, Maximization, IterationFinished };
@@ -28,7 +28,7 @@ struct Progress
     size_t iteration;
 
     /** The current lda state */
-    typename SupervisedLDA<Scalar>::LDAState lda_state;
+    typename LDA<Scalar>::LDAState lda_state;
 };
 
 
