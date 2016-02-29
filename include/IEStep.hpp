@@ -25,6 +25,17 @@ class IEStep : public ISerializable<Scalar>
             OnlineSupervised
         };
 
+        /**
+          * Maximize the ELBO
+          *
+          * @param X The word counts in column-major order for a single document
+          * @param y The class label as integer for the current document
+          * @param alpha The Dirichlet priors
+          * @param beta The over word topic distributiosn
+          * @param eta The classification parameters
+          * @param phi The multinomial parameters
+          * @param gamma The Dirichlet parameters
+          */
         virtual Scalar doc_e_step(
             const VectorXi &X,
             int y,

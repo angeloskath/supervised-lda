@@ -22,9 +22,55 @@ Scalar UnsupervisedEStep<Scalar>::doc_e_step(
     Ref<MatrixX> phi,
     Ref<VectorX> gamma
 ) {
-    Scalar new_loglikelihood = 0.0;
+    auto cwise_digamma = CwiseDigamma<Scalar>();
 
-    return new_loglikelihood;
+    int num_topics = gamma.rows();
+    int num_words = X.sum();
+    int voc_size = X.rows();
+
+    gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
+    phi.fill(1.0/num_topics);
+
+    // allocate memory for helper variables
+    MatrixX h(num_topics, voc_size);
+    MatrixX phi_old(num_topics, voc_size);
+
+    // to check for convergence
+    Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
+
+    while (e_step_iterations_-- > 0) {
+
+        new_likelihood = compute_likelihood(X, alpha, beta, phi, gamma);
+        if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
+            break;
+        }
+        old_likelihood = new_likelihood;
+        
+        // Update Multinomial parameter phi, according to the following
+        // pseudocode
+        //
+        // for n=1 to Nd do
+        //  for i=1 to K do
+        //      phi_{n,i}^{t+1} = beta_{i, w_n}exp(\psi(\gamma_i))
+        //  end
+        //  normalize phi_{n,i}^{t+1} sum to 1
+        // end
+        //
+        // Equation (6) in Latent Dirichlet Allocation, Blei 2003
+        auto t1 = gamma.unaryExpr(cwise_digamma).array();
+        auto t2 = digamma(gamma.sum());
+        phi = beta.array().colwise() * (t1 - t2).exp();
+        phi = phi.array().rowwise() / phi.colwise().sum().array();
+
+        // Update Dirichlet parameters according 
+        //
+        // gamma_i ^ {t+1} =  alpha_i + \sum_n \phi_{n,i}^{t+1}
+        //
+        // Equation (7) in Latent Dirichlet Allocation, Blei 2003 
+        gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
+    }
+
+    return new_likelihood;
 }
 
 template <typename Scalar>
