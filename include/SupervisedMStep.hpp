@@ -11,9 +11,9 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
     
     public:
         SupervisedMStep(
-            size_t m_step_iterations,
-            Scalar m_step_tolerance,
-            Scalar regularization_penalty
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
         ) : m_step_iterations_(m_step_iterations),
             m_step_tolerance_(m_step_tolerance),
             regularization_penalty_(regularization_penalty) {};

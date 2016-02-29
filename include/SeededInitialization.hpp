@@ -10,7 +10,7 @@ class SeededInitialization : public IInitialization<Scalar>
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
     
     public:
-        SeededInitialization(size_t topics) : topics_(topics) {};
+        SeededInitialization(size_t topics = 100) : topics_(topics) {};
         
         /**
           * Function used for the initialization of model parameters, namely

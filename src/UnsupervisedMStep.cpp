@@ -27,3 +27,15 @@ void UnsupervisedMStep<Scalar>::doc_m_step(
     expected_z_bar = t2.rowwise().sum() / X.sum();
 }
 
+
+template <typename Scalar>
+int UnsupervisedMStep<Scalar>::get_id() {
+    return IMStep<Scalar>::BatchUnsupervised;
+}
+template <typename Scalar>
+std::vector<Scalar> UnsupervisedMStep<Scalar>::get_parameters() {
+    return {};
+}
+template <typename Scalar>
+void UnsupervisedMStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+}

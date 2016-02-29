@@ -50,5 +50,10 @@ class UnsupervisedMStep : public IMStep<Scalar>
            Ref<VectorX> expected_z_bar
         ) override;
 
+        // Implement ISerializable
+        int get_id() override;
+        std::vector<Scalar> get_parameters() override;
+        void set_parameters(std::vector<Scalar> parameters) override;
+
 };
 #endif  // _UNSUPERVISEDMSTEP_HPP_ 

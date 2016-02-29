@@ -45,6 +45,10 @@ void save_lda(
     );
 
     for (int i=0; i<5; i++) {
+        if (lda_state.parameters[i].size() == 0) {
+            lda_state.parameters[i].push_back(0);
+        }
+
         model << numpy_format::NumpyOutput<double>(
             lda_state.parameters[i].data(),
             std::vector<size_t>{lda_state.parameters[i].size(), 1},
