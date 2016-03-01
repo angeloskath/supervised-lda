@@ -24,14 +24,9 @@ Scalar UnsupervisedEStep<Scalar>::doc_e_step(
 
     int num_topics = gamma.rows();
     int num_words = X.sum();
-    int voc_size = X.rows();
 
     gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
     phi.fill(1.0/num_topics);
-
-    // allocate memory for helper variables
-    MatrixX h(num_topics, voc_size);
-    MatrixX phi_old(num_topics, voc_size);
 
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
@@ -48,7 +43,7 @@ Scalar UnsupervisedEStep<Scalar>::doc_e_step(
         //
         // for n=1 to Nd do
         //  for i=1 to K do
-        //      phi_{n,i}^{t+1} = beta_{i, w_n}exp(\psi(\gamma_i))
+        //      phi_{n,i}^{t+1} = beta_{i, w_n}exp(\psi(\gamma_i) - \psi(sum_i \gamma_i))
         //  end
         //  normalize phi_{n,i}^{t+1} sum to 1
         // end
