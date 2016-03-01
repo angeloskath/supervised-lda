@@ -8,8 +8,10 @@
 
 #include "test/utils.hpp"
 
-#include "SupervisedLDA.hpp"
-#include "ProgressVisitor.hpp"
+#include "IInitialization.hpp"
+#include "LDABuilder.hpp"
+#include "LDA.hpp"
+#include "ProgressEvents.hpp"
 
 using namespace Eigen;
 
@@ -25,30 +27,23 @@ TYPED_TEST(TestFit, partial_fit) {
     std::mt19937 rng;
     rng.seed(0);
 
-    SupervisedLDA<TypeParam> lda(10);
+    LDA<TypeParam> lda = LDABuilder<TypeParam>().
+            set_initialization(IInitialization<TypeParam>::Seeded, 10);
 
-    std::vector<Progress<TypeParam> > progress;
-    TypeParam likelihood0, likelihood, py0, py;
-    auto visitor = std::make_shared<FunctionVisitor<TypeParam> >(
-        [&progress, &likelihood, &py](Progress<TypeParam> p) {
-            progress.push_back(p);
+    TypeParam likelihood0, likelihood=0, py0, py;
+    lda.get_event_dispatcher()->add_listener(
+        [&likelihood, &py](std::shared_ptr<Event> event) {
+            if (event->id() == "ExpectationProgressEvent") {
+                auto progress = std::static_pointer_cast<ExpectationProgressEvent<TypeParam> >(event);
+                likelihood += progress->likelihood();
+            }
 
-            switch (p.state) {
-                case Expectation:
-                    likelihood = p.value;
-                    //if ((p.partial_iteration + 1) % 10) {
-                    //    std::cout << "log(Likelihood): " << p.value/(p.partial_iteration + 1) << std::endl;
-                    //}
-                    break;
-                case Maximization:
-                    py = -p.value;
-                    //std::cout << "log p(y | z_bar, eta): " << -p.value << std::endl;
-                    break;
+            else if (event->id() == "MaximizationProgressEvent") {
+                auto progress = std::static_pointer_cast<MaximizationProgressEvent<TypeParam> >(event);
+                py = progress->likelihood();
             }
         }
     );
-
-    lda.set_progress_visitor(visitor);
 
     MatrixXi X(100, 500);
     VectorXi y(500);
@@ -62,7 +57,6 @@ TYPED_TEST(TestFit, partial_fit) {
     }
 
     lda.partial_fit(X, y);
-    progress.clear();
     likelihood0 = likelihood;
     py0 = py;
 

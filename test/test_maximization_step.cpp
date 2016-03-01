@@ -8,8 +8,8 @@
 
 #include "test/utils.hpp"
 
-#include "SupervisedLDA.hpp"
-#include "ProgressVisitor.hpp"
+#include "SupervisedMStep.hpp"
+#include "ProgressEvents.hpp"
 
 using namespace Eigen;
 
@@ -24,16 +24,17 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
     std::mt19937 rng;
     rng.seed(0);
 
-    SupervisedLDA<TypeParam> lda(0);
+    SupervisedMStep<TypeParam> m_step(1000, 1e-2, 1e-2);
 
-    std::vector<Progress<TypeParam> > progress;
-    auto visitor = std::make_shared<FunctionVisitor<TypeParam> >(
-        [&progress](Progress<TypeParam> p) {
-            progress.push_back(p);
+    std::vector<TypeParam> progress;
+    m_step.get_event_dispatcher()->add_listener(
+        [&progress](std::shared_ptr<Event> event) {
+            if (event->id() == "ExpectationProgressEvent") {
+                auto prog_ev = std::static_pointer_cast<ExpectationProgressEvent<TypeParam> >(event);
+                progress.push_back(prog_ev->likelihood());
+            }
         }
     );
-
-    lda.set_progress_visitor(visitor);
 
     MatrixX<TypeParam> expected_z_bar = MatrixX<TypeParam>::Random(10, 100);
     MatrixX<TypeParam> b(10, 100);
@@ -46,21 +47,17 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
     MatrixX<TypeParam> eta(10, 6);
     TypeParam L = 0.1;
 
-    lda.m_step(
+    m_step.m_step(
         expected_z_bar,
         b,
         y,
         beta,
-        eta,
-        L,
-        1000,
-        1e-3
+        eta
     );
 
     ASSERT_GT(progress.size(), 2);
-    for (int i=1; i<progress.size(); i++) {
-        ASSERT_EQ(i-1, progress[i-1].partial_iteration);
-        EXPECT_GT(progress[i-1].value, progress[i].value) << "Iteration:" << i;
+    for (size_t i=1; i<progress.size(); i++) {
+        EXPECT_LT(progress[i-1], progress[i]) << "Iteration:" << i;
     }
 }
 
