@@ -117,8 +117,8 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
     for (int i=0; i<10; i++) {
         SupervisedEStep<TypeParam> e_step(
             i,
-            fixed_point_iterations,
-            convergence_tolerance
+            convergence_tolerance,
+            fixed_point_iterations
         );
         likelihoods[i] = e_step.doc_e_step(
             X,

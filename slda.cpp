@@ -67,7 +67,8 @@ void save_lda(
 LDA<double> load_lda(std::string model_path, size_t iterations=20) {
     // we will be needing those
     LDA<double>::LDAState lda_state;
-    numpy_format::NumpyInput<double> ni;
+    numpy_format::NumpyInput<int> nii;
+    numpy_format::NumpyInput<double> nid;
     VectorXd alpha;
     MatrixXd beta;
     MatrixXd eta;
@@ -79,24 +80,24 @@ LDA<double> load_lda(std::string model_path, size_t iterations=20) {
     );
 
     // read the implementation ids
-    model >> ni;
-    std::memcpy(lda_state.ids, ni.data(), ni.shape()[0] * sizeof(int));
+    model >> nii;
+    std::memcpy(lda_state.ids, nii.data(), nii.shape()[0] * sizeof(int));
     for (int i=0; i<5; i++) {
-        model >> ni;
-        lda_state.parameters[i].resize(ni.shape()[0]);
-        std::memcpy(lda_state.parameters[i].data(), ni.data(), ni.shape()[0] * sizeof(double));
+        model >> nid;
+        lda_state.parameters[i].resize(nid.shape()[0]);
+        std::memcpy(lda_state.parameters[i].data(), nid.data(), nid.shape()[0] * sizeof(double));
     }
 
-    model >> ni;
-    alpha = ni;
+    model >> nid;
+    alpha = nid;
     lda_state.alpha = &alpha;
 
-    model >> ni;
-    beta = ni;
+    model >> nid;
+    beta = nid;
     lda_state.beta = &beta;
 
-    model >> ni;
-    eta = ni;
+    model >> nid;
+    eta = nid;
     lda_state.eta = &eta;
 
     return LDA<double>(lda_state, iterations);
@@ -209,8 +210,8 @@ R"(Supervised LDA and other flavors of LDA.
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [-q | --quiet]
                    [--snapshot_every=N] DATA MODEL
-        slda transform MODEL DATA OUTPUT
-        slda evaluate MODEL DATA
+        slda transform [-q | --quiet] MODEL DATA OUTPUT
+        slda evaluate [-q | --quiet] MODEL DATA
         slda (-h | --help)
 
     Options:
@@ -291,6 +292,10 @@ int main(int argc, char **argv) {
         // Load LDA model from file
         LDA<double> lda = load_lda(args["MODEL"].asString());
 
+        if (!args["--quiet"].asBool()) {
+            lda.get_event_dispatcher()->add_listener<TrainingProgress>();
+        }
+
         MatrixXd doc_topic_distribution = lda.transform(X);
         numpy_format::save(args["OUTPUT"].asString(), doc_topic_distribution);
     } 
@@ -301,6 +306,11 @@ int main(int argc, char **argv) {
 
         // Load LDA model from file
         LDA<double> lda = load_lda(args["MODEL"].asString());
+
+        if (!args["--quiet"].asBool()) {
+            lda.get_event_dispatcher()->add_listener<TrainingProgress>();
+        }
+
         MatrixXi y_predicted = lda.predict(X);
         std::cout << "Accuracy score: " << accuracy_score(y, y_predicted) << std::endl;
     }

@@ -1,4 +1,3 @@
-#include <iostream>
 #include "GradientDescent.hpp"
 #include "MultinomialLogisticRegression.hpp"
 #include "ProgressEvents.hpp"

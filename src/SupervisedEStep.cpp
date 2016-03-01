@@ -4,8 +4,8 @@
 template <typename Scalar>
 SupervisedEStep<Scalar>::SupervisedEStep(
     size_t e_step_iterations,
-    size_t fixed_point_iterations,
-    Scalar e_step_tolerance
+    Scalar e_step_tolerance,
+    size_t fixed_point_iterations
 ) {
     e_step_iterations_ = e_step_iterations;
     fixed_point_iterations_ = fixed_point_iterations;
@@ -38,7 +38,7 @@ Scalar SupervisedEStep<Scalar>::doc_e_step(
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
-    while (e_step_iterations_-- > 0) {
+    for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
         compute_h(X, eta, phi, h);
 
         new_likelihood = compute_likelihood(X, y, alpha, beta, eta, phi, gamma, h);
@@ -126,16 +126,16 @@ template <typename Scalar>
 std::vector<Scalar> SupervisedEStep<Scalar>::get_parameters() {
     return {
         static_cast<Scalar>(e_step_iterations_),
-        static_cast<Scalar>(fixed_point_iterations_),
-        e_step_tolerance_
+        e_step_tolerance_,
+        static_cast<Scalar>(fixed_point_iterations_)
     };
 }
 
 template <typename Scalar>
 void SupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
     e_step_iterations_ = static_cast<size_t>(parameters[0]);
-    fixed_point_iterations_ = static_cast<size_t>(parameters[1]);
-    e_step_tolerance_ = parameters[2];
+    e_step_tolerance_ = parameters[1];
+    fixed_point_iterations_ = static_cast<size_t>(parameters[2]);
 }
 
 // Template instantiation

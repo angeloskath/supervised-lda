@@ -1,4 +1,3 @@
-#include <iostream>
 #include "LDABuilder.hpp"
 
 template <typename Scalar>

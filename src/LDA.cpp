@@ -169,8 +169,9 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
     MatrixX expected_z_bar(beta_.rows(), X.cols());
     MatrixX b(beta_.rows(), X.rows());
 
+    Scalar likelihood = 0;
     for (int d=0; d<X.cols(); d++) {
-        unsupervised_e_step_->doc_e_step(
+        likelihood = unsupervised_e_step_->doc_e_step(
             X.col(d),
             -1,
             alpha_,
@@ -185,6 +186,11 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
             phi,
             b,
             expected_z_bar.col(d)
+        );
+
+        get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
+            static_cast<size_t>(d),
+            likelihood
         );
     }
 

@@ -12,8 +12,8 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
     public:
         SupervisedEStep(
             size_t e_step_iterations = 10,
-            size_t fixed_point_iterations = 20,
-            Scalar e_step_tolerance = 1e-2
+            Scalar e_step_tolerance = 1e-2,
+            size_t fixed_point_iterations = 20
         );
         
         /** Maximize the ELBO w.r.t phi and gamma

@@ -36,14 +36,13 @@ Scalar UnsupervisedEStep<Scalar>::doc_e_step(
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
-    while (e_step_iterations_-- > 0) {
-
+    for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
         new_likelihood = compute_likelihood(X, alpha, beta, phi, gamma);
         if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
             break;
         }
         old_likelihood = new_likelihood;
-        
+
         // Update Multinomial parameter phi, according to the following
         // pseudocode
         //
