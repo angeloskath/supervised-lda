@@ -24,13 +24,13 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
     std::mt19937 rng;
     rng.seed(0);
 
-    SupervisedMStep<TypeParam> m_step(1000, 1e-2, 1e-2);
+    SupervisedMStep<TypeParam> m_step(100, 1e-3, 1e-2);
 
     std::vector<TypeParam> progress;
     m_step.get_event_dispatcher()->add_listener(
         [&progress](std::shared_ptr<Event> event) {
-            if (event->id() == "ExpectationProgressEvent") {
-                auto prog_ev = std::static_pointer_cast<ExpectationProgressEvent<TypeParam> >(event);
+            if (event->id() == "MaximizationProgressEvent") {
+                auto prog_ev = std::static_pointer_cast<MaximizationProgressEvent<TypeParam> >(event);
                 progress.push_back(prog_ev->likelihood());
             }
         }
@@ -44,8 +44,7 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
         y[i] = dis(rng);
     }
     MatrixX<TypeParam> beta(10, 100);
-    MatrixX<TypeParam> eta(10, 6);
-    TypeParam L = 0.1;
+    MatrixX<TypeParam> eta = MatrixX<TypeParam>::Zero(10, 6);
 
     m_step.m_step(
         expected_z_bar,
