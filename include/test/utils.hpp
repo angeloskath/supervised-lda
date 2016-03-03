@@ -18,4 +18,23 @@ template <typename T>
 using VectorX = Eigen::Matrix<T, Eigen::Dynamic, 1>;
 
 
+template <typename T>
+struct is_float {
+    enum IsFloat { value = false };
+};
+template <>
+struct is_float<float> {
+    enum IsFloat { value = true };
+};
+
+template <typename T>
+struct is_double {
+    enum IsDouble { value = false };
+};
+template <>
+struct is_double<double> {
+    enum IsDouble { value = true };
+};
+
+
 #endif  // _TEST_PARAMETERIZED_TEST_HPP_
