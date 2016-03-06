@@ -23,16 +23,16 @@ class IEStep : public EventDispatcherComposition
         /**
           * Maximize the ELBO
           *
-          * @param doc                A sinle document
-          * @param model_parameters   An instance of class Parameters, which
-          *                           contains all necessary model parameters 
-          *                           for e-step's implementation
-          * @return                   The variational parameters for the current
-          *                           model, after e-step is completed
+          * @param doc          A sinle document
+          * @param parameters   An instance of class Parameters, which
+          *                     contains all necessary model parameters 
+          *                     for e-step's implementation
+          * @return             The variational parameters for the current
+          *                     model, after e-step is completed
           */
         virtual std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,
-            const std::shared_ptr<Parameters> model_parameters
+            const std::shared_ptr<Parameters> parameters
         )=0;
 };
 #endif //  _IESTEP_HPP_

@@ -20,26 +20,26 @@ class IMStep : public EventDispatcherComposition
         /**
          * Maximize the ELBO.
          *
-         * @param model_parameters           Model parameters, after being updated in m_step
+         * @param parameters       Model parameters, after being updated in m_step
          */
-        void void m_step(
-            std::shared_ptr<Parameters> model_parameters
+        void m_step(
+            std::shared_ptr<Parameters> parameters
         )=0;
 
         /**
          * This function calculates all necessary parameters, that
          * will be used for the maximazation step.
          *
-         * @param doc                        A single document
-         * @param variational_parameters     The variational parameters used in m-step
-         *                                   in order to maximize model parameters
-         * @param model_parameters           Model parameters, used as output in case of 
-         *                                   online methods
+         * @param doc              A single document
+         * @param v_parameters     The variational parameters used in m-step
+         *                         in order to maximize model parameters
+         * @param m_parameters     Model parameters, used as output in case of 
+         *                         online methods
          */
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,
-            const std::shared_ptr<Parameters> variational_parameters,
-            std::shared_ptr<Parameters> model_parameters
+            const std::shared_ptr<Parameters> v_parameters,
+            std::shared_ptr<Parameters> m_parameters
         )=0;
 };
 
