@@ -14,10 +14,11 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
-        ) : docs_(0),
-            m_step_iterations_(m_step_iterations),
+        ) : m_step_iterations_(m_step_iterations),
             m_step_tolerance_(m_step_tolerance),
-            regularization_penalty_(regularization_penalty) {};
+            regularization_penalty_(regularization_penalty),
+            docs_(0)
+        {}
         
         /**
          * Maximize the ELBO w.r.t to \beta and \eta.
