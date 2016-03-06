@@ -15,6 +15,7 @@
 #include "LDABuilder.hpp"
 #include "LDA.hpp"
 #include "NumpyFormat.hpp"
+#include "Parameters.hpp"
 #include "ProgressEvents.hpp"
 
 
@@ -33,45 +34,31 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
 void save_lda(
     std::string model_path,
-    typename LDA<double>::LDAState lda_state
+    std::shared_ptr<Parameters> parameters
 ) {
+    // cast the model parameters to the model parameters type this script deals
+    // with, namely SupervisedModelParameters
+    auto model_parameters =
+        std::static_pointer_cast<SupervisedModelParameters<double> >(
+            parameters
+        );
+
+    // we 'll save the model here
     std::fstream model(
         model_path,
         std::ios::out | std::ios::binary
     );
 
-    model << numpy_format::NumpyOutput<int>(
-        lda_state.ids,
-        std::vector<size_t>{5, 1},
-        true
-    );
-
-    for (int i=0; i<5; i++) {
-        if (lda_state.parameters[i].size() == 0) {
-            lda_state.parameters[i].push_back(0);
-        }
-
-        model << numpy_format::NumpyOutput<double>(
-            lda_state.parameters[i].data(),
-            std::vector<size_t>{lda_state.parameters[i].size(), 1},
-            true
-        );
-    }
-
-    model << numpy_format::NumpyOutput<double>(*lda_state.alpha);
-    model << numpy_format::NumpyOutput<double>(*lda_state.beta);
-    model << numpy_format::NumpyOutput<double>(*lda_state.eta);
+    model << numpy_format::NumpyOutput<double>(model_parameters->alpha);
+    model << numpy_format::NumpyOutput<double>(model_parameters->beta);
+    model << numpy_format::NumpyOutput<double>(model_parameters->eta);
 }
 
 
-LDA<double> load_lda(std::string model_path, size_t iterations=20) {
+std::shared_ptr<Parameters> load_lda(std::string model_path) {
     // we will be needing those
-    LDA<double>::LDAState lda_state;
-    numpy_format::NumpyInput<int> nii;
+    auto model_parameters = std::make_shared<SupervisedModelParameters<double> >();
     numpy_format::NumpyInput<double> nid;
-    VectorXd alpha;
-    MatrixXd beta;
-    MatrixXd eta;
 
     // open the file
     std::fstream model(
@@ -79,28 +66,11 @@ LDA<double> load_lda(std::string model_path, size_t iterations=20) {
         std::ios::in | std::ios::binary
     );
 
-    // read the implementation ids
-    model >> nii;
-    std::memcpy(lda_state.ids, nii.data(), nii.shape()[0] * sizeof(int));
-    for (int i=0; i<5; i++) {
-        model >> nid;
-        lda_state.parameters[i].resize(nid.shape()[0]);
-        std::memcpy(lda_state.parameters[i].data(), nid.data(), nid.shape()[0] * sizeof(double));
-    }
+    model >> ni; model_parameters->alpha = ni;
+    model >> ni; model_parameters->beta = ni;
+    model >> ni; model_parameters->eta = ni;
 
-    model >> nid;
-    alpha = nid;
-    lda_state.alpha = &alpha;
-
-    model >> nid;
-    beta = nid;
-    lda_state.beta = &beta;
-
-    model >> nid;
-    eta = nid;
-    lda_state.eta = &eta;
-
-    return LDA<double>(lda_state, iterations);
+    return model_parameters;
 }
 
 
@@ -163,19 +133,19 @@ class SnapshotEvery : public IEventListener
 
                 seen_so_far_ ++;
                 if (seen_so_far_ % every_ == 0) {
-                    snapsot(progress->lda_state());
+                    snapsot(progress->model_parameters());
                 }
             }
         }
 
-        void snapsot(typename LDA<double>::LDAState lda_state) {
+        void snapsot(std::shared_ptr<Parameters> parameters) {
             std::stringstream actual_path;
             actual_path << path_ << "_";
             actual_path.fill('0');
             actual_path.width(3);
             actual_path << seen_so_far_;
 
-            save_lda(actual_path.str(), lda_state);
+            save_lda(actual_path.str(), parameters);
         }
 
     private:

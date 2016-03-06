@@ -4,7 +4,6 @@
 #include <random>
 
 #include "LDA.hpp"
-#include "InternalsFactory.hpp"
 #include "ProgressEvents.hpp"
 
 

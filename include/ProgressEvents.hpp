@@ -3,6 +3,7 @@
 
 
 #include "Events.hpp"
+#include "Parameters.hpp"
 
 
 template <typename Scalar>
