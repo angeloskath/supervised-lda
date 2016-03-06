@@ -27,31 +27,18 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
          *  )
          * \gamma = \alpha + \sum_{n=1}^N \phi_n
          *
-         * @param X       The word counts in column-major order for a single 
-         *                document
-         * @param y       The class label as integer for the current document
-         * @param alpha   The Dirichlet priors
-         * @param beta    The over word topic distributiosn
-         * @param eta     The classification parameters
-         * @param phi     The Multinomial parameters
-         * @param gamma   The Dirichlet parameters
-         * @return        The likelihood so far
+         * @param doc                A sinle document
+         * @param model_parameters   An instance of class Parameters, which
+         *                           contains all necessary model parameters 
+         *                           for e-step's implementation
+         * @return                   The variational parameters for the current
+         *                           model, after e-step is completed
          */
-        Scalar doc_e_step(
-            const VectorXi &X,
-            int y,
-            const VectorX &alpha,
-            const MatrixX &beta,
-            const MatrixX &eta,
-            Ref<MatrixX> phi,
-            Ref<VectorX> gamma
+        std::shared_ptr<Parameters> doc_e_step(
+            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<Parameters> model_parameters
         ) override;
         
-        // Implement ISerializable
-        int get_id() override;
-        std::vector<Scalar> get_parameters() override;
-        void set_parameters(std::vector<Scalar> parameters) override;
-    
         /**
          * The value of the ELBO.
          *

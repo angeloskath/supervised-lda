@@ -11,14 +11,9 @@ UnsupervisedEStep<Scalar>::UnsupervisedEStep(
 }
 
 template <typename Scalar>
-Scalar UnsupervisedEStep<Scalar>::doc_e_step(
-    const VectorXi &X,
-    int y,
-    const VectorX &alpha,
-    const MatrixX &beta,
-    const MatrixX &eta,
-    Ref<MatrixX> phi,
-    Ref<VectorX> gamma
+std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
+    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<Parameters> model_parameters
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
 
@@ -98,26 +93,6 @@ Scalar UnsupervisedEStep<Scalar>::compute_likelihood(
     likelihood += -(phi.array() * (phi.array() + 1e-44).log()).sum();
     
     return likelihood;
-}
-
-
-template <typename Scalar>
-int UnsupervisedEStep<Scalar>::get_id() {
-    return IEStep<Scalar>::BatchUnsupervised;
-}
-
-template <typename Scalar>
-std::vector<Scalar> UnsupervisedEStep<Scalar>::get_parameters() {
-    return {
-        static_cast<Scalar>(e_step_iterations_),
-        e_step_tolerance_
-    };
-}
-
-template <typename Scalar>
-void UnsupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
-    e_step_iterations_ = static_cast<size_t>(parameters[0]);
-    e_step_tolerance_ = parameters[1];
 }
 
 

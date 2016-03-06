@@ -1,12 +1,8 @@
 #include "UnsupervisedMStep.hpp"
 
 template <typename Scalar>
-Scalar UnsupervisedMStep<Scalar>::m_step(
-    const MatrixX &expected_z_bar,
-    const MatrixX &b,
-    const VectorXi &y,
-    Ref<MatrixX> beta,
-    Ref<MatrixX> eta
+void UnsupervisedMStep<Scalar>::m_step(
+    std::shared_ptr<Parameters> model_parameters
 ) {
     // we maximized w.r.t \beta during each doc_m_step
     beta = b;
@@ -17,31 +13,15 @@ Scalar UnsupervisedMStep<Scalar>::m_step(
 
 template <typename Scalar>
 void UnsupervisedMStep<Scalar>::doc_m_step(
-   const VectorXi &X,
-   const MatrixX &phi,
-   Ref<MatrixX> b,
-   Ref<VectorX> expected_z_bar
+    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<Parameters> variational_parameters
+    std::shared_ptr<Parameters> model_parameters
 ) {
     auto t1 = X.cast<Scalar>().transpose().array();
     auto t2 = phi.array().rowwise() * t1;
 
-    b.array() += t2;
-    expected_z_bar = t2.rowwise().sum() / X.sum();
-}
-
-
-template <typename Scalar>
-int UnsupervisedMStep<Scalar>::get_id() {
-    return IMStep<Scalar>::BatchUnsupervised;
-}
-
-template <typename Scalar>
-std::vector<Scalar> UnsupervisedMStep<Scalar>::get_parameters() {
-    return {};
-}
-
-template <typename Scalar>
-void UnsupervisedMStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+    b_.array() += t2;
+    //expected_z_bar = t2.rowwise().sum() / X.sum();
 }
 
 // Template instantiation

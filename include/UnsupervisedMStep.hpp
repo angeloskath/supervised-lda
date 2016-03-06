@@ -15,45 +15,29 @@ class UnsupervisedMStep : public IMStep<Scalar>
         /**
          * Maximize the ELBO w.r.t to \beta.
          *
-         * @param expected_Z_bar Is the expected values of Z_bar for every
-         *                       document
-         * @param b              The unnormalized new betas
-         * @param y              The class indexes for every document
-         * @param beta           The topic word distributions
-         * @param eta            The classification parameters
-         * @return               The likelihood of the Multinomial logistic
-         *                       regression
+         * @param model_parameters           Model parameters, after being updated in m_step
          */
-        virtual Scalar m_step(
-            const MatrixX &expected_z_bar,
-            const MatrixX &b,
-            const VectorXi &y,
-            Ref<MatrixX> beta,
-            Ref<MatrixX> eta
+        virtual void m_step(
+            std::shared_ptr<Parameters> model_parameters
         ) override;
 
         /**
          * This function calculates all necessary parameters, that
          * will be used for the maximazation step.
          *
-         * @param X              The word counts in column-major order for a single 
-         *                       document
-         * @param phi            The Multinomial parameters
-         * @param b              The unnormalized new betas
-         * @param expected_Z_bar Is the expected values of Z_bar for every
-         *                       document
+         * @param doc                        A single document
+         * @param variational_parameters     The variational parameters used in m-step
+         *                                   in order to maximize model parameters
+         * @param model_parameters           Model parameters, used as output in case of 
+         *                                   online methods
          */
         void doc_m_step(
-           const VectorXi &X,
-           const MatrixX &phi,
-           Ref<MatrixX> b,
-           Ref<VectorX> expected_z_bar
+            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<Parameters> variational_parameters
+            std::shared_ptr<Parameters> model_parameters
         ) override;
-
-        // Implement ISerializable
-        int get_id() override;
-        std::vector<Scalar> get_parameters() override;
-        void set_parameters(std::vector<Scalar> parameters) override;
-
+    
+    private:
+        MatrixX b_;
 };
 #endif  // _UNSUPERVISEDMSTEP_HPP_ 

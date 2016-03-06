@@ -21,28 +21,12 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
         /**
          * Maximize the ELBO w.r.t to \beta and \eta.
          *
-         * @param expected_Z_bar Is the expected values of Z_bar for every
-         *                       document
-         * @param b              The unnormalized new betas
-         * @param y              The class indexes for every document
-         * @param beta           The topic word distributions
-         * @param eta            The classification parameters
-         * @return               The likelihood of the Multinomial logistic
-         *                       regression
+         * @param model_parameters           Model parameters, after being updated in m_step
          */
         Scalar m_step(
-            const MatrixX &expected_z_bar,
-            const MatrixX &b,
-            const VectorXi &y,
-            Ref<MatrixX> beta,
-            Ref<MatrixX> eta
+            std::shared_ptr<Parameters> model_parameters
         );
         
-        // Implement ISerializable
-        int get_id() override;
-        std::vector<Scalar> get_parameters() override;
-        void set_parameters(std::vector<Scalar> parameters) override;
-    
     private:
         // The maximum number of iterations in M-step
         size_t m_step_iterations_;

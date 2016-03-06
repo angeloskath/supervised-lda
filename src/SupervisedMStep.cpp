@@ -4,20 +4,12 @@
 #include "SupervisedMStep.hpp"
 
 template <typename Scalar>
-Scalar SupervisedMStep<Scalar>::m_step(
-    const MatrixX &expected_z_bar,
-    const MatrixX &b,
-    const VectorXi &y,
-    Ref<MatrixX> beta,
-    Ref<MatrixX> eta
+void SupervisedMStep<Scalar>::m_step(
+    std::shared_ptr<Parameters> model_parameters
 ) {
     // Maximize w.r.t \beta during
     UnsupervisedMStep<Scalar>::m_step(
-        expected_z_bar,
-        b,
-        y,
-        beta,
-        eta
+        std::shared_ptr<Parameters> model_parameters
     );
 
     // we need to maximize w.r.t to \eta
@@ -48,27 +40,6 @@ Scalar SupervisedMStep<Scalar>::m_step(
 
     return initial_value;
 
-}
-
-template <typename Scalar>
-int SupervisedMStep<Scalar>::get_id() {
-    return IMStep<Scalar>::BatchSupervised;
-}
-
-template <typename Scalar>
-std::vector<Scalar> SupervisedMStep<Scalar>::get_parameters() {
-    return {
-        static_cast<Scalar>(m_step_iterations_),
-        m_step_tolerance_,
-        regularization_penalty_
-    };
-}
-
-template <typename Scalar>
-void SupervisedMStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
-    m_step_iterations_ = static_cast<size_t>(parameters[0]);
-    m_step_tolerance_ = parameters[1];
-    regularization_penalty_ = parameters[2];
 }
 
 // Template instantiation
