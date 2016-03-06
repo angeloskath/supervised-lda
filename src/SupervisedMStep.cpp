@@ -17,7 +17,7 @@ void SupervisedMStep<Scalar>::doc_m_step(
     // Cast Parameters to VariationalParameters in order to have access to gamma
     const VectorX &gamma = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->gamma;
     // Cast Parameters to SupervisedModelParameters in order to have access to alpha
-    const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(v_parameters)->alpha;
+    const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(m_parameters)->alpha;
     int num_topics = alpha.rows();
 
     // Resize properly expected_z_bar_ and y_ every time the current function

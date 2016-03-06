@@ -18,14 +18,14 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     const std::shared_ptr<Parameters> parameters
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
-    
+
     // Words form Document doc
     const VectorXi &X = doc->get_words();
     int num_words = X.sum();
     int voc_size = X.rows();
     // Get the document's class
     int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
-    
+
     // Cast parameters to model parameters in order to save all necessary
     // matrixes
     const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->alpha;
@@ -33,7 +33,7 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     const MatrixX &eta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->eta;
     int num_topics = beta.rows();
 
-    MatrixX phi = MatrixX::Constant(num_topics, num_words, 1.0/num_topics);
+    MatrixX phi = MatrixX::Constant(num_topics, voc_size, 1.0/num_topics);
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // allocate memory for helper variables

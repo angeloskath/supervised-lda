@@ -27,7 +27,7 @@ std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
     const MatrixX &beta = std::static_pointer_cast<ModelParameters<Scalar> >(parameters)->beta;
     int num_topics = beta.rows();
     
-    MatrixX phi = MatrixX::Constant(num_topics, num_words, 1.0/num_topics);
+    MatrixX phi = MatrixX::Constant(num_topics, X.rows(), 1.0/num_topics);
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // to check for convergence
