@@ -87,6 +87,13 @@ class LDA
             return event_dispatcher_;
         }
 
+        /**
+         * Get a constant reference to the model's parameters.
+         */
+        const std::shared_ptr<Parameters> model_parameters() {
+            return model_parameters_;
+        }
+
     protected:
         /**
          * Generate a Corpus from a pair of X, y matrices

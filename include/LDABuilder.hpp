@@ -60,36 +60,36 @@ class LDABuilder : public ILDABuilder<Scalar>
         {}
 
         // set generic parameters
-        LDABuilder & set_iterations(size_t topics);
+        LDABuilder & set_iterations(size_t iterations) {
+            iterations_ = iterations;
+
+            return *this;
+        }
 
         // create e steps
         template <typename ...Args>
-        LDABuilder & set_e_step(const std::string &type, Args... args) {
-            if (type == "classic") {
-                e_step_ = std::make_shared<UnsupervisedEStep<Scalar> >(args...);
-            }
-            else if (type == "supervised") {
-                e_step_ = std::make_shared<SupervisedEStep<Scalar> >(args...);
-            }
-            else {
-                throw std::invalid_argument(type + " is an unknown expectation step");
-            }
+        LDABuilder & set_classic_e_step(Args... args) {
+            e_step_ = std::make_shared<UnsupervisedEStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_supervised_e_step(Args... args) {
+            e_step_ = std::make_shared<SupervisedEStep<Scalar> >(args...);
 
             return *this;
         }
 
         // create m steps
         template <typename ...Args>
-        LDABuilder & set_m_step(const std::string &type, Args... args) {
-            if (type == "batch") {
-                m_step_ = std::make_shared<UnsupervisedMStep<Scalar> >(args...);
-            }
-            else if (type == "supervised-batch") {
-                m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
-            }
-            else {
-                throw std::invalid_argument(type + " is an unknown maximization step");
-            }
+        LDABuilder & set_batch_m_step(Args... args) {
+            m_step_ = std::make_shared<UnsupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_supervised_batch_m_step(Args... args) {
+            m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -109,11 +109,6 @@ class LDABuilder : public ILDABuilder<Scalar>
             else if (type == "random") {
                 initialize_topics_random<Scalar>(model_parameters_, corpus, args...);
             }
-            else if (type == "model") {
-                this->template initialize_topics_from_model<Scalar>(
-                    std::static_pointer_cast<ModelParameters<Scalar> >(args...)
-                );
-            }
             else {
                 throw std::invalid_argument(type + " is an unknown topic initialization method");
             }
@@ -132,11 +127,6 @@ class LDABuilder : public ILDABuilder<Scalar>
 
             if (type == "zeros") {
                 initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
-            }
-            else if (type == "model") {
-                this->template initialize_eta_from_model<Scalar>(
-                    std::static_pointer_cast<SupervisedModelParameters<Scalar> >(args...)
-                );
             }
             else {
                 throw std::invalid_argument(type + " is an unknown eta initialization method");
