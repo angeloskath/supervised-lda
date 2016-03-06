@@ -5,11 +5,12 @@
 #include <memory>
 #include <vector>
 
-#include "IInitialization.hpp"
+#include <Eigen/Core>
+
+#include "Events.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
-#include "Events.hpp"
-
+#include "Parameters.hpp"
 
 using namespace Eigen;
 
@@ -24,34 +25,15 @@ class LDA
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
-        struct LDAState
-        {
-            int ids[5];
-            std::vector<Scalar> parameters[5];
-            VectorX * alpha;
-            MatrixX * beta;
-            MatrixX * eta;
-        };
-
         /**
          * Create an LDA from a set of internal EM steps an initialization
          * strategy and an unsupervised expectation step to transform unseen
          * data.
          */
         LDA(
-            std::shared_ptr<IInitialization<Scalar> > initialization,
-            std::shared_ptr<IEStep<Scalar> > unsupervised_e_step,
-            std::shared_ptr<IMStep<Scalar> > unsupervised_m_step,
+            std::shared_ptr<Parameters> model_parameters,
             std::shared_ptr<IEStep<Scalar> > e_step,
             std::shared_ptr<IMStep<Scalar> > m_step,
-            size_t iterations = 20
-        );
-
-        /**
-         * Rebuild an LDA instance from an LDAState.
-         */
-        LDA(
-            LDAState lda_state,
             size_t iterations = 20
         );
 
@@ -73,6 +55,14 @@ class LDA
          * @param y The classes as integers
          */
         void partial_fit(const MatrixXi &X, const VectorXi &y);
+
+        /**
+         * Perform a single em iteration.
+         *
+         * @param corpus The implementation of Corpus that contains the
+         *               observed variables.
+         */
+        void partial_fit(std::shared_ptr<Corpus> corpus);
 
         /**
          * Transform the word counts X into topic proportions and return a new
@@ -97,26 +87,19 @@ class LDA
             return event_dispatcher_;
         }
 
-        LDAState get_state() {
-            LDAState s;
+    protected:
+        /**
+         * Generate a Corpus from a pair of X, y matrices
+         */
+        std::shared_ptr<Corpus> get_corpus(
+            const MatrixXi &X,
+            const VectorXi &y
+        );
 
-            s.ids[0] = initialization_->get_id();
-            s.parameters[0] = initialization_->get_parameters();
-            s.ids[1] = unsupervised_e_step_->get_id();
-            s.parameters[1] = unsupervised_e_step_->get_parameters();
-            s.ids[2] = unsupervised_m_step_->get_id();
-            s.parameters[2] = unsupervised_m_step_->get_parameters();
-            s.ids[3] = e_step_->get_id();
-            s.parameters[3] = e_step_->get_parameters();
-            s.ids[4] = m_step_->get_id();
-            s.parameters[4] = m_step_->get_parameters();
-
-            s.alpha = &alpha_;
-            s.beta = &beta_;
-            s.eta = &eta_;
-
-            return s;
-        }
+        /**
+         * Generate a Corpus from just the word count matrix.
+         */
+        std::shared_ptr<Corpus> get_corpus(const MatrixXi &X);
 
     private:
         /**
@@ -125,17 +108,12 @@ class LDA
          */
         void set_up_event_dispatcher();
 
-        // The internal modules used for the implementation
-        std::shared_ptr<IInitialization<Scalar> > initialization_;
-        std::shared_ptr<IEStep<Scalar> > unsupervised_e_step_;
-        std::shared_ptr<IMStep<Scalar> > unsupervised_m_step_;
+        // The model parameters
+        std::shared_ptr<Parameters> model_parameters_;
+
+        // The LDA implementation
         std::shared_ptr<IEStep<Scalar> > e_step_;
         std::shared_ptr<IMStep<Scalar> > m_step_;
-
-        // The model parameters
-        VectorX alpha_;
-        MatrixX beta_;
-        MatrixX eta_;
 
         // Member variables that affect the behaviour of fit
         size_t iterations_;

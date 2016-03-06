@@ -50,18 +50,18 @@ class MaximizationProgressEvent : public Event
 template <typename Scalar>
 class EpochProgressEvent : public Event
 {
-    typedef typename LDA<Scalar>::LDAState LDAState;
-
     public:
-        EpochProgressEvent(LDAState lda_state) :
+        EpochProgressEvent(const std::shared_ptr<Parameters> parameters) :
             Event("EpochProgressEvent"),
-            lda_state_(lda_state)
+            model_parameters_(parameters)
         {}
 
-        const LDAState & lda_state() const { return lda_state_; }
+        const std::shared_ptr<Parameters> model_parameters() const {
+            return model_parameters_;
+        }
 
     private:
-        LDAState lda_state_;
+       std::shared_ptr<Parameters> model_parameters_;
 };
 
 

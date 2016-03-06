@@ -42,7 +42,7 @@ class Corpus
         /** The number of documents in the corpus */
         virtual size_t size() const = 0;
         /** The ith document */
-        virtual const std::shared_ptr<Document> operator[] (size_t index) const = 0;
+        virtual const std::shared_ptr<Document> at(size_t index) const = 0;
         /**
          * Shuffle the documents so that the ith document is any of the
          * documents with probability 1.0/size() .
@@ -85,10 +85,67 @@ class ClassificationDecorator : public ClassificationDocument
 
 
 /**
+ * Implement a shuffle method that shuffles indexes and provides them to
+ * classes who want to implement the corpus interface.
+ */
+class CorpusIndexes
+{
+    public:
+        CorpusIndexes(int N, int random_state=0);
+
+        /**
+         * Return the document index that corresponds to the sequential index
+         * after a shuffle.
+         */
+        int get_index(int index) const { return indices_[index]; }
+
+        /**
+         * Shuffle the indexes around.
+         */
+        void shuffle();
+
+    private:
+        /**
+         * A vector of indices that implements the function mapping the ith in
+         * sequence document to a jth actual document
+         */
+        std::vector<int> indices_;
+
+        /** A pseudo random number generator for the shuffling */
+        std::mt19937 prng_;
+};
+
+
+/**
+ * Wrap a matrix X and implement the corpus interface.
+ */
+class EigenCorpus : public Corpus
+{
+    public:
+        EigenCorpus(const MatrixXi & X, int random_state=0);
+
+        size_t size() const override;
+        virtual const std::shared_ptr<Document> at(size_t index) const override;
+        void shuffle() override;
+
+    protected:
+        /** To implement shuffle */
+        CorpusIndexes indices_;
+
+        /**
+         * We keep X_ protected instead of private to reduce boilerplate in
+         * creating a supervised version of this Corpus.
+         */
+        const MatrixXi & X_;
+
+};
+
+
+/**
  * EigenClassificationCorpus wraps a pair of matrices X, y and implements the
  * Corpus interface with them using X as the words and y as the classes.
  */
-class EigenClassificationCorpus : public Corpus
+class EigenClassificationCorpus : public EigenCorpus
 {
     public:
         EigenClassificationCorpus(
@@ -97,23 +154,10 @@ class EigenClassificationCorpus : public Corpus
             int random_state = 0
         );
 
-        size_t size() const override;
-        const std::shared_ptr<Document> operator[] (size_t index) const override;
-        void shuffle() override;
+        const std::shared_ptr<Document> at(size_t index) const override;
 
     private:
-        // Keep X and y internally as constant references
-        // TODO: Evaluate if these should be copied in or even moved in
-        const MatrixXi & X_;
         const VectorXi & y_;
-
-        // A vector of indices so that we can be iterating randomly without
-        // shuffling the large X_ in memory. It may suck for cache friendliness
-        // but this is the least of our optimization problems.
-        std::vector<int> indices_;
-
-        // A pseudo random number generator for the shuffling
-        std::mt19937 prng_;
 };
 
 
