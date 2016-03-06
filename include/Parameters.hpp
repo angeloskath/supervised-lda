@@ -25,6 +25,7 @@ struct Parameters
 template <typename Scalar>
 struct ModelParameters : public Parameters
 {
+    ModelParameters() {}
     ModelParameters(
         Matrix<Scalar, Dynamic, 1> a,
         Matrix<Scalar, Dynamic, Dynamic> b
@@ -43,6 +44,7 @@ struct ModelParameters : public Parameters
 template <typename Scalar>
 struct SupervisedModelParameters : public ModelParameters<Scalar>
 {
+    SupervisedModelParameters() {}
     SupervisedModelParameters(
         Matrix<Scalar, Dynamic, 1> a,
         Matrix<Scalar, Dynamic, Dynamic> b,
@@ -62,6 +64,7 @@ struct SupervisedModelParameters : public ModelParameters<Scalar>
 template <typename Scalar>
 struct VariationalParameters : public Parameters
 {
+    VariationalParameters() {}
     VariationalParameters(
         Matrix<Scalar, Dynamic, 1> g,
         Matrix<Scalar, Dynamic, Dynamic> p

@@ -1,6 +1,6 @@
 #include <random>
 
-#include "Initialize.hpp"
+#include "initialize.hpp"
 
 template <typename T>
 using MatrixX = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
@@ -63,7 +63,7 @@ void initialize_eta_zeros(
     
     int max = -1;
     // Find the total number of different classes
-    for (int i=0; i < corpus->size(); i++) {
+    for (size_t i=0; i < corpus->size(); i++) {
         max = std::max(
             max,
             std::static_pointer_cast<ClassificationDocument>(

@@ -7,6 +7,7 @@
 
 #include <Eigen/Core>
 
+#include "initialize.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
 #include "LDA.hpp"
@@ -109,7 +110,7 @@ class LDABuilder : public ILDABuilder<Scalar>
                 initialize_topics_random<Scalar>(model_parameters_, corpus, args...);
             }
             else if (type == "model") {
-                initialize_topics_from_model<Scalar>(
+                this->template initialize_topics_from_model<Scalar>(
                     std::static_pointer_cast<ModelParameters<Scalar> >(args...)
                 );
             }
@@ -133,7 +134,7 @@ class LDABuilder : public ILDABuilder<Scalar>
                 initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
             }
             else if (type == "model") {
-                initialize_eta_from_model<Scalar>(
+                this->template initialize_eta_from_model<Scalar>(
                     std::static_pointer_cast<SupervisedModelParameters<Scalar> >(args...)
                 );
             }
