@@ -22,7 +22,7 @@ class IMStep : public EventDispatcherComposition
          *
          * @param parameters       Model parameters, after being updated in m_step
          */
-        void m_step(
+        virtual void m_step(
             std::shared_ptr<Parameters> parameters
         )=0;
 

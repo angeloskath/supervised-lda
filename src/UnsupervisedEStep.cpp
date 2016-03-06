@@ -13,15 +13,22 @@ UnsupervisedEStep<Scalar>::UnsupervisedEStep(
 template <typename Scalar>
 std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
     const std::shared_ptr<Document> doc,
-    const std::shared_ptr<Parameters> model_parameters
+    const std::shared_ptr<Parameters> parameters
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
 
-    int num_topics = gamma.rows();
+    // Words form Document doc
+    const VectorXi &X = doc->get_words();
     int num_words = X.sum();
-
-    gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
-    phi.fill(1.0/num_topics);
+    
+    // Cast parameters to model parameters in order to save all necessary
+    // matrixes
+    const VectorX &alpha = std::static_pointer_cast<ModelParameters<Scalar> >(parameters)->alpha;
+    const MatrixX &beta = std::static_pointer_cast<ModelParameters<Scalar> >(parameters)->beta;
+    int num_topics = beta.rows();
+    
+    MatrixX phi = MatrixX::Constant(num_topics, num_words, 1.0/num_topics);
+    VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
@@ -57,7 +64,7 @@ std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
         gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
     }
 
-    return new_likelihood;
+    return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }
 
 template <typename Scalar>

@@ -27,16 +27,16 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
          *  )
          * \gamma = \alpha + \sum_{n=1}^N \phi_n
          *
-         * @param doc                A sinle document
-         * @param model_parameters   An instance of class Parameters, which
-         *                           contains all necessary model parameters 
-         *                           for e-step's implementation
-         * @return                   The variational parameters for the current
-         *                           model, after e-step is completed
+         * @param doc          A sinle document
+         * @param parameters   An instance of class Parameters, which
+         *                     contains all necessary model parameters 
+         *                     for e-step's implementation
+         * @return             The variational parameters for the current
+         *                     model, after e-step is completed
          */
         std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,
-            const std::shared_ptr<Parameters> model_parameters
+            const std::shared_ptr<Parameters> parameters
         ) override;
         
         /**
