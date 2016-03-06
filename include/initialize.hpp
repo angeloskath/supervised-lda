@@ -4,10 +4,7 @@
 #include <Eigen/Core>
 
 #include "Document.hpp"
-#include "Parametes.hpp"
-
-typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-typedef Matrix<Scalar, Dynamic, 1> VectorX;
+#include "Parameters.hpp"
 
 template<typename Scalar>
 void initialize_topics_seeded(
@@ -21,14 +18,15 @@ template <typename Scalar>
 void initialize_topics_random(
     const std::shared_ptr<Parameters> parameters,
     const std::shared_ptr<Corpus> corpus,
-    size_t topics=600
+    size_t topics=600,
+    int random_state=0
 );
 
 template <typename Scalar>
 void initialize_eta_zeros(
     const std::shared_ptr<Parameters> parameters,
     const std::shared_ptr<Corpus> corpus,
-    size_t topics
+    size_t topics=600
 );
 
 #endif  // INITIALIZE_HPP
