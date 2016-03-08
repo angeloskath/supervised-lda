@@ -57,12 +57,12 @@ class Corpus
 class EigenDocument : public Document
 {
     public:
-        EigenDocument(const VectorXi &X);
+        EigenDocument(VectorXi X);
 
         const VectorXi & get_words() const override;
 
     private:
-        const VectorXi & X_;
+        VectorXi X_;
 };
 
 

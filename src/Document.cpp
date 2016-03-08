@@ -1,12 +1,15 @@
 
 #include <numeric>
+#include <utility>
 
 #include "Document.hpp"
 
 // 
 // EigenDocument
 //
-EigenDocument::EigenDocument(const VectorXi &X) : X_(X) {}
+EigenDocument::EigenDocument(VectorXi X)
+    : X_(std::move(X))
+{}
 
 const VectorXi & EigenDocument::get_words() const {
     return X_;
