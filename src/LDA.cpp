@@ -81,12 +81,6 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<Corpus> corpus) {
             variational_parameters,
             model_parameters_  // output
         );
-
-        // inform the world that the iterations are moving
-        get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
-            i,
-            0
-        );
     }
 
     // perform the batch part of m step

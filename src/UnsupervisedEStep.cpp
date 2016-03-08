@@ -1,3 +1,4 @@
+#include "ProgressEvents.hpp"
 #include "UnsupervisedEStep.hpp"
 #include "utils.hpp"
 
@@ -63,6 +64,9 @@ std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
         // Equation (7) in Latent Dirichlet Allocation, Blei 2003 
         gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
     }
+
+    // notify that the e step has finished
+    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }

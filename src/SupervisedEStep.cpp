@@ -1,3 +1,4 @@
+#include "ProgressEvents.hpp"
 #include "SupervisedEStep.hpp"
 #include "utils.hpp"
 
@@ -67,6 +68,9 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
         // Equation (6) in Supervised topic models, Blei, McAulife 2008
         gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
     }
+
+    // notify that the e step has finished
+    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }

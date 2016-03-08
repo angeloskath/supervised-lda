@@ -66,7 +66,6 @@ void SupervisedMStep<Scalar>::m_step(
             size_t iterations
         ) {
             this->get_event_dispatcher()->template dispatch<MaximizationProgressEvent<Scalar> >(
-                iterations,
                 -value  // minus the value to be minimized is the log likelihood
             );
 

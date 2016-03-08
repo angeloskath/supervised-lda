@@ -14,17 +14,14 @@ template <typename Scalar>
 class ExpectationProgressEvent : public Event
 {
     public:
-        ExpectationProgressEvent(size_t iteration, Scalar likelihood) :
+        ExpectationProgressEvent(Scalar likelihood) :
             Event("ExpectationProgressEvent"),
-            iteration_(iteration),
             likelihood_(likelihood)
         {}
 
-        size_t iteration() const { return iteration_; }
         Scalar likelihood() const { return likelihood_; }
 
     private:
-        size_t iteration_;
         Scalar likelihood_;
 };
 
@@ -33,17 +30,14 @@ template <typename Scalar>
 class MaximizationProgressEvent : public Event
 {
     public:
-        MaximizationProgressEvent(size_t iteration, Scalar likelihood) :
+        MaximizationProgressEvent(Scalar likelihood) :
             Event("MaximizationProgressEvent"),
-            iteration_(iteration),
             likelihood_(likelihood)
         {}
 
-        size_t iteration() const { return iteration_; }
         Scalar likelihood() const { return likelihood_; }
 
     private:
-        size_t iteration_;
         Scalar likelihood_;
 };
 

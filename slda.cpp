@@ -78,6 +78,8 @@ class TrainingProgress : public IEventListener
 {
     public:
         TrainingProgress() {
+            e_iterations_ = 0;
+            m_iterations_ = 0;
             em_iterations_ = 1;
             output_em_step_ = true;
             likelihood_ = 0;
@@ -85,35 +87,45 @@ class TrainingProgress : public IEventListener
 
         void on_event(std::shared_ptr<Event> event) {
             if (event->id() == "ExpectationProgressEvent") {
-                if (output_em_step_) {
-                    output_em_step_ = false;
-
-                    std::cout << "E-M Iteration " << em_iterations_ << std::endl;
-                }
                 auto progress = std::static_pointer_cast<ExpectationProgressEvent<double> >(event);
 
-                // update the flags and member variables with the progress
-                likelihood_ += std::isinf(progress->likelihood()) ? 0 : progress->likelihood();
+                // output the EM count
+                if (e_iterations_ == 0) {
+                    std::cout << "E-M Iteration " << em_iterations_ << std::endl;
+                }
 
                 // if we have seen 100 iterations print out a progress
-                if ((progress->iteration()+1) % 100 == 0) {
-                    std::cout << progress->iteration()+1 << std::endl;
+                e_iterations_++;
+                if (e_iterations_ % 100 == 0) {
+                    std::cout << e_iterations_ << std::endl;
                 }
+
+                // keep track of the likelihood
+                likelihood_ += std::isinf(progress->likelihood()) ? 0 : progress->likelihood();
             }
             else if (event->id() == "MaximizationProgressEvent") {
                 auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
 
                 std::cout << "log p(y | \\bar{z}, eta): " << progress->likelihood() << std::endl;
+
+                m_iterations_++;
             }
             else if (event->id() == "EpochProgressEvent") {
+                if (likelihood_ < 0) {
                     std::cout << "Likelihood: " << likelihood_ << std::endl << std::endl;
-                    likelihood_ = 0;
-                    em_iterations_ ++;
-                    output_em_step_ = true;
+                }
+
+                // reset the member variables
+                likelihood_ = 0;
+                em_iterations_ ++;
+                e_iterations_ = 0;
+                m_iterations_ = 0;
             }
         }
 
     private:
+        int e_iterations_;
+        int m_iterations_;
         int em_iterations_;
         double likelihood_;
         bool output_em_step_;
