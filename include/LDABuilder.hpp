@@ -3,13 +3,18 @@
 
 
 #include <memory>
-#include <vector>
+#include <stdexcept>
 
+#include <Eigen/Core>
+
+#include "initialize.hpp"
 #include "IEStep.hpp"
-#include "IInitialization.hpp"
 #include "IMStep.hpp"
-#include "InternalsFactory.hpp"
 #include "LDA.hpp"
+#include "SupervisedEStep.hpp"
+#include "SupervisedMStep.hpp"
+#include "UnsupervisedEStep.hpp"
+#include "UnsupervisedMStep.hpp"
 
 
 template <typename Scalar>
@@ -21,106 +26,165 @@ class ILDABuilder
 
 
 /**
- * The LDABuilder provides a simple interface to build an LDA.
+ * The LDABuilder provides a simpler interface to build an LDA.
  *
  * Examples:
  *
- * LDA<double> lda = LDABuilder<double>();
  * LDA<double> lda = LDABuilder<double>().
- *                      set_topics(100).
+ *                      initialize_topics("random", X, 100);
+ *
+ * LDA<double> lda = LDABuilder<double>().
  *                      set_iterations(20).
- *                      set_initialization(IInitialization<double>::Seeded, {}).
- *                      set_e_step(IEStep<double>::BatchSupervised, 10, 1e-2, 20).
- *                      set_m_step(IMStep<double>::BatchSupervised, 10, 1e-2);
+ *                      set_e_step("classic").
+ *                      set_m_step("supervised-batch").
+ *                      initialize_topics("seeded", X, 100).
+ *                      initialize_eta("zeros", X, y);
+ *
+ * LDA<double> lda = LDABuilder<double>().
+ *                      set_e_step("classic").
+ *                      set_m_step("supervised-batch").
+ *                      initialize_topics_from_model(model).
+ *                      initialize_eta_from_model(model);
  */
 template <typename Scalar>
 class LDABuilder : public ILDABuilder<Scalar>
 {
     public:
-        LDABuilder();
-        LDABuilder(std::shared_ptr<IInternalsFactory<Scalar> > factory);
+        LDABuilder()
+            : iterations_(20),
+              e_step_(std::make_shared<UnsupervisedEStep<Scalar> >()),
+              m_step_(std::make_shared<UnsupervisedMStep<Scalar> >()),
+              model_parameters_(
+                std::make_shared<SupervisedModelParameters<Scalar> >()
+              )
+        {}
 
         // set generic parameters
-        LDABuilder & set_iterations(size_t topics);
+        LDABuilder & set_iterations(size_t iterations) {
+            iterations_ = iterations;
 
-        // set the initialization
-        template <typename... P>
-        LDABuilder & set_initialization(
-            typename IInitialization<Scalar>::Type initialization_type,
-            P... parameters
-        ) {
-            return set_initialization(
-                initialization_type,
-                std::vector<Scalar>{static_cast<Scalar>(parameters)...}
-            );
+            return *this;
         }
-        LDABuilder & set_initialization(
-            typename IInitialization<Scalar>::Type initialization_type,
-            std::vector<Scalar> parameters
-        );
 
-        // set the unsupervised e step
-        LDABuilder & set_unsupervised_e_step(size_t iterations, Scalar tolerance);
-        LDABuilder & set_unsupervised_m_step(size_t iterations, Scalar tolerance);
+        // create e steps
+        template <typename ...Args>
+        LDABuilder & set_classic_e_step(Args... args) {
+            e_step_ = std::make_shared<UnsupervisedEStep<Scalar> >(args...);
 
-        // set the actual e step
-        template <typename... P>
-        LDABuilder & set_e_step(
-            typename IEStep<Scalar>::Type e_step_type,
-            P... parameters
-        ) {
-            return set_e_step(
-                e_step_type,
-                std::vector<Scalar>{static_cast<Scalar>(parameters)...}
-            );
+            return *this;
         }
-        LDABuilder & set_e_step(
-            typename IEStep<Scalar>::Type e_step_type,
-            std::vector<Scalar> parameters
-        );
+        template <typename ...Args>
+        LDABuilder & set_supervised_e_step(Args... args) {
+            e_step_ = std::make_shared<SupervisedEStep<Scalar> >(args...);
 
-        // set the actual m step
-        template <typename... P>
-        LDABuilder & set_m_step(
-            typename IMStep<Scalar>::Type m_step_type,
-            P... parameters
-        ) {
-            return set_m_step(
-                m_step_type,
-                std::vector<Scalar>{static_cast<Scalar>(parameters)...}
-            );
+            return *this;
         }
-        LDABuilder & set_m_step(
-            typename IMStep<Scalar>::Type m_step_type,
-            std::vector<Scalar> parameters
-        );
 
-        virtual operator LDA<Scalar>() const;
+        // create m steps
+        template <typename ...Args>
+        LDABuilder & set_batch_m_step(Args... args) {
+            m_step_ = std::make_shared<UnsupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_supervised_batch_m_step(Args... args) {
+            m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+
+        // initialize model parameters
+        template <typename ...Args>
+        LDABuilder & initialize_topics(
+            const std::string &type,
+            const MatrixXi &X,
+            Args... args
+        ) {
+            auto corpus = std::make_shared<EigenCorpus>(X);
+
+            if (type == "seeded") {
+                initialize_topics_seeded<Scalar>(model_parameters_, corpus, args...);
+            }
+            else if (type == "random") {
+                initialize_topics_random<Scalar>(model_parameters_, corpus, args...);
+            }
+            else {
+                throw std::invalid_argument(type + " is an unknown topic initialization method");
+            }
+
+            return *this;
+        }
+
+        template <typename ...Args>
+        LDABuilder & initialize_eta(
+            const std::string &type,
+            const MatrixXi &X,
+            const VectorXi &y,
+            Args... args
+        ) {
+            auto corpus = std::make_shared<EigenClassificationCorpus>(X, y);
+
+            if (type == "zeros") {
+                initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
+            }
+            else {
+                throw std::invalid_argument(type + " is an unknown eta initialization method");
+            }
+
+            return *this;
+        }
+
+        LDABuilder & initialize_topics_from_model(
+            std::shared_ptr<ModelParameters<Scalar> > model
+        ) {
+            model_parameters_->alpha = model->alpha;
+            model_parameters_->beta = model->beta;
+
+            return *this;
+        }
+
+        LDABuilder & initialize_eta_from_model(
+            std::shared_ptr<SupervisedModelParameters<Scalar> > model
+        ) {
+            model_parameters_->eta = model->eta;
+
+            return *this;
+        }
+
+        virtual operator LDA<Scalar>() const override {
+            if (model_parameters_->beta.rows() == 0) {
+                throw std::runtime_error("You need to call initialize_topics before "
+                                         "creating an LDA from the builder.");
+            }
+
+            if (
+                model_parameters_->beta.rows() != model_parameters_->eta.rows() &&
+                model_parameters_->eta.rows() > 0
+            ) {
+                throw std::runtime_error("\\eta and \\beta should be "
+                                         "initialized with the same number of "
+                                         "topics");
+            }
+
+            return LDA<Scalar>(
+                model_parameters_,
+                e_step_,
+                m_step_,
+                iterations_
+            );
+        };
 
     private:
-        // the factory used to create the internal modules
-        std::shared_ptr<IInternalsFactory<Scalar> > factory_;
-
         // generic lda parameters
         size_t iterations_;
 
-        // initialization
-        typename IInitialization<Scalar>::Type initialization_type_;
-        std::vector<Scalar> initialization_parameters_;
+        // implementations
+        std::shared_ptr<IEStep<Scalar> > e_step_;
+        std::shared_ptr<IMStep<Scalar> > m_step_;
 
-        // unsupervised e step
-        size_t unsupervised_e_step_iterations_;
-        Scalar unsupervised_e_step_tolerance_;
-        size_t unsupervised_m_step_iterations_;
-        Scalar unsupervised_m_step_tolerance_;
-
-        // actual e step
-        typename IEStep<Scalar>::Type e_step_type_;
-        std::vector<Scalar> e_step_parameters_;
-
-        // actual m step
-        typename IMStep<Scalar>::Type m_step_type_;
-        std::vector<Scalar> m_step_parameters_;
+        // the model parameters
+        std::shared_ptr<SupervisedModelParameters<Scalar> > model_parameters_;
 };
 
 

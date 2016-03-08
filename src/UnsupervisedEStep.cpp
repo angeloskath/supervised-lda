@@ -1,3 +1,4 @@
+#include "ProgressEvents.hpp"
 #include "UnsupervisedEStep.hpp"
 #include "utils.hpp"
 
@@ -11,22 +12,24 @@ UnsupervisedEStep<Scalar>::UnsupervisedEStep(
 }
 
 template <typename Scalar>
-Scalar UnsupervisedEStep<Scalar>::doc_e_step(
-    const VectorXi &X,
-    int y,
-    const VectorX &alpha,
-    const MatrixX &beta,
-    const MatrixX &eta,
-    Ref<MatrixX> phi,
-    Ref<VectorX> gamma
+std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
+    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<Parameters> parameters
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
 
-    int num_topics = gamma.rows();
+    // Words form Document doc
+    const VectorXi &X = doc->get_words();
     int num_words = X.sum();
-
-    gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
-    phi.fill(1.0/num_topics);
+    
+    // Cast parameters to model parameters in order to save all necessary
+    // matrixes
+    const VectorX &alpha = std::static_pointer_cast<ModelParameters<Scalar> >(parameters)->alpha;
+    const MatrixX &beta = std::static_pointer_cast<ModelParameters<Scalar> >(parameters)->beta;
+    int num_topics = beta.rows();
+    
+    MatrixX phi = MatrixX::Constant(num_topics, X.rows(), 1.0/num_topics);
+    VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
@@ -62,7 +65,10 @@ Scalar UnsupervisedEStep<Scalar>::doc_e_step(
         gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
     }
 
-    return new_likelihood;
+    // notify that the e step has finished
+    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
+
+    return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }
 
 template <typename Scalar>
@@ -98,26 +104,6 @@ Scalar UnsupervisedEStep<Scalar>::compute_likelihood(
     likelihood += -(phi.array() * (phi.array() + 1e-44).log()).sum();
     
     return likelihood;
-}
-
-
-template <typename Scalar>
-int UnsupervisedEStep<Scalar>::get_id() {
-    return IEStep<Scalar>::BatchUnsupervised;
-}
-
-template <typename Scalar>
-std::vector<Scalar> UnsupervisedEStep<Scalar>::get_parameters() {
-    return {
-        static_cast<Scalar>(e_step_iterations_),
-        e_step_tolerance_
-    };
-}
-
-template <typename Scalar>
-void UnsupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
-    e_step_iterations_ = static_cast<size_t>(parameters[0]);
-    e_step_tolerance_ = parameters[1];
 }
 
 

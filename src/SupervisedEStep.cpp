@@ -1,3 +1,4 @@
+#include "ProgressEvents.hpp"
 #include "SupervisedEStep.hpp"
 #include "utils.hpp"
 
@@ -13,23 +14,28 @@ SupervisedEStep<Scalar>::SupervisedEStep(
 }
 
 template <typename Scalar>
-Scalar SupervisedEStep<Scalar>::doc_e_step(
-    const VectorXi &X,
-    int y,
-    const VectorX &alpha,
-    const MatrixX &beta,
-    const MatrixX &eta,
-    Ref<MatrixX> phi,
-    Ref<VectorX> gamma
+std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
+    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<Parameters> parameters
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
 
-    int num_topics = gamma.rows();
+    // Words form Document doc
+    const VectorXi &X = doc->get_words();
     int num_words = X.sum();
     int voc_size = X.rows();
+    // Get the document's class
+    int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
 
-    gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
-    phi.fill(1.0/num_topics);
+    // Cast parameters to model parameters in order to save all necessary
+    // matrixes
+    const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->alpha;
+    const MatrixX &beta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->beta;
+    const MatrixX &eta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->eta;
+    int num_topics = beta.rows();
+
+    MatrixX phi = MatrixX::Constant(num_topics, voc_size, 1.0/num_topics);
+    VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // allocate memory for helper variables
     MatrixX h(num_topics, voc_size);
@@ -46,7 +52,7 @@ Scalar SupervisedEStep<Scalar>::doc_e_step(
             break;
         }
         old_likelihood = new_likelihood;
-        
+
         for (size_t i=0; i<fixed_point_iterations_; i++) {
             phi_old = phi;
 
@@ -63,7 +69,10 @@ Scalar SupervisedEStep<Scalar>::doc_e_step(
         gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
     }
 
-    return new_likelihood;
+    // notify that the e step has finished
+    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
+
+    return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }
 
 template <typename Scalar>
@@ -113,29 +122,8 @@ Scalar SupervisedEStep<Scalar>::compute_likelihood(
     // E_q[log p(y | z,n)] approximated using Jensens inequality
     likelihood += (eta.col(y).transpose() * phi * X.cast<Scalar>()).value() / X.sum();
     likelihood += - std::log((h.col(0).transpose() * phi.col(0)).value());
-    
+
     return likelihood;
-}
-
-template <typename Scalar>
-int SupervisedEStep<Scalar>::get_id() {
-    return IEStep<Scalar>::BatchSupervised;
-}
-
-template <typename Scalar>
-std::vector<Scalar> SupervisedEStep<Scalar>::get_parameters() {
-    return {
-        static_cast<Scalar>(e_step_iterations_),
-        e_step_tolerance_,
-        static_cast<Scalar>(fixed_point_iterations_)
-    };
-}
-
-template <typename Scalar>
-void SupervisedEStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
-    e_step_iterations_ = static_cast<size_t>(parameters[0]);
-    e_step_tolerance_ = parameters[1];
-    fixed_point_iterations_ = static_cast<size_t>(parameters[2]);
 }
 
 // Template instantiation

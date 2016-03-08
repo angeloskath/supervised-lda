@@ -15,6 +15,7 @@
 #include "LDABuilder.hpp"
 #include "LDA.hpp"
 #include "NumpyFormat.hpp"
+#include "Parameters.hpp"
 #include "ProgressEvents.hpp"
 
 
@@ -33,45 +34,31 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
 void save_lda(
     std::string model_path,
-    typename LDA<double>::LDAState lda_state
+    std::shared_ptr<Parameters> parameters
 ) {
+    // cast the model parameters to the model parameters type this script deals
+    // with, namely SupervisedModelParameters
+    auto model_parameters =
+        std::static_pointer_cast<SupervisedModelParameters<double> >(
+            parameters
+        );
+
+    // we 'll save the model here
     std::fstream model(
         model_path,
         std::ios::out | std::ios::binary
     );
 
-    model << numpy_format::NumpyOutput<int>(
-        lda_state.ids,
-        std::vector<size_t>{5, 1},
-        true
-    );
-
-    for (int i=0; i<5; i++) {
-        if (lda_state.parameters[i].size() == 0) {
-            lda_state.parameters[i].push_back(0);
-        }
-
-        model << numpy_format::NumpyOutput<double>(
-            lda_state.parameters[i].data(),
-            std::vector<size_t>{lda_state.parameters[i].size(), 1},
-            true
-        );
-    }
-
-    model << numpy_format::NumpyOutput<double>(*lda_state.alpha);
-    model << numpy_format::NumpyOutput<double>(*lda_state.beta);
-    model << numpy_format::NumpyOutput<double>(*lda_state.eta);
+    model << numpy_format::NumpyOutput<double>(model_parameters->alpha);
+    model << numpy_format::NumpyOutput<double>(model_parameters->beta);
+    model << numpy_format::NumpyOutput<double>(model_parameters->eta);
 }
 
 
-LDA<double> load_lda(std::string model_path, size_t iterations=20) {
+std::shared_ptr<SupervisedModelParameters<double> > load_lda(std::string model_path) {
     // we will be needing those
-    LDA<double>::LDAState lda_state;
-    numpy_format::NumpyInput<int> nii;
-    numpy_format::NumpyInput<double> nid;
-    VectorXd alpha;
-    MatrixXd beta;
-    MatrixXd eta;
+    auto model_parameters = std::make_shared<SupervisedModelParameters<double> >();
+    numpy_format::NumpyInput<double> ni;
 
     // open the file
     std::fstream model(
@@ -79,28 +66,11 @@ LDA<double> load_lda(std::string model_path, size_t iterations=20) {
         std::ios::in | std::ios::binary
     );
 
-    // read the implementation ids
-    model >> nii;
-    std::memcpy(lda_state.ids, nii.data(), nii.shape()[0] * sizeof(int));
-    for (int i=0; i<5; i++) {
-        model >> nid;
-        lda_state.parameters[i].resize(nid.shape()[0]);
-        std::memcpy(lda_state.parameters[i].data(), nid.data(), nid.shape()[0] * sizeof(double));
-    }
+    model >> ni; model_parameters->alpha = ni;
+    model >> ni; model_parameters->beta = ni;
+    model >> ni; model_parameters->eta = ni;
 
-    model >> nid;
-    alpha = nid;
-    lda_state.alpha = &alpha;
-
-    model >> nid;
-    beta = nid;
-    lda_state.beta = &beta;
-
-    model >> nid;
-    eta = nid;
-    lda_state.eta = &eta;
-
-    return LDA<double>(lda_state, iterations);
+    return model_parameters;
 }
 
 
@@ -108,6 +78,8 @@ class TrainingProgress : public IEventListener
 {
     public:
         TrainingProgress() {
+            e_iterations_ = 0;
+            m_iterations_ = 0;
             em_iterations_ = 1;
             output_em_step_ = true;
             likelihood_ = 0;
@@ -115,35 +87,45 @@ class TrainingProgress : public IEventListener
 
         void on_event(std::shared_ptr<Event> event) {
             if (event->id() == "ExpectationProgressEvent") {
-                if (output_em_step_) {
-                    output_em_step_ = false;
-
-                    std::cout << "E-M Iteration " << em_iterations_ << std::endl;
-                }
                 auto progress = std::static_pointer_cast<ExpectationProgressEvent<double> >(event);
 
-                // update the flags and member variables with the progress
-                likelihood_ += std::isinf(progress->likelihood()) ? 0 : progress->likelihood();
+                // output the EM count
+                if (e_iterations_ == 0) {
+                    std::cout << "E-M Iteration " << em_iterations_ << std::endl;
+                }
 
                 // if we have seen 100 iterations print out a progress
-                if ((progress->iteration()+1) % 100 == 0) {
-                    std::cout << progress->iteration()+1 << std::endl;
+                e_iterations_++;
+                if (e_iterations_ % 100 == 0) {
+                    std::cout << e_iterations_ << std::endl;
                 }
+
+                // keep track of the likelihood
+                likelihood_ += std::isinf(progress->likelihood()) ? 0 : progress->likelihood();
             }
             else if (event->id() == "MaximizationProgressEvent") {
                 auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
 
                 std::cout << "log p(y | \\bar{z}, eta): " << progress->likelihood() << std::endl;
+
+                m_iterations_++;
             }
             else if (event->id() == "EpochProgressEvent") {
+                if (likelihood_ < 0) {
                     std::cout << "Likelihood: " << likelihood_ << std::endl << std::endl;
-                    likelihood_ = 0;
-                    em_iterations_ ++;
-                    output_em_step_ = true;
+                }
+
+                // reset the member variables
+                likelihood_ = 0;
+                em_iterations_ ++;
+                e_iterations_ = 0;
+                m_iterations_ = 0;
             }
         }
 
     private:
+        int e_iterations_;
+        int m_iterations_;
         int em_iterations_;
         double likelihood_;
         bool output_em_step_;
@@ -163,19 +145,19 @@ class SnapshotEvery : public IEventListener
 
                 seen_so_far_ ++;
                 if (seen_so_far_ % every_ == 0) {
-                    snapsot(progress->lda_state());
+                    snapsot(progress->model_parameters());
                 }
             }
         }
 
-        void snapsot(typename LDA<double>::LDAState lda_state) {
+        void snapsot(std::shared_ptr<Parameters> parameters) {
             std::stringstream actual_path;
             actual_path << path_ << "_";
             actual_path.fill('0');
             actual_path.width(3);
             actual_path << seen_so_far_;
 
-            save_lda(actual_path.str(), lda_state);
+            save_lda(actual_path.str(), parameters);
         }
 
     private:
@@ -210,8 +192,10 @@ R"(Supervised LDA and other flavors of LDA.
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [-q | --quiet]
                    [--snapshot_every=N] DATA MODEL
-        slda transform [-q | --quiet] MODEL DATA OUTPUT
-        slda evaluate [-q | --quiet] MODEL DATA
+        slda transform [-q | --quiet] [--e_step_iterations=EI]
+                       [--e_step_tolerance=ET] MODEL DATA OUTPUT
+        slda evaluate [-q | --quiet] [--e_step_iterations=EI]
+                      [--e_step_tolerance=ET] MODEL DATA
         slda (-h | --help)
 
     Options:
@@ -244,30 +228,27 @@ int main(int argc, char **argv) {
     );
 
     if (args["train"].asBool()) {
-        // create the lda model
-        LDA<double> lda =
-            LDABuilder<double>().
-                set_iterations(args["--iterations"].asLong()).
-                set_initialization(
-                    IInitialization<double>::Seeded,
-                    args["--topics"].asLong()
-                ).
-                set_e_step(
-                    IEStep<double>::BatchSupervised,
-                    args["--e_step_iterations"].asLong(),
-                    std::stof(args["--e_step_tolerance"].asString()),
-                    args["--fixed_point_iterations"].asLong()
-                ).
-                set_m_step(
-                    IMStep<double>::BatchSupervised,
-                    args["--m_step_iterations"].asLong(),
-                    std::stof(args["--m_step_tolerance"].asString()),
-                    std::stof(args["--regularization_penalty"].asString())
-                );
-        
+        LDABuilder<double> builder;
+
+        builder.set_iterations(args["--iterations"].asLong());
+        builder.set_supervised_e_step(
+            args["--e_step_iterations"].asLong(),
+            std::stof(args["--e_step_tolerance"].asString()),
+            args["--fixed_point_iterations"].asLong()
+        );
+        builder.set_supervised_batch_m_step(
+            args["--m_step_iterations"].asLong(),
+            std::stof(args["--m_step_tolerance"].asString()),
+            std::stof(args["--regularization_penalty"].asString())
+        );
+
         MatrixXi X, y;
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
+
+        LDA<double> lda = builder.
+            initialize_topics("seeded", X, args["--topics"].asLong()).
+            initialize_eta("zeros", X, y, args["--topics"].asLong());
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
@@ -282,7 +263,7 @@ int main(int argc, char **argv) {
 
         lda.fit(X, y);
 
-        save_lda(args["MODEL"].asString(), lda.get_state());
+        save_lda(args["MODEL"].asString(), lda.model_parameters());
     } 
     else if (args["transform"].asBool()) {
         MatrixXi X, y;
@@ -290,7 +271,15 @@ int main(int argc, char **argv) {
         parse_input_data(args["DATA"].asString(), X, y);
 
         // Load LDA model from file
-        LDA<double> lda = load_lda(args["MODEL"].asString());
+        auto model = load_lda(args["MODEL"].asString());
+        LDA<double> lda =
+            LDABuilder<double>().
+                set_classic_e_step(
+                    args["--e_step_iterations"].asLong(),
+                    std::stof(args["--e_step_tolerance"].asString())
+                ).
+                initialize_topics_from_model(model).
+                initialize_eta_from_model(model);
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
@@ -305,7 +294,15 @@ int main(int argc, char **argv) {
         parse_input_data(args["DATA"].asString(), X, y);
 
         // Load LDA model from file
-        LDA<double> lda = load_lda(args["MODEL"].asString());
+        auto model = load_lda(args["MODEL"].asString());
+        LDA<double> lda =
+            LDABuilder<double>().
+                set_classic_e_step(
+                    args["--e_step_iterations"].asLong(),
+                    std::stof(args["--e_step_tolerance"].asString())
+                ).
+                initialize_topics_from_model(model).
+                initialize_eta_from_model(model);
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();

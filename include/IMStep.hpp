@@ -3,62 +3,43 @@
 
 #include <Eigen/Core>
 
+#include "Document.hpp"
 #include "Events.hpp"
-#include "ISerializable.hpp"
+#include "Parameters.hpp"
 
 using namespace Eigen;
 
 template <typename Scalar>
-class IMStep : public ISerializable<Scalar>, public EventDispatcherComposition
+class IMStep : public EventDispatcherComposition
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
     
     public:
-        enum Type
-        {
-            BatchUnsupervised = 0,
-            BatchSupervised,
-            OnlineUnsupervised,
-            OnlineSupervised
-        };
 
         /**
          * Maximize the ELBO.
          *
-         * @param expected_Z_bar Is the expected values of Z_bar for every
-         *                       document
-         * @param b              The unnormalized new betas
-         * @param y              The class indexes for every document
-         * @param beta           The topic word distributions
-         * @param eta            The classification parameters
-         * @return               The likelihood of the Multinomial logistic
-         *                       regression
+         * @param parameters       Model parameters, after being updated in m_step
          */
-        virtual Scalar m_step(
-            const MatrixX &expected_z_bar,
-            const MatrixX &b,
-            const VectorXi &y,
-            Ref<MatrixX> beta,
-            Ref<MatrixX> eta
+        virtual void m_step(
+            std::shared_ptr<Parameters> parameters
         )=0;
 
         /**
          * This function calculates all necessary parameters, that
          * will be used for the maximazation step.
          *
-         * @param X              The word counts in column-major order for a single 
-         *                       document
-         * @param phi            The Multinomial parameters
-         * @param b              The unnormalized new betas
-         * @param expected_Z_bar Is the expected values of Z_bar for every
-         *                       document
+         * @param doc              A single document
+         * @param v_parameters     The variational parameters used in m-step
+         *                         in order to maximize model parameters
+         * @param m_parameters     Model parameters, used as output in case of 
+         *                         online methods
          */
         virtual void doc_m_step(
-           const VectorXi &X,
-           const MatrixX &phi,
-           Ref<MatrixX> b,
-           Ref<VectorX> expected_z_bar
+            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<Parameters> v_parameters,
+            std::shared_ptr<Parameters> m_parameters
         )=0;
 };
 

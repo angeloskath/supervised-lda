@@ -8,14 +8,14 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
-    
+
     public:
         SupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             size_t fixed_point_iterations = 20
         );
-        
+
         /** Maximize the ELBO w.r.t phi and gamma
          *
          * We use the following update functions until convergence.
@@ -27,31 +27,18 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
          *  )
          * \gamma = \alpha + \sum_{n=1}^N \phi_n
          *
-         * @param X       The word counts in column-major order for a single 
-         *                document
-         * @param y       The class label as integer for the current document
-         * @param alpha   The Dirichlet priors
-         * @param beta    The over word topic distributiosn
-         * @param eta     The classification parameters
-         * @param phi     The Multinomial parameters
-         * @param gamma   The Dirichlet parameters
-         * @return        The likelihood so far
+         * @param doc          A sinle document
+         * @param parameters   An instance of class Parameters, which
+         *                     contains all necessary model parameters 
+         *                     for e-step's implementation
+         * @return             The variational parameters for the current
+         *                     model, after e-step is completed
          */
-        Scalar doc_e_step(
-            const VectorXi &X,
-            int y,
-            const VectorX &alpha,
-            const MatrixX &beta,
-            const MatrixX &eta,
-            Ref<MatrixX> phi,
-            Ref<VectorX> gamma
+        std::shared_ptr<Parameters> doc_e_step(
+            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<Parameters> parameters
         ) override;
-        
-        // Implement ISerializable
-        int get_id() override;
-        std::vector<Scalar> get_parameters() override;
-        void set_parameters(std::vector<Scalar> parameters) override;
-    
+
         /**
          * The value of the ELBO.
          *
@@ -77,7 +64,7 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
             const VectorX &gamma,
             const MatrixX &h
         );
-        
+
         /**
          * h \in \mathbb{R}^{K \times V}
          *
@@ -107,4 +94,5 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
 };
-#endif //  _SUPERVISEDESTEP_HPP_
+#endif  // _SUPERVISEDESTEP_HPP_
+

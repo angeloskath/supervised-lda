@@ -16,33 +16,35 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
             Scalar regularization_penalty = 1e-2
         ) : m_step_iterations_(m_step_iterations),
             m_step_tolerance_(m_step_tolerance),
-            regularization_penalty_(regularization_penalty) {};
+            regularization_penalty_(regularization_penalty),
+            docs_(0)
+        {}
         
         /**
          * Maximize the ELBO w.r.t to \beta and \eta.
          *
-         * @param expected_Z_bar Is the expected values of Z_bar for every
-         *                       document
-         * @param b              The unnormalized new betas
-         * @param y              The class indexes for every document
-         * @param beta           The topic word distributions
-         * @param eta            The classification parameters
-         * @return               The likelihood of the Multinomial logistic
-         *                       regression
+         * @param parameters           Model parameters, after being updated in m_step
          */
-        Scalar m_step(
-            const MatrixX &expected_z_bar,
-            const MatrixX &b,
-            const VectorXi &y,
-            Ref<MatrixX> beta,
-            Ref<MatrixX> eta
+        void m_step(
+            std::shared_ptr<Parameters> parameters
         );
         
-        // Implement ISerializable
-        int get_id() override;
-        std::vector<Scalar> get_parameters() override;
-        void set_parameters(std::vector<Scalar> parameters) override;
-    
+        /**
+         * This function calculates all necessary parameters, that
+         * will be used for the maximazation step.
+         *
+         * @param doc              A single document
+         * @param v_parameters     The variational parameters used in m-step
+         *                         in order to maximize model parameters
+         * @param m_parameters     Model parameters, used as output in case of 
+         *                         online methods
+         */
+        void doc_m_step(
+            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<Parameters> v_parameters,
+            std::shared_ptr<Parameters> m_parameters
+        );
+        
     private:
         // The maximum number of iterations in M-step
         size_t m_step_iterations_;
@@ -51,5 +53,10 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
         Scalar m_step_tolerance_;
         // The regularization penalty for the multinomial logistic regression
         Scalar regularization_penalty_;
+        
+        // Number of documents processed so far
+        int docs_;
+        MatrixX expected_z_bar_;
+        VectorXi y_;
 };
 #endif  // _SUPERVISEDMSTEP_HPP

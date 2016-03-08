@@ -1,47 +1,35 @@
 #include "UnsupervisedMStep.hpp"
 
 template <typename Scalar>
-Scalar UnsupervisedMStep<Scalar>::m_step(
-    const MatrixX &expected_z_bar,
-    const MatrixX &b,
-    const VectorXi &y,
-    Ref<MatrixX> beta,
-    Ref<MatrixX> eta
+void UnsupervisedMStep<Scalar>::m_step(
+    std::shared_ptr<Parameters> parameters
 ) {
     // we maximized w.r.t \beta during each doc_m_step
-    beta = b;
-    beta = beta.array().colwise() / beta.array().rowwise().sum();
+    std::static_pointer_cast<ModelParameters<Scalar> >(parameters)->beta = 
+        b_.array().colwise() / b_.array().rowwise().sum();
 
-    return 0;
+    b_.fill(0);
 }
 
 template <typename Scalar>
 void UnsupervisedMStep<Scalar>::doc_m_step(
-   const VectorXi &X,
-   const MatrixX &phi,
-   Ref<MatrixX> b,
-   Ref<VectorX> expected_z_bar
+    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<Parameters> v_parameters,
+    std::shared_ptr<Parameters> m_parameters
 ) {
+    // Words form Document doc
+    const VectorXi &X = doc->get_words();
     auto t1 = X.cast<Scalar>().transpose().array();
+    
+    // Cast Parameters to VariationalParameters in order to have access to phi
+    const MatrixX &phi = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->phi;
     auto t2 = phi.array().rowwise() * t1;
+    
+    // Check if b_ is accessed and allocate suitable amound of memory
+    if (b_.rows() == 0)
+        b_ = MatrixX::Zero(phi.rows(), phi.cols());
 
-    b.array() += t2;
-    expected_z_bar = t2.rowwise().sum() / X.sum();
-}
-
-
-template <typename Scalar>
-int UnsupervisedMStep<Scalar>::get_id() {
-    return IMStep<Scalar>::BatchUnsupervised;
-}
-
-template <typename Scalar>
-std::vector<Scalar> UnsupervisedMStep<Scalar>::get_parameters() {
-    return {};
-}
-
-template <typename Scalar>
-void UnsupervisedMStep<Scalar>::set_parameters(std::vector<Scalar> parameters) {
+    b_.array() += t2;
 }
 
 // Template instantiation

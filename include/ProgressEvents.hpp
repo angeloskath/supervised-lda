@@ -3,6 +3,7 @@
 
 
 #include "Events.hpp"
+#include "Parameters.hpp"
 
 
 template <typename Scalar>
@@ -13,17 +14,14 @@ template <typename Scalar>
 class ExpectationProgressEvent : public Event
 {
     public:
-        ExpectationProgressEvent(size_t iteration, Scalar likelihood) :
+        ExpectationProgressEvent(Scalar likelihood) :
             Event("ExpectationProgressEvent"),
-            iteration_(iteration),
             likelihood_(likelihood)
         {}
 
-        size_t iteration() const { return iteration_; }
         Scalar likelihood() const { return likelihood_; }
 
     private:
-        size_t iteration_;
         Scalar likelihood_;
 };
 
@@ -32,17 +30,14 @@ template <typename Scalar>
 class MaximizationProgressEvent : public Event
 {
     public:
-        MaximizationProgressEvent(size_t iteration, Scalar likelihood) :
+        MaximizationProgressEvent(Scalar likelihood) :
             Event("MaximizationProgressEvent"),
-            iteration_(iteration),
             likelihood_(likelihood)
         {}
 
-        size_t iteration() const { return iteration_; }
         Scalar likelihood() const { return likelihood_; }
 
     private:
-        size_t iteration_;
         Scalar likelihood_;
 };
 
@@ -50,18 +45,18 @@ class MaximizationProgressEvent : public Event
 template <typename Scalar>
 class EpochProgressEvent : public Event
 {
-    typedef typename LDA<Scalar>::LDAState LDAState;
-
     public:
-        EpochProgressEvent(LDAState lda_state) :
+        EpochProgressEvent(const std::shared_ptr<Parameters> parameters) :
             Event("EpochProgressEvent"),
-            lda_state_(lda_state)
+            model_parameters_(parameters)
         {}
 
-        const LDAState & lda_state() const { return lda_state_; }
+        const std::shared_ptr<Parameters> model_parameters() const {
+            return model_parameters_;
+        }
 
     private:
-        LDAState lda_state_;
+       std::shared_ptr<Parameters> model_parameters_;
 };
 
 
