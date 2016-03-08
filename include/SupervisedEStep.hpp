@@ -8,14 +8,14 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
-    
+
     public:
         SupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             size_t fixed_point_iterations = 20
         );
-        
+
         /** Maximize the ELBO w.r.t phi and gamma
          *
          * We use the following update functions until convergence.
@@ -38,7 +38,7 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
             const std::shared_ptr<Document> doc,
             const std::shared_ptr<Parameters> parameters
         ) override;
-        
+
         /**
          * The value of the ELBO.
          *
@@ -64,7 +64,7 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
             const VectorX &gamma,
             const MatrixX &h
         );
-        
+
         /**
          * h \in \mathbb{R}^{K \times V}
          *
@@ -94,4 +94,5 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
 };
-#endif //  _SUPERVISEDESTEP_HPP_
+#endif  // _SUPERVISEDESTEP_HPP_
+

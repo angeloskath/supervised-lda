@@ -1,5 +1,6 @@
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include <Eigen/Core>
@@ -7,6 +8,8 @@
 
 #include "test/utils.hpp"
 
+#include "Document.hpp"
+#include "Parameters.hpp"
 #include "SupervisedEStep.hpp"
 
 
@@ -96,20 +99,30 @@ TYPED_TEST(TestExpectationStep, ComputeLikelihood) {
 
 
 TYPED_TEST(TestExpectationStep, DocEStep) {
-
     VectorX<TypeParam> Xtmp = VectorX<TypeParam>::Random(10).array().abs() * 5;
     VectorXi X = Xtmp.template cast<int>();
     int y = 0;
+
+    auto doc = std::make_shared<ClassificationDecorator>(
+        std::make_shared<EigenDocument>(X),
+        y
+    );
+
     VectorX<TypeParam> alpha = VectorX<TypeParam>::Constant(5, 0.1);
     MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(5, 10);
     MatrixX<TypeParam> eta = MatrixX<TypeParam>::Random(5, 3);
-    MatrixX<TypeParam> phi = MatrixX<TypeParam>::Random(5, 10);
-    VectorX<TypeParam> gamma = VectorX<TypeParam>::Random(5).array().abs()*10;
 
     // normalize beta
     beta.array() -= beta.minCoeff() - 0.001;
     beta.array().rowwise() /= beta.colwise().sum().array();
 
+    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+        alpha,
+        beta,
+        eta
+    );
+
+    MatrixX<TypeParam> h(beta.rows(), beta.cols());
 
     int fixed_point_iterations = 10;
     TypeParam convergence_tolerance = 0;
@@ -120,14 +133,27 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
             convergence_tolerance,
             fixed_point_iterations
         );
-        likelihoods[i] = e_step.doc_e_step(
-            X,
-            y,
-            alpha,
-            beta,
-            eta,
-            phi,
-            gamma
+        auto vp = std::static_pointer_cast<VariationalParameters<TypeParam> >(
+            e_step.doc_e_step(
+                doc,
+                model
+            )
+        );
+        e_step.compute_h(
+            doc->get_words(),
+            model->eta,
+            vp->phi,
+            h
+        );
+        likelihoods[i] = e_step.compute_likelihood(
+            doc->get_words(),
+            doc->get_class(),
+            model->alpha,
+            model->beta,
+            model->eta,
+            vp->phi,
+            vp->gamma,
+            h
         );
     }
     for (int i=1; i<10; i++) {

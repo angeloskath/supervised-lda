@@ -158,6 +158,15 @@ class LDABuilder : public ILDABuilder<Scalar>
                                          "creating an LDA from the builder.");
             }
 
+            if (
+                model_parameters_->beta.rows() != model_parameters_->eta.rows() &&
+                model_parameters_->eta.rows() > 0
+            ) {
+                throw std::runtime_error("\\eta and \\beta should be "
+                                         "initialized with the same number of "
+                                         "topics");
+            }
+
             return LDA<Scalar>(
                 model_parameters_,
                 e_step_,

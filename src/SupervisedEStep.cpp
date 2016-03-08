@@ -51,7 +51,7 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
             break;
         }
         old_likelihood = new_likelihood;
-        
+
         for (size_t i=0; i<fixed_point_iterations_; i++) {
             phi_old = phi;
 
@@ -118,7 +118,7 @@ Scalar SupervisedEStep<Scalar>::compute_likelihood(
     // E_q[log p(y | z,n)] approximated using Jensens inequality
     likelihood += (eta.col(y).transpose() * phi * X.cast<Scalar>()).value() / X.sum();
     likelihood += - std::log((h.col(0).transpose() * phi.col(0)).value());
-    
+
     return likelihood;
 }
 

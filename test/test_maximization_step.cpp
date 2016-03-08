@@ -8,8 +8,10 @@
 
 #include "test/utils.hpp"
 
-#include "SupervisedMStep.hpp"
+#include "Parameters.hpp"
 #include "ProgressEvents.hpp"
+#include "SupervisedEStep.hpp"
+#include "SupervisedMStep.hpp"
 
 using namespace Eigen;
 
@@ -21,10 +23,44 @@ class TestMaximizationStep : public ParameterizedTest<T> {};
 TYPED_TEST_CASE(TestMaximizationStep, ForFloatAndDouble);
 
 TYPED_TEST(TestMaximizationStep, Maximization) {
+    // Build the corpus
     std::mt19937 rng;
     rng.seed(0);
+    MatrixXi X(100, 50);
+    VectorXi y(50);
+    std::uniform_int_distribution<> class_generator(0, 5);
+    std::exponential_distribution<> words_generator(0.1);
+    for (int d=0; d<50; d++) {
+        for (int w=0; w<100; w++) {
+            X(w, d) = static_cast<int>(words_generator(rng));
+        }
+        y(d) = class_generator(rng);
+    }
 
-    SupervisedMStep<TypeParam> m_step(100, 1e-3, 1e-2);
+    // Create the corpus and the model
+    auto corpus = std::make_shared<EigenClassificationCorpus>(X, y);
+    MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(10, 100);
+    beta.array() -= beta.minCoeff();
+    beta.array().rowwise() /= beta.array().colwise().sum();
+    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+        VectorX<TypeParam>::Constant(10, 0.1),
+        beta,
+        MatrixX<TypeParam>::Zero(10, 6)
+    );
+
+    SupervisedEStep<TypeParam> e_step(10, 1e-2, 10);
+    SupervisedMStep<TypeParam> m_step(100, 0, 1e-2);
+
+    for (size_t i=0; i<corpus->size(); i++) {
+        m_step.doc_m_step(
+            corpus->at(i),
+            e_step.doc_e_step(
+                corpus->at(i),
+                model
+            ),
+            model
+        );
+    }
 
     std::vector<TypeParam> progress;
     m_step.get_event_dispatcher()->add_listener(
@@ -36,22 +72,8 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
         }
     );
 
-    MatrixX<TypeParam> expected_z_bar = MatrixX<TypeParam>::Random(10, 100);
-    MatrixX<TypeParam> b(10, 100);
-    VectorXi y(100);
-    std::uniform_int_distribution<> dis(0, 5);
-    for (int i=0; i<100; i++) {
-        y[i] = dis(rng);
-    }
-    MatrixX<TypeParam> beta(10, 100);
-    MatrixX<TypeParam> eta = MatrixX<TypeParam>::Zero(10, 6);
-
     m_step.m_step(
-        expected_z_bar,
-        b,
-        y,
-        beta,
-        eta
+        model
     );
 
     ASSERT_GT(progress.size(), 2);
