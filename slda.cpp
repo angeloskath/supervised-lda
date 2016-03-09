@@ -189,7 +189,8 @@ R"(Supervised LDA and other flavors of LDA.
     Usage:
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
-                   [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
+                   [--fast_e_step] [--m_step_tolerance=MT]
+                   [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [-q | --quiet]
                    [--snapshot_every=N] DATA MODEL
         slda transform [-q | --quiet] [--e_step_iterations=EI]
@@ -207,6 +208,8 @@ R"(Supervised LDA and other flavors of LDA.
                                 in the E step [default: 10]
         --e_step_tolerance=ET   The minimum accepted relative increase in log
                                 likelihood during the E step [default: 1e-4]
+        --fast_e_step           Choose a variant of E step that doesn't compute
+                                likelihood in order to be faster
         --m_step_iterations=MI  The maximum number of iterations to perform
                                 in the M step [default: 200]
         --m_step_tolerance=MT   The minimum accepted relative increase in log
@@ -231,11 +234,20 @@ int main(int argc, char **argv) {
         LDABuilder<double> builder;
 
         builder.set_iterations(args["--iterations"].asLong());
-        builder.set_supervised_e_step(
-            args["--e_step_iterations"].asLong(),
-            std::stof(args["--e_step_tolerance"].asString()),
-            args["--fixed_point_iterations"].asLong()
-        );
+        if (args["--fast_e_step"].asBool()) {
+            builder.set_fast_supervised_e_step(
+                args["--e_step_iterations"].asLong(),
+                std::stof(args["--e_step_tolerance"].asString()),
+                args["--fixed_point_iterations"].asLong()
+            );
+        }
+        else {
+            builder.set_supervised_e_step(
+                args["--e_step_iterations"].asLong(),
+                std::stof(args["--e_step_tolerance"].asString()),
+                args["--fixed_point_iterations"].asLong()
+            );
+        }
         builder.set_supervised_batch_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),

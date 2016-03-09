@@ -51,6 +51,7 @@ std::shared_ptr<Parameters> FastSupervisedEStep<Scalar>::doc_e_step(
         if (converged(gamma_old, gamma)) {
             break;
         }
+        gamma_old = gamma;
 
         // compute h for the fixed point iterations
         e_step_utils::compute_h<Scalar>(X, X_ratio, eta, phi, h);
