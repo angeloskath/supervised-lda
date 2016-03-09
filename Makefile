@@ -1,8 +1,9 @@
 
 CC = g++-4.9
-CFLAGS = -std=c++11 -Wall -O3 -msse2
+CFLAGS = -std=c++11 -Wall -O3 -msse2 $(CFLAGS_EXTRA)
 LDFLAGS = -lm -ldocopt
 LDFLAGS_TEST = -lgtest
+LDFLAGS_BENCH = ""
 
 INCLUDE_DIRS = include/
 
@@ -20,6 +21,10 @@ build/%.o : src/%.cpp include/%.hpp
 bin/slda: slda.cpp $(OBJECTS)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $(OBJECTS) slda.cpp $(LDFLAGS) -I $(INCLUDE_DIRS) -o bin/slda
+
+bin/%: bench/%.cpp $(OBJECTS)
+	@mkdir -p bin
+	$(CC) $(CFLAGS) $(OBJECTS) -I $(INCLUDE_DIRS) $< -o $@ $(LDFLAGS) $(LDFLAGS_TEST)
 
 bin/%: test/%.cpp $(OBJECTS)
 	@mkdir -p bin
