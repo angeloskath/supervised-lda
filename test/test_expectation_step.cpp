@@ -57,7 +57,7 @@ TYPED_TEST(TestExpectationStep, ComputeH) {
     }
 
     for (int i=0; i<10; i++) {
-        EXPECT_NEAR(hphi_actual, hphi(i), 1e-6);
+        EXPECT_NEAR(hphi_actual, hphi(i), 1e-2);
     }
 }
 

@@ -93,6 +93,8 @@ void compute_h(
     const MatrixX<Scalar> &phi,
     Ref<MatrixX<Scalar> > h
 ) {
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+
     MatrixX<Scalar> exp_eta(h.rows(), h.cols());
     VectorX<Scalar> products(phi.cols());
     int num_classes = eta.cols();
@@ -100,7 +102,8 @@ void compute_h(
     h.fill(0);
     for (int y=0; y<num_classes; y++) {
         auto eta_scaled = eta.col(y) * X_ratio.transpose();
-        exp_eta = eta_scaled.array().exp();
+        //exp_eta = eta_scaled.array().exp();
+        exp_eta = eta_scaled.array().unaryExpr(cwise_fast_exp);
         products = (exp_eta.transpose() * phi).diagonal();
 
         auto t1 = (products.prod() / products.array()).matrix();
