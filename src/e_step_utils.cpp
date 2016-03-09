@@ -122,6 +122,7 @@ void fixed_point_iteration(
     Ref<MatrixX<Scalar> > phi
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
     // Frist thing 's first copy the phi to the old phi
     phi_old = phi;
@@ -132,7 +133,8 @@ void fixed_point_iteration(
     // auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
     auto t3 = h / (h.col(0).transpose() * phi_old.col(0)).value();
 
-    phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
+    phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).unaryExpr(cwise_fast_exp);
+    //phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
     phi = phi.array().rowwise() / phi.colwise().sum().array();
 }
 

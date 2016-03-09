@@ -359,6 +359,9 @@ static inline Scalar fast_exp(Scalar x) {
     if (x < 0)
         return 1/fast_exp(-x);
 
+    if (x > 100)
+        return std::exp(x);
+
     int cnt = 0;
     while (x >= 1) {
         x = x/2;
@@ -382,7 +385,7 @@ static inline Scalar fast_exp(Scalar x) {
  * 1970)
 **/
 template <typename Scalar>
-Scalar digamma(Scalar x) {
+static inline Scalar digamma(Scalar x) {
     Scalar result = 0, xx, xx2, xx4;
 
     for (; x < 7; ++x) {
@@ -412,6 +415,14 @@ struct CwiseLgamma
 {
     const Scalar operator()(const Scalar &x) const {
         return std::lgamma(x);
+    }
+};
+
+template <typename Scalar>
+struct CwiseFastExp
+{
+    const Scalar operator()(const Scalar &x) const {
+        return fast_exp(x);
     }
 };
 
