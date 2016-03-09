@@ -1,5 +1,6 @@
 #include "ProgressEvents.hpp"
 #include "SupervisedEStep.hpp"
+#include "e_step_utils.hpp"
 #include "utils.hpp"
 
 template <typename Scalar>
@@ -18,12 +19,12 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     const std::shared_ptr<Document> doc,
     const std::shared_ptr<Parameters> parameters
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-
     // Words form Document doc
     const VectorXi &X = doc->get_words();
     int num_words = X.sum();
     int voc_size = X.rows();
+    VectorX X_ratio = X.cast<Scalar>() / num_words;
+
     // Get the document's class
     int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
 
@@ -34,6 +35,7 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     const MatrixX &eta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->eta;
     int num_topics = beta.rows();
 
+    // The variational parameters to be computed
     MatrixX phi = MatrixX::Constant(num_topics, voc_size, 1.0/num_topics);
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
@@ -45,85 +47,45 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
-        compute_h(X, eta, phi, h);
+        e_step_utils::compute_h<Scalar>(X, X_ratio, eta, phi, h);
 
-        new_likelihood = compute_likelihood(X, y, alpha, beta, eta, phi, gamma, h);
+        new_likelihood = e_step_utils::compute_supervised_likelihood<Scalar>(
+            X,
+            y,
+            alpha,
+            beta,
+            eta,
+            phi,
+            gamma,
+            h
+        );
         if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
             break;
         }
         old_likelihood = new_likelihood;
 
+        // fixed point iterations to maximize w.r.t. phi
         for (size_t i=0; i<fixed_point_iterations_; i++) {
-            phi_old = phi;
-
-            auto t1 = gamma.unaryExpr(cwise_digamma);
-            auto t2 = eta.col(y) * (X.cast<Scalar>().transpose() / num_words);
-            // TODO: h.transpose() * phi_old can be cached
-            auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
-
-            phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
-            phi = phi.array().rowwise() / phi.colwise().sum().array();
+            e_step_utils::fixed_point_iteration<Scalar>(
+                X_ratio,
+                y,
+                beta,
+                eta,
+                gamma,
+                h,
+                phi_old,
+                phi
+            );
         }
 
         // Equation (6) in Supervised topic models, Blei, McAulife 2008
-        gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
+        e_step_utils::compute_gamma<Scalar>(X, alpha, phi, gamma);
     }
 
     // notify that the e step has finished
     this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
-}
-
-template <typename Scalar>
-void SupervisedEStep<Scalar>::compute_h(
-    const VectorXi &X,
-    const MatrixX &eta,
-    const MatrixX &phi,
-    Ref<MatrixX> h
-) {
-    MatrixX exp_eta(h.rows(), h.cols());
-    VectorX products(phi.cols());
-    int num_words = X.sum();
-    int num_classes = eta.cols();
-
-    h.fill(0);
-    for (int y=0; y<num_classes; y++) {
-        auto eta_scaled = eta.col(y) * (X.cast<Scalar>() / num_words).transpose();
-        exp_eta = eta_scaled.array().exp();
-        products = (exp_eta.transpose() * phi).diagonal();
-
-        auto t1 = (products.prod() / products.array()).matrix();
-        auto t2 = exp_eta * t1.asDiagonal();
-
-        h += t2;
-    }
-}
-
-template <typename Scalar>
-Scalar SupervisedEStep<Scalar>::compute_likelihood(
-    const VectorXi &X,
-    int y,
-    const VectorX &alpha,
-    const MatrixX &beta,
-    const MatrixX &eta,
-    const MatrixX &phi,
-    const VectorX &gamma,
-    const MatrixX &h
-) {
-    Scalar likelihood = UnsupervisedEStep<Scalar>::compute_likelihood(
-        X,
-        alpha,
-        beta,
-        phi,
-        gamma
-    );
-
-    // E_q[log p(y | z,n)] approximated using Jensens inequality
-    likelihood += (eta.col(y).transpose() * phi * X.cast<Scalar>()).value() / X.sum();
-    likelihood += - std::log((h.col(0).transpose() * phi.col(0)).value());
-
-    return likelihood;
 }
 
 // Template instantiation

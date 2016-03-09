@@ -39,52 +39,6 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
             const std::shared_ptr<Parameters> parameters
         ) override;
 
-        /**
-         * The value of the ELBO.
-         *
-         * @param X       The word counts in column-major order for a single 
-         *                document
-         * @param y       The class label as integer for the current document
-         * @param alpha   The Dirichlet priors
-         * @param beta    The over word topic distributiosn
-         * @param eta     The classification parameters
-         * @param phi     The Multinomial parameters
-         * @param gamma   The Dirichlet parameters
-         * @param h       The output of the equation implemented in function
-         *                compute_h
-         * @return        The likelihood
-         */
-        Scalar compute_likelihood(
-            const VectorXi &X,
-            int y,
-            const VectorX &alpha,
-            const MatrixX &beta,
-            const MatrixX &eta,
-            const MatrixX &phi,
-            const VectorX &gamma,
-            const MatrixX &h
-        );
-
-        /**
-         * h \in \mathbb{R}^{K \times V}
-         *
-         * h_{n} = \sum_{y \in Y} \left(
-         *      \prod_{l=1, l \neq n}^V \phi_l^T \left( exp(\frac{X_l}{\sum X} \eta^T y) \right)
-         *  \right) exp(\frac{X_n}{\sum X} \eta^T y)
-         *
-         * @param X       The word counts in column-major order for a single 
-         *                document
-         * @param eta     The classification parameters
-         * @param phi     The Multinomial parameters
-         * @param h       The output value
-         */
-        void compute_h(
-            const VectorXi &X,
-            const MatrixX &eta,
-            const MatrixX &phi,
-            Ref<MatrixX> h
-        );
-
     private:
         // The maximum number of iterations in E-step
         size_t e_step_iterations_;

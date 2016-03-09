@@ -11,6 +11,7 @@
 #include "Document.hpp"
 #include "Parameters.hpp"
 #include "SupervisedEStep.hpp"
+#include "e_step_utils.hpp"
 
 
 using namespace Eigen;
@@ -23,10 +24,9 @@ class TestExpectationStep : public ParameterizedTest<T> {};
 TYPED_TEST_CASE(TestExpectationStep, ForFloatAndDouble);
 
 TYPED_TEST(TestExpectationStep, ComputeH) {
-    SupervisedEStep<TypeParam> e_step;
-
     VectorXi X(10);
     X << 10, 9, 8, 7, 6, 5, 4, 3, 2, 1;
+    VectorX<TypeParam> X_ratio = X.cast<TypeParam>() / X.sum();
 
     MatrixX<TypeParam> eta = MatrixX<TypeParam>::Random(5, 3);
     MatrixX<TypeParam> phi = MatrixX<TypeParam>::Random(5, 10);
@@ -34,7 +34,7 @@ TYPED_TEST(TestExpectationStep, ComputeH) {
     phi = phi.array().rowwise() / phi.colwise().sum().array();
     MatrixX<TypeParam> h(5, 10);
 
-    e_step.compute_h(X, eta, phi, h);
+    e_step_utils::compute_h<TypeParam>(X, X_ratio, eta, phi, h);
 
     VectorX<TypeParam> hphi = (h.transpose() * phi).diagonal();
 
@@ -62,34 +62,31 @@ TYPED_TEST(TestExpectationStep, ComputeH) {
 
 
 TYPED_TEST(TestExpectationStep, ComputeLikelihood) {
-    SupervisedEStep<TypeParam> e_step;
     for (int i=0; i<100; i++) {
         VectorX<TypeParam> Xtmp = VectorX<TypeParam>::Random(10).array().abs() * 5;
         VectorXi X = Xtmp.template cast<int>();
+        VectorX<TypeParam> X_ratio = X.cast<TypeParam>() / X.sum();
         int y = 0;
         VectorX<TypeParam> alpha = VectorX<TypeParam>::Constant(5, 0.1);
         MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(5, 10);
         MatrixX<TypeParam> eta = MatrixX<TypeParam>::Random(5, 3);
         MatrixX<TypeParam> phi = MatrixX<TypeParam>::Constant(5, 10, 0.1);
         VectorX<TypeParam> gamma = VectorX<TypeParam>::Constant(5, X.sum() / 5.0);
-        MatrixX<TypeParam> h(5, 10);
 
-        // normalize beta, phi and initialize h
+        // normalize beta, phi
         phi.array() -= phi.minCoeff() - 0.001;
         phi.array().rowwise() /= phi.colwise().sum().array();
         beta.array() -= beta.minCoeff() - 0.001;
         beta.array().rowwise() /= beta.colwise().sum().array();
-        e_step.compute_h(X, eta, phi, h);
 
-        TypeParam likelihood = e_step.compute_likelihood(
+        TypeParam likelihood = e_step_utils::compute_supervised_likelihood(
             X,
             y,
             alpha,
             beta,
             eta,
             phi,
-            gamma,
-            h
+            gamma
         );
 
         ASSERT_FALSE(std::isnan(likelihood)) << phi.array().log();
@@ -139,13 +136,7 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
                 model
             )
         );
-        e_step.compute_h(
-            doc->get_words(),
-            model->eta,
-            vp->phi,
-            h
-        );
-        likelihoods[i] = e_step.compute_likelihood(
+        likelihoods[i] = e_step_utils::compute_supervised_likelihood<TypeParam>(
             doc->get_words(),
             doc->get_class(),
             model->alpha,
