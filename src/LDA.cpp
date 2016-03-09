@@ -118,12 +118,6 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
 
         // fill in the gammas array
         gammas.col(i) = variational_parameters->gamma;
-
-        // and inform the world about us finishing another document
-        get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
-            i,
-            0
-        );
     }
 
     return gammas;
