@@ -9,6 +9,7 @@
 #include "test/utils.hpp"
 
 #include "Document.hpp"
+#include "FastSupervisedEStep.hpp"
 #include "Parameters.hpp"
 #include "SupervisedEStep.hpp"
 #include "e_step_utils.hpp"
@@ -126,6 +127,64 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
     std::vector<TypeParam> likelihoods(10);
     for (int i=0; i<10; i++) {
         SupervisedEStep<TypeParam> e_step(
+            i,
+            convergence_tolerance,
+            fixed_point_iterations
+        );
+        auto vp = std::static_pointer_cast<VariationalParameters<TypeParam> >(
+            e_step.doc_e_step(
+                doc,
+                model
+            )
+        );
+        likelihoods[i] = e_step_utils::compute_supervised_likelihood<TypeParam>(
+            doc->get_words(),
+            doc->get_class(),
+            model->alpha,
+            model->beta,
+            model->eta,
+            vp->phi,
+            vp->gamma,
+            h
+        );
+    }
+    for (int i=1; i<10; i++) {
+        EXPECT_GT(likelihoods[i], likelihoods[i-1]);
+    }
+}
+
+
+TYPED_TEST(TestExpectationStep, FastDocEStep) {
+    VectorX<TypeParam> Xtmp = VectorX<TypeParam>::Random(10).array().abs() * 5;
+    VectorXi X = Xtmp.template cast<int>();
+    int y = 0;
+
+    auto doc = std::make_shared<ClassificationDecorator>(
+        std::make_shared<EigenDocument>(X),
+        y
+    );
+
+    VectorX<TypeParam> alpha = VectorX<TypeParam>::Constant(5, 0.1);
+    MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(5, 10);
+    MatrixX<TypeParam> eta = MatrixX<TypeParam>::Random(5, 3);
+
+    // normalize beta
+    beta.array() -= beta.minCoeff() - 0.001;
+    beta.array().rowwise() /= beta.colwise().sum().array();
+
+    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+        alpha,
+        beta,
+        eta
+    );
+
+    MatrixX<TypeParam> h(beta.rows(), beta.cols());
+
+    int fixed_point_iterations = 10;
+    TypeParam convergence_tolerance = 0;
+    std::vector<TypeParam> likelihoods(10);
+    for (int i=0; i<10; i++) {
+        FastSupervisedEStep<TypeParam> e_step(
             i,
             convergence_tolerance,
             fixed_point_iterations
