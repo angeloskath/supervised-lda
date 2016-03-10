@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "MultinomialLogisticRegression.hpp"
 
 template <typename Scalar>
@@ -19,6 +21,15 @@ MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
 
     Cy_ = y_.rows() / (Cy_.array() * C).array();
 }
+
+template <typename Scalar>
+MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
+    const MatrixX &X,
+    const VectorXi &y,
+    VectorX Cy,
+    Scalar L
+) : X_(X), y_(y), L_(L), Cy_(std::move(Cy))
+{}
 
 
 template <typename Scalar>

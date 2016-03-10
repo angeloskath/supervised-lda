@@ -15,6 +15,7 @@ class MultinomialLogisticRegression
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
+        MultinomialLogisticRegression(const MatrixX &X, const VectorXi &y, VectorX Cy, Scalar L);
         MultinomialLogisticRegression(const MatrixX &X, const VectorXi &y, Scalar L);
         
         /**
