@@ -192,7 +192,8 @@ R"(Supervised LDA and other flavors of LDA.
                    [--fast_e_step] [--m_step_tolerance=MT]
                    [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [-q | --quiet]
-                   [--snapshot_every=N] [--workers=W] DATA MODEL
+                   [--snapshot_every=N] [--workers=W]
+                   [--continue=M] DATA MODEL
         slda transform [-q | --quiet] [--e_step_iterations=EI]
                        [--e_step_tolerance=ET] MODEL DATA OUTPUT
         slda evaluate [-q | --quiet] [--e_step_iterations=EI]
@@ -220,6 +221,7 @@ R"(Supervised LDA and other flavors of LDA.
                                           Logistic Regression [default: 0.05]
         --snapshot_every=N      Snapshot the model every N iterations [default: -1]
         --workers=N             The number of concurrent workers [default: 1]
+        --continue=M            A model to continue training from
 )";
 
 int main(int argc, char **argv) {
@@ -260,9 +262,18 @@ int main(int argc, char **argv) {
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
 
-        LDA<double> lda = builder.
-            initialize_topics("seeded", X, args["--topics"].asLong()).
-            initialize_eta("zeros", X, y, args["--topics"].asLong());
+        if (args["--continue"]) {
+            auto model = load_lda(args["MODEL"].asString());
+            builder.
+                initialize_topics_from_model(model).
+                initialize_eta_from_model(model);
+        } else {
+            builder.
+                initialize_topics("seeded", X, args["--topics"].asLong()).
+                initialize_eta("zeros", X, y, args["--topics"].asLong());
+        }
+
+        LDA<double> lda = builder;
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
