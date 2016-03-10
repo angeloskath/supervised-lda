@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
         parse_input_data(args["DATA"].asString(), X, y);
 
         if (args["--continue"]) {
-            auto model = load_lda(args["MODEL"].asString());
+            auto model = load_lda(args["--continue"].asString());
             builder.
                 initialize_topics_from_model(model).
                 initialize_eta_from_model(model);
