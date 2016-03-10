@@ -20,7 +20,7 @@ LDA<Scalar>::LDA(
     m_step_(m_step),
     iterations_(iterations),
     workers_(workers),
-    event_dispatcher_(std::make_shared<EventDispatcher>())
+    event_dispatcher_(std::make_shared<SameThreadEventDispatcher>())
 {
     set_up_event_dispatcher();
 }
@@ -94,6 +94,10 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<Corpus> corpus) {
         size_t index;
 
         std::tie(variational_parameters, index) = extract_vp_from_queue();
+
+        // tell the thread safe event dispatcher to process the events from the
+        // workers
+        process_worker_events();
 
         // perform the online part of m step
         m_step_->doc_m_step(

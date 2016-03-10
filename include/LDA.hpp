@@ -99,6 +99,12 @@ class LDA
             return event_dispatcher_;
         }
 
+        void process_worker_events() {
+            std::static_pointer_cast<ThreadSafeEventDispatcher>(
+                event_dispatcher_
+            )->process_events();
+        }
+
         /**
          * Get a constant reference to the model's parameters.
          */

@@ -2,8 +2,11 @@
 #define _EVENTS_HPP_
 
 
-#include <memory>
 #include <list>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <unordered_set>
 
 
 /**
@@ -98,9 +101,9 @@ class IEventDispatcher
 class EventDispatcher : public IEventDispatcher
 {
     public:
-        void add_listener(std::shared_ptr<IEventListener> listener);
-        void remove_listener(std::shared_ptr<IEventListener> listener);
-        void dispatch(std::shared_ptr<Event> event);
+        void add_listener(std::shared_ptr<IEventListener> listener) override;
+        void remove_listener(std::shared_ptr<IEventListener> listener) override;
+        void dispatch(std::shared_ptr<Event> event) override;
 
     private:
         std::list<std::shared_ptr<IEventListener> > listeners_;
@@ -130,5 +133,46 @@ class EventDispatcherComposition
         std::shared_ptr<IEventDispatcher> event_dispatcher_;
 };
 
+
+/**
+ * A thread safe event dispatcher that dispatches the events when its process_events
+ * method is called and on the thread that the process_events method is called.
+ */
+class ThreadSafeEventDispatcher : public IEventDispatcher
+{
+    public:
+        virtual void add_listener(std::shared_ptr<IEventListener> listener) override;
+        virtual void remove_listener(std::shared_ptr<IEventListener> listener) override;
+        virtual void dispatch(std::shared_ptr<Event> event) override;
+
+        void process_events();
+
+    private:
+        std::mutex listeners_mutex_;
+        std::list<std::shared_ptr<IEventListener> > listeners_;
+
+        std::mutex deleted_listeners_mutex_;
+        std::unordered_set<std::shared_ptr<IEventListener> > deleted_listeners_;
+
+        std::mutex events_mutex_;
+        std::list<std::shared_ptr<Event> > events_;
+};
+
+
+/**
+ * SameThreadEventDispatcher dispatches immediately any events that are
+ * dispatched from the thread in which it was created and only allows
+ * process_events to be called from that thread.
+ */
+class SameThreadEventDispatcher : public ThreadSafeEventDispatcher
+{
+    public:
+        SameThreadEventDispatcher();
+
+        virtual void dispatch(std::shared_ptr<Event> event) override;
+
+    private:
+        std::thread::id thread_id_;
+};
 
 #endif  // _EVENTS_HPP_
