@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <thread>
 
 #include <Eigen/Core>
 
@@ -53,6 +54,7 @@ class LDABuilder : public ILDABuilder<Scalar>
     public:
         LDABuilder()
             : iterations_(20),
+              workers_(std::thread::hardware_concurrency()),
               e_step_(std::make_shared<UnsupervisedEStep<Scalar> >()),
               m_step_(std::make_shared<UnsupervisedMStep<Scalar> >()),
               model_parameters_(
@@ -63,6 +65,11 @@ class LDABuilder : public ILDABuilder<Scalar>
         // set generic parameters
         LDABuilder & set_iterations(size_t iterations) {
             iterations_ = iterations;
+
+            return *this;
+        }
+        LDABuilder & set_workers(size_t workers) {
+            workers_ = workers;
 
             return *this;
         }
@@ -178,13 +185,15 @@ class LDABuilder : public ILDABuilder<Scalar>
                 model_parameters_,
                 e_step_,
                 m_step_,
-                iterations_
+                iterations_,
+                workers_
             );
         };
 
     private:
         // generic lda parameters
         size_t iterations_;
+        size_t workers_;
 
         // implementations
         std::shared_ptr<IEStep<Scalar> > e_step_;

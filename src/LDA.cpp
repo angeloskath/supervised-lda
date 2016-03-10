@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <utility>
 
 #include "LDA.hpp"
 #include "ProgressEvents.hpp"
@@ -12,15 +13,27 @@ LDA<Scalar>::LDA(
     std::shared_ptr<Parameters> model_parameters,
     std::shared_ptr<IEStep<Scalar> > e_step,
     std::shared_ptr<IMStep<Scalar> > m_step,
-    size_t iterations
+    size_t iterations,
+    size_t workers
 ) : model_parameters_(model_parameters),
     e_step_(e_step),
     m_step_(m_step),
     iterations_(iterations),
+    workers_(workers),
     event_dispatcher_(std::make_shared<EventDispatcher>())
 {
     set_up_event_dispatcher();
 }
+
+template <typename Scalar>
+LDA<Scalar>::LDA(LDA<Scalar> &&lda)
+    : model_parameters_(std::move(lda.model_parameters_)),
+      e_step_(std::move(lda.e_step_)),
+      m_step_(std::move(lda.m_step_)),
+      iterations_(lda.iterations_),
+      workers_(lda.workers_.size()),
+      event_dispatcher_(std::move(lda.event_dispatcher_))
+{}
 
 template <typename Scalar>
 void LDA<Scalar>::set_up_event_dispatcher() {
@@ -67,22 +80,32 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<Corpus> corpus) {
     // Shuffle the documents for a randomized pass through
     corpus->shuffle();
 
-    // For each document
+    // Queue all the documents
     for (size_t i=0; i<corpus->size(); i++) {
-        // perform the expectation step
-        auto variational_parameters = e_step_->doc_e_step(
-            corpus->at(i),
-            model_parameters_
-        );
+        queue_in_.emplace_back(corpus, i);
+    }
+
+    // create the thread pool
+    create_worker_pool();
+
+    // Extract variational parameters and calculate the doc_m_step
+    for (size_t i=0; i<corpus->size(); i++) {
+        std::shared_ptr<Parameters> variational_parameters;
+        size_t index;
+
+        std::tie(variational_parameters, index) = extract_vp_from_queue();
 
         // perform the online part of m step
         m_step_->doc_m_step(
-            corpus->at(i),
+            corpus->at(index),
             variational_parameters,
             model_parameters_  // output
         );
     }
 
+    // destroy the thread pool
+    destroy_worker_pool();
+    
     // perform the batch part of m step
     m_step_->m_step(
         model_parameters_  // output
@@ -155,6 +178,68 @@ VectorXi LDA<Scalar>::predict(const MatrixXi &X) {
     }
 
     return predictions;
+}
+
+
+template <typename Scalar>
+void LDA<Scalar>::create_worker_pool() {
+    for (auto & t : workers_) {
+        t = std::thread(
+            std::bind(&LDA<Scalar>::doc_e_step_worker, this)
+        );
+    }
+}
+
+
+template <typename Scalar>
+void LDA<Scalar>::destroy_worker_pool() {
+    for (auto & t : workers_) {
+        t.join();
+    }
+}
+
+
+template <typename Scalar>
+void LDA<Scalar>::doc_e_step_worker() {
+    std::shared_ptr<Corpus> corpus;
+    size_t index;
+
+    while (true) {
+        // extract a job
+        {
+            std::lock_guard<std::mutex> lock(queue_in_mutex_);
+            if (queue_in_.empty())
+                break;
+            std::tie(corpus, index) = queue_in_.front();
+            queue_in_.pop_front();
+        }
+
+        // do said job
+        auto vp = e_step_->doc_e_step(
+            corpus->at(index),
+            model_parameters_
+        );
+
+        // show some results
+        {
+            std::lock_guard<std::mutex> lock(queue_out_mutex_);
+            queue_out_.emplace_back(vp, index);
+        }
+        // talk about those results
+        queue_out_cv_.notify_one();
+    }
+}
+
+
+template <typename Scalar>
+std::tuple<std::shared_ptr<Parameters>, size_t> LDA<Scalar>::extract_vp_from_queue() {
+    std::unique_lock<std::mutex> lock(queue_out_mutex_);
+    queue_out_cv_.wait(lock, [this](){ return !queue_out_.empty(); });
+
+    auto f = queue_out_.front();
+    queue_out_.pop_front();
+
+    return f;
 }
 
 

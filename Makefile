@@ -1,7 +1,7 @@
 
 CC = g++-4.9
 CFLAGS = -std=c++11 -Wall -O3 -msse2 $(CFLAGS_EXTRA)
-LDFLAGS = -lm -ldocopt
+LDFLAGS = -lm -ldocopt -lpthread
 LDFLAGS_TEST = -lgtest
 LDFLAGS_BENCH = ""
 

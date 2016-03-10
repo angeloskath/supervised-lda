@@ -2,8 +2,13 @@
 #define _LDA_HPP_
 
 
+#include <condition_variable>
+#include <list>
 #include <memory>
+#include <mutex>
 #include <vector>
+#include <thread>
+#include <tuple>
 
 #include <Eigen/Core>
 
@@ -34,8 +39,15 @@ class LDA
             std::shared_ptr<Parameters> model_parameters,
             std::shared_ptr<IEStep<Scalar> > e_step,
             std::shared_ptr<IMStep<Scalar> > m_step,
-            size_t iterations = 20
+            size_t iterations = 20,
+            size_t workers = 1
         );
+
+        /**
+         * Create a move constructor that doesn't try to copy or move the
+         * mutexes.
+         */
+        LDA(LDA &&lda);
 
         /**
          * Compute a supervised topic model for word counts X and classes y.
@@ -108,6 +120,26 @@ class LDA
          */
         std::shared_ptr<Corpus> get_corpus(const MatrixXi &X);
 
+        /**
+         * Create a worker thread pool.
+         */
+        void create_worker_pool();
+
+        /**
+         * Destroy the worker thread pool
+         */
+        void destroy_worker_pool();
+
+        /**
+         * Extract the variational parameters and the document index.
+         */
+        std::tuple<std::shared_ptr<Parameters>, size_t> extract_vp_from_queue();
+
+        /**
+         * A doc_e_step worker thread
+         */
+        void doc_e_step_worker();
+
     private:
         /**
          * Pass the event dispatcher down to the implementations so that they
@@ -124,6 +156,14 @@ class LDA
 
         // Member variables that affect the behaviour of fit
         size_t iterations_;
+
+        // The thread related member variables
+        std::vector<std::thread> workers_;
+        std::mutex queue_in_mutex_;
+        std::list<std::tuple<std::shared_ptr<Corpus>, size_t> > queue_in_;
+        std::mutex queue_out_mutex_;
+        std::condition_variable queue_out_cv_;
+        std::list<std::tuple<std::shared_ptr<Parameters>, size_t> > queue_out_;
 
         // An event dispatcher that we will use to communicate with the
         // external components

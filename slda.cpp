@@ -192,7 +192,7 @@ R"(Supervised LDA and other flavors of LDA.
                    [--fast_e_step] [--m_step_tolerance=MT]
                    [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [-q | --quiet]
-                   [--snapshot_every=N] DATA MODEL
+                   [--snapshot_every=N] [--workers=W] DATA MODEL
         slda transform [-q | --quiet] [--e_step_iterations=EI]
                        [--e_step_tolerance=ET] MODEL DATA OUTPUT
         slda evaluate [-q | --quiet] [--e_step_iterations=EI]
@@ -219,6 +219,7 @@ R"(Supervised LDA and other flavors of LDA.
         -L L, --regularization_penalty=L  The regularization penalty for the Multinomiali
                                           Logistic Regression [default: 0.05]
         --snapshot_every=N      Snapshot the model every N iterations [default: -1]
+        --workers=N             The number of concurrent workers [default: 1]
 )";
 
 int main(int argc, char **argv) {
@@ -234,6 +235,7 @@ int main(int argc, char **argv) {
         LDABuilder<double> builder;
 
         builder.set_iterations(args["--iterations"].asLong());
+        builder.set_workers(args["--workers"].asLong());
         if (args["--fast_e_step"].asBool()) {
             builder.set_fast_supervised_e_step(
                 args["--e_step_iterations"].asLong(),
