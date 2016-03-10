@@ -38,6 +38,7 @@ class MultinomialLogisticRegression
         const MatrixX &X_;
         const VectorXi &y_;
         Scalar L_;
+        VectorX Cy_;
 };
 
 
