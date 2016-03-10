@@ -183,16 +183,90 @@ void parse_input_data(std::string data_path, MatrixXi &X, MatrixXi &y) {
     y = ni;
 }
 
+VectorXd create_class_weights(const VectorXi & y) {
+    int C = y.maxCoeff() + 1;
+    VectorXd Cy = VectorXd::Zero(C);
+
+    for (int d=0; d<y.rows(); d++) {
+        Cy[y[d]]++;
+    }
+
+    Cy = y.rows() / (Cy.array() * C).array();
+
+    return Cy;
+}
+
+LDA<double> create_lda_for_training(
+    std::map<std::string, docopt::value> &args,  // should be const but const
+                                                 // C++ map is annoying
+    const MatrixXi & X,
+    const VectorXi & y
+) {
+    LDABuilder<double> builder;
+
+    // trivial parameters
+    builder.set_iterations(args["--iterations"].asLong());
+    builder.set_workers(args["--workers"].asLong());
+
+    // Choose the e step
+    if (args["--fast_e_step"].asBool()) {
+        builder.set_fast_supervised_e_step(
+            args["--e_step_iterations"].asLong(),
+            std::stof(args["--e_step_tolerance"].asString()),
+            args["--fixed_point_iterations"].asLong()
+        );
+    } else {
+        builder.set_supervised_e_step(
+            args["--e_step_iterations"].asLong(),
+            std::stof(args["--e_step_tolerance"].asString()),
+            args["--fixed_point_iterations"].asLong()
+        );
+    }
+
+    // Choose the m step
+    if (args["--online_m_step"].asBool()) {
+        builder.set_supervised_online_m_step(
+            create_class_weights(y),
+            std::stof(args["--regularization_penalty"].asString()),
+            args["--batch_size"].asLong(),
+            std::stof(args["--momentum"].asString()),
+            std::stof(args["--learning_rate"].asString()),
+            std::stof(args["--beta_weight"].asString())
+        );
+    } else {
+        builder.set_supervised_batch_m_step(
+            args["--m_step_iterations"].asLong(),
+            std::stof(args["--m_step_tolerance"].asString()),
+            std::stof(args["--regularization_penalty"].asString())
+        );
+    }
+
+    // Initialize the model parameters
+    if (args["--continue"]) {
+        auto model = load_lda(args["--continue"].asString());
+        builder.
+            initialize_topics_from_model(model).
+            initialize_eta_from_model(model);
+    } else {
+        builder.
+            initialize_topics("seeded", X, args["--topics"].asLong()).
+            initialize_eta("zeros", X, y, args["--topics"].asLong());
+    }
+
+    return builder;
+}
+
 static const char * USAGE =
 R"(Supervised LDA and other flavors of LDA.
 
     Usage:
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
-                   [--fast_e_step] [--m_step_tolerance=MT]
-                   [--fixed_point_iterations=FI]
-                   [--regularization_penalty=L] [-q | --quiet]
-                   [--snapshot_every=N] [--workers=W]
+                   [--fast_e_step] [--online_m_step]
+                   [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
+                   [--regularization_penalty=L] [--beta_weight=BW]
+                   [--momentum=MM] [--learning_rate=LR] [--batch_size=BS]
+                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
                    [--continue=M] DATA MODEL
         slda transform [-q | --quiet] [--e_step_iterations=EI]
                        [--e_step_tolerance=ET] MODEL DATA OUTPUT
@@ -211,6 +285,8 @@ R"(Supervised LDA and other flavors of LDA.
                                 likelihood during the E step [default: 1e-4]
         --fast_e_step           Choose a variant of E step that doesn't compute
                                 likelihood in order to be faster
+        --online_m_step         Choose online M step that updates the model
+                                parameters after seeing mini_batch documents
         --m_step_iterations=MI  The maximum number of iterations to perform
                                 in the M step [default: 200]
         --m_step_tolerance=MT   The minimum accepted relative increase in log
@@ -219,6 +295,11 @@ R"(Supervised LDA and other flavors of LDA.
                                      \phi [default: 20]
         -L L, --regularization_penalty=L  The regularization penalty for the Multinomiali
                                           Logistic Regression [default: 0.05]
+        --beta_weight=BW        Set the weight of the previous beta parameters
+                                w.r.t to the new from the minibatch [default: 0.9]
+        --momentum=MM           Set the momentum for changing eta [default: 0.9]
+        --learning_rate=LR      Set the learning rate for changing eta [default: 0.01]
+        --batch_size=BS         The mini-batch size for the online learning [default: 128]
         --snapshot_every=N      Snapshot the model every N iterations [default: -1]
         --workers=N             The number of concurrent workers [default: 1]
         --continue=M            A model to continue training from
@@ -234,46 +315,11 @@ int main(int argc, char **argv) {
     );
 
     if (args["train"].asBool()) {
-        LDABuilder<double> builder;
-
-        builder.set_iterations(args["--iterations"].asLong());
-        builder.set_workers(args["--workers"].asLong());
-        if (args["--fast_e_step"].asBool()) {
-            builder.set_fast_supervised_e_step(
-                args["--e_step_iterations"].asLong(),
-                std::stof(args["--e_step_tolerance"].asString()),
-                args["--fixed_point_iterations"].asLong()
-            );
-        }
-        else {
-            builder.set_supervised_e_step(
-                args["--e_step_iterations"].asLong(),
-                std::stof(args["--e_step_tolerance"].asString()),
-                args["--fixed_point_iterations"].asLong()
-            );
-        }
-        builder.set_supervised_batch_m_step(
-            args["--m_step_iterations"].asLong(),
-            std::stof(args["--m_step_tolerance"].asString()),
-            std::stof(args["--regularization_penalty"].asString())
-        );
-
         MatrixXi X, y;
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
 
-        if (args["--continue"]) {
-            auto model = load_lda(args["--continue"].asString());
-            builder.
-                initialize_topics_from_model(model).
-                initialize_eta_from_model(model);
-        } else {
-            builder.
-                initialize_topics("seeded", X, args["--topics"].asLong()).
-                initialize_eta("zeros", X, y, args["--topics"].asLong());
-        }
-
-        LDA<double> lda = builder;
+        auto lda = create_lda_for_training(args, X, y);
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();

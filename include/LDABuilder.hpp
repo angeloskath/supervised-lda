@@ -13,6 +13,7 @@
 #include "IEStep.hpp"
 #include "IMStep.hpp"
 #include "LDA.hpp"
+#include "OnlineSupervisedMStep.hpp"
 #include "SupervisedEStep.hpp"
 #include "SupervisedMStep.hpp"
 #include "UnsupervisedEStep.hpp"
@@ -104,6 +105,12 @@ class LDABuilder : public ILDABuilder<Scalar>
         template <typename ...Args>
         LDABuilder & set_supervised_batch_m_step(Args... args) {
             m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_supervised_online_m_step(Args... args) {
+            m_step_ = std::make_shared<OnlineSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
