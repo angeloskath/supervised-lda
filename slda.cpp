@@ -101,7 +101,8 @@ class TrainingProgress : public IEventListener
                 }
 
                 // keep track of the likelihood
-                likelihood_ += std::isinf(progress->likelihood()) ? 0 : progress->likelihood();
+                if (!std::isnan(progress->likelihood()) && !std::isinf(progress->likelihood()))
+                    likelihood_ += progress->likelihood();
             }
             else if (event->id() == "MaximizationProgressEvent") {
                 auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
