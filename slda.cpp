@@ -346,7 +346,7 @@ int main(int argc, char **argv) {
         auto model = load_lda(args["MODEL"].asString());
         LDA<double> lda =
             LDABuilder<double>().
-                set_classic_e_step(
+                set_fast_classic_e_step(
                     args["--e_step_iterations"].asLong(),
                     std::stof(args["--e_step_tolerance"].asString())
                 ).
@@ -369,7 +369,7 @@ int main(int argc, char **argv) {
         auto model = load_lda(args["MODEL"].asString());
         LDA<double> lda =
             LDABuilder<double>().
-                set_classic_e_step(
+                set_fast_classic_e_step(
                     args["--e_step_iterations"].asLong(),
                     std::stof(args["--e_step_tolerance"].asString())
                 ).

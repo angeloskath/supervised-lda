@@ -1,19 +1,20 @@
+#include "FastUnsupervisedEStep.hpp"
 #include "ProgressEvents.hpp"
-#include "UnsupervisedEStep.hpp"
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
-template <typename Scalar>
-UnsupervisedEStep<Scalar>::UnsupervisedEStep(
-    size_t e_step_iterations,
-    Scalar e_step_tolerance
-) {
-    e_step_iterations_ = e_step_iterations;
-    e_step_tolerance_ = e_step_tolerance;
-}
 
 template <typename Scalar>
-std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
+FastUnsupervisedEStep<Scalar>::FastUnsupervisedEStep(
+    size_t e_step_iterations,
+    Scalar e_step_tolerance
+) : e_step_iterations_(e_step_iterations),
+    e_step_tolerance_(e_step_tolerance)
+{}
+
+
+template <typename Scalar>
+std::shared_ptr<Parameters> FastUnsupervisedEStep<Scalar>::doc_e_step(
     const std::shared_ptr<Document> doc,
     const std::shared_ptr<Parameters> parameters
 ) {
@@ -32,14 +33,14 @@ std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // to check for convergence
-    Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
+    VectorX gamma_old = VectorX::Zero(num_topics);
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
-        new_likelihood = e_step_utils::compute_unsupervised_likelihood(X, alpha, beta, phi, gamma);
-        if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
+        // check for early stopping
+        if (converged(gamma_old, gamma)) {
             break;
         }
-        old_likelihood = new_likelihood;
+        gamma_old = gamma;
 
         // Update Multinomial parameter phi, according to the following
         // pseudocode
@@ -63,12 +64,22 @@ std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
     }
 
     // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
+    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(0);
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }
 
-// Template instantiation
-template class UnsupervisedEStep<float>;
-template class UnsupervisedEStep<double>;
 
+template <typename Scalar>
+bool FastUnsupervisedEStep<Scalar>::converged(
+    const VectorX & gamma_old,
+    const VectorX & gamma
+) {
+    Scalar mean_change = (gamma_old - gamma).array().abs().sum() / gamma.rows();
+
+    return mean_change < e_step_tolerance_;
+}
+
+// Instantiations
+template class FastUnsupervisedEStep<float>;
+template class FastUnsupervisedEStep<double>;

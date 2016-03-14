@@ -133,19 +133,29 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
     // make a corpus to use
     auto corpus = get_corpus(X);
 
+    // Queue all the documents
     for (size_t i=0; i<corpus->size(); i++) {
-        // perform the e step
-        auto variational_parameters =
-            std::static_pointer_cast<VariationalParameters<Scalar> >(
-                e_step_->doc_e_step(
-                    corpus->at(i),
-                    model_parameters_
-                )
-            );
-
-        // fill in the gammas array
-        gammas.col(i) = variational_parameters->gamma;
+        queue_in_.emplace_back(corpus, i);
     }
+
+    // create the thread pool
+    create_worker_pool();
+
+    // Extract variational parameters and calculate the doc_e_step
+    for (size_t i=0; i<corpus->size(); i++) {
+        std::shared_ptr<Parameters> vp;
+        size_t index;
+
+        std::tie(vp, index) = extract_vp_from_queue();
+        gammas.col(index) = std::static_pointer_cast<VariationalParameters<Scalar> >(vp)->gamma;
+
+        // tell the thread safe event dispatcher to process the events from the
+        // workers
+        process_worker_events();
+    }
+
+    // destroy the thread pool
+    destroy_worker_pool();
 
     return gammas;
 }

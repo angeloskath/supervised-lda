@@ -10,6 +10,7 @@
 
 #include "initialize.hpp"
 #include "FastSupervisedEStep.hpp"
+#include "FastUnsupervisedEStep.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
 #include "LDA.hpp"
@@ -79,6 +80,12 @@ class LDABuilder : public ILDABuilder<Scalar>
         template <typename ...Args>
         LDABuilder & set_classic_e_step(Args... args) {
             e_step_ = std::make_shared<UnsupervisedEStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_fast_classic_e_step(Args... args) {
+            e_step_ = std::make_shared<FastUnsupervisedEStep<Scalar> >(args...);
 
             return *this;
         }
