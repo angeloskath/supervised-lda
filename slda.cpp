@@ -270,9 +270,11 @@ R"(Supervised LDA and other flavors of LDA.
                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
                    [--continue=M] DATA MODEL
         slda transform [-q | --quiet] [--e_step_iterations=EI]
-                       [--e_step_tolerance=ET] MODEL DATA OUTPUT
+                       [--e_step_tolerance=ET] [--workers=W]
+                       MODEL DATA OUTPUT
         slda evaluate [-q | --quiet] [--e_step_iterations=EI]
-                      [--e_step_tolerance=ET] MODEL DATA
+                      [--e_step_tolerance=ET] [--workers=W]
+                      MODEL DATA
         slda (-h | --help)
 
     Options:
@@ -346,6 +348,7 @@ int main(int argc, char **argv) {
         auto model = load_lda(args["MODEL"].asString());
         LDA<double> lda =
             LDABuilder<double>().
+                set_workers(args["--workers"].asLong()).
                 set_fast_classic_e_step(
                     args["--e_step_iterations"].asLong(),
                     std::stof(args["--e_step_tolerance"].asString())
@@ -369,6 +372,7 @@ int main(int argc, char **argv) {
         auto model = load_lda(args["MODEL"].asString());
         LDA<double> lda =
             LDABuilder<double>().
+                set_workers(args["--workers"].asLong()).
                 set_fast_classic_e_step(
                     args["--e_step_iterations"].asLong(),
                     std::stof(args["--e_step_tolerance"].asString())
