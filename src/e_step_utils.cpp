@@ -31,7 +31,7 @@ Scalar compute_unsupervised_likelihood(
 
     // E_q[log p(w | z, \beta)]
     auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
-    likelihood += (phi_scaled * beta.array().log()).sum();
+    likelihood += (phi_scaled * (beta.array() + 1e-44).log()).sum();
 
     // H(q)
     likelihood += -((gamma.array() - 1).matrix().transpose() * t1).value();
