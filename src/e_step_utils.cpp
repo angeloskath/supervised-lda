@@ -1,4 +1,3 @@
-
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
@@ -106,7 +105,12 @@ void compute_h(
         exp_eta = eta_scaled.array().unaryExpr(cwise_fast_exp);
         products = (exp_eta.transpose() * phi).diagonal();
 
-        auto t1 = (products.prod() / products.array()).matrix();
+        // products.prod() / products.array() accounting for the zeros in phi
+        auto t1 = products.unaryExpr(
+            CwiseScalarDivideByMatrix<Scalar>(
+                product_of_nonzeros(products)
+            )
+        );
         auto t2 = exp_eta * t1.asDiagonal();
 
         h += t2;
@@ -138,7 +142,7 @@ void fixed_point_iteration(
 
     phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).unaryExpr(cwise_fast_exp);
     //phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
-    phi = phi.array().rowwise() / phi.colwise().sum().array();
+    normalize_cols(phi);
 }
 
 template <typename Scalar>

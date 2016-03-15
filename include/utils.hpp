@@ -426,6 +426,36 @@ struct CwiseFastExp
     }
 };
 
+template <typename Scalar>
+struct CwiseIsNaN
+{
+    const bool operator()(const Scalar &x) const {
+        return std::isnan(x);
+    }
+};
+
+template <typename Scalar>
+struct CwiseIsInf
+{
+    const bool operator()(const Scalar &x) const {
+        return std::isinf(x);
+    }
+};
+
+template <typename Scalar>
+struct CwiseScalarDivideByMatrix
+{
+    CwiseScalarDivideByMatrix(Scalar y) : y_(y) {}
+
+    const Scalar operator()(const Scalar &x) const {
+        if (x != 0)
+            return y_ / x;
+        return 0;
+    }
+
+    Scalar y_;
+};
+
 
 /**
  * Reshape a matrix into a vector by copying the matrix into the vector in a
@@ -460,6 +490,58 @@ void reshape_into(
     for (int c=0; c<dstC; c++) {
         dst.col(c) = src.segment(c*dstR, dstR);
     }
+}
+
+
+/**
+ * Normalize in place a matrix of row vectors so that they sum to 1. Avoid NaN
+ * by checking for 0 explicitly.
+ */
+template <typename Derived>
+void normalize_rows(DenseBase<Derived> &x) {
+    typename DenseBase<Derived>::Scalar s;
+    for (int i=0; i<x.rows(); i++) {
+        s = x.row(i).sum();
+        if (s != 0) {
+            x.row(i).array() /= s;
+        }
+    }
+}
+
+
+/**
+ * Normalize in place a matrix of column vectors so that they sum to 1. Avoid
+ * NaN by checking for 0 explicitly.
+ */
+template <typename Derived>
+void normalize_cols(DenseBase<Derived> &x) {
+    typename DenseBase<Derived>::Scalar s;
+    for (int i=0; i<x.cols(); i++) {
+        s = x.col(i).sum();
+        if (s != 0) {
+            x.col(i).array() /= s;
+        }
+    }
+}
+
+
+/**
+ * Compute the product ignoring zeros.
+ */
+template <typename Derived>
+typename DenseBase<Derived>::Scalar product_of_nonzeros(
+    const DenseBase<Derived> &x
+) {
+    typename DenseBase<Derived>::Scalar p = 1;
+
+    for (int j=0; j<x.cols(); j++) {
+        for (int i=0; i<x.rows(); i++) {
+            if (x(i, j) != 0)
+                p *= x(i, j);
+        }
+    }
+
+    return p;
 }
 
 
