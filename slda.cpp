@@ -83,6 +83,7 @@ class TrainingProgress : public IEventListener
             em_iterations_ = 1;
             output_em_step_ = true;
             likelihood_ = 0;
+            cnt_likelihoods_ = 0;
         }
 
         void on_event(std::shared_ptr<Event> event) {
@@ -101,8 +102,10 @@ class TrainingProgress : public IEventListener
                 }
 
                 // keep track of the likelihood
-                if (!std::isnan(progress->likelihood()) && !std::isinf(progress->likelihood()))
+                if (!std::isnan(progress->likelihood()) && !std::isinf(progress->likelihood())) {
                     likelihood_ += progress->likelihood();
+                    cnt_likelihoods_++;
+                }
             }
             else if (event->id() == "MaximizationProgressEvent") {
                 auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
@@ -113,11 +116,13 @@ class TrainingProgress : public IEventListener
             }
             else if (event->id() == "EpochProgressEvent") {
                 if (likelihood_ < 0) {
-                    std::cout << "Likelihood: " << likelihood_ << std::endl << std::endl;
+                    std::cout << "Per document likelihood: " <<
+                        likelihood_ / cnt_likelihoods_ << std::endl << std::endl;
                 }
 
                 // reset the member variables
                 likelihood_ = 0;
+                cnt_likelihoods_ = 0;
                 em_iterations_ ++;
                 e_iterations_ = 0;
                 m_iterations_ = 0;
@@ -129,6 +134,7 @@ class TrainingProgress : public IEventListener
         int m_iterations_;
         int em_iterations_;
         double likelihood_;
+        int cnt_likelihoods_;
         bool output_em_step_;
 };
 
