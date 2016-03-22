@@ -6,7 +6,21 @@ SemiSupervisedEStep<Scalar>::SemiSupervisedEStep(
     std::shared_ptr<IEStep<Scalar> > unsupervised_step
 ) : supervised_step_(supervised_step),
     unsupervised_step_(unsupervised_step)
-{}
+{
+    event_forwarder_ = supervised_step_->get_event_dispatcher()->add_listener(
+        [this](std::shared_ptr<Event> event) {
+            this->get_event_dispatcher()->dispatch(event);
+        }
+    );
+    unsupervised_step_->get_event_dispatcher()->add_listener(event_forwarder_);
+}
+
+
+template <typename Scalar>
+SemiSupervisedEStep<Scalar>::~SemiSupervisedEStep() {
+    supervised_step_->get_event_dispatcher()->remove_listener(event_forwarder_);
+    unsupervised_step_->get_event_dispatcher()->remove_listener(event_forwarder_);
+}
 
 
 template <typename Scalar>

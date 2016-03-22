@@ -22,6 +22,7 @@ class SemiSupervisedEStep : public IEStep<Scalar>
             std::shared_ptr<IEStep<Scalar> > supervised_step,
             std::shared_ptr<IEStep<Scalar> > unsupervised_step
         );
+        virtual ~SemiSupervisedEStep();
 
         /**
          * If the class from the document is less than 0 then the pass the
@@ -36,6 +37,8 @@ class SemiSupervisedEStep : public IEStep<Scalar>
     private:
         std::shared_ptr<IEStep<Scalar> > supervised_step_;
         std::shared_ptr<IEStep<Scalar> > unsupervised_step_;
+
+        std::shared_ptr<IEventListener> event_forwarder_;
 };
 
 #endif  // _SEMISUPERVISEDESTEP_HPP_
