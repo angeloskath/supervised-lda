@@ -25,9 +25,9 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
          *
          * @param parameters           Model parameters, after being updated in m_step
          */
-        void m_step(
+        virtual void m_step(
             std::shared_ptr<Parameters> parameters
-        );
+        ) override;
         
         /**
          * This function calculates all necessary parameters, that
@@ -39,11 +39,11 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
          * @param m_parameters     Model parameters, used as output in case of 
          *                         online methods
          */
-        void doc_m_step(
+        virtual void doc_m_step(
             const std::shared_ptr<Document> doc,
             const std::shared_ptr<Parameters> v_parameters,
             std::shared_ptr<Parameters> m_parameters
-        );
+        ) override;
         
     private:
         // The maximum number of iterations in M-step

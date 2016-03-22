@@ -79,7 +79,6 @@ void SupervisedMStep<Scalar>::m_step(
         }
     );
     minimizer.minimize(mlr, eta);
-
 }
 
 // Template instantiation
