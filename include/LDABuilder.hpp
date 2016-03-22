@@ -15,6 +15,8 @@
 #include "IMStep.hpp"
 #include "LDA.hpp"
 #include "OnlineSupervisedMStep.hpp"
+#include "SemiSupervisedEStep.hpp"
+#include "SemiSupervisedMStep.hpp"
 #include "SupervisedEStep.hpp"
 #include "SupervisedMStep.hpp"
 #include "UnsupervisedEStep.hpp"
@@ -78,27 +80,27 @@ class LDABuilder : public ILDABuilder<Scalar>
 
         // create e steps
         template <typename ...Args>
-        LDABuilder & set_classic_e_step(Args... args) {
-            e_step_ = std::make_shared<UnsupervisedEStep<Scalar> >(args...);
-
-            return *this;
+        std::shared_ptr<IEStep<Scalar> > get_classic_e_step(Args... args) {
+            return std::make_shared<UnsupervisedEStep<Scalar> >(args...);
         }
         template <typename ...Args>
-        LDABuilder & set_fast_classic_e_step(Args... args) {
-            e_step_ = std::make_shared<FastUnsupervisedEStep<Scalar> >(args...);
-
-            return *this;
+        std::shared_ptr<IEStep<Scalar> > get_fast_classic_e_step(Args... args) {
+            return std::make_shared<FastUnsupervisedEStep<Scalar> >(args...);
         }
         template <typename ...Args>
-        LDABuilder & set_supervised_e_step(Args... args) {
-            e_step_ = std::make_shared<SupervisedEStep<Scalar> >(args...);
-
-            return *this;
+        std::shared_ptr<IEStep<Scalar> > get_supervised_e_step(Args... args) {
+            return std::make_shared<SupervisedEStep<Scalar> >(args...);
         }
         template <typename ...Args>
-        LDABuilder & set_fast_supervised_e_step(Args... args) {
-            e_step_ = std::make_shared<FastSupervisedEStep<Scalar> >(args...);
-
+        std::shared_ptr<IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
+            return std::make_shared<FastSupervisedEStep<Scalar> >(args...);
+        }
+        template <typename ...Args>
+        std::shared_ptr<IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
+            return std::make_shared<SemiSupervisedEStep<Scalar> >(args...);
+        }
+        LDABuilder & set_e(std::shared_ptr<IEStep<Scalar> > e_step) {
+            e_step_ = e_step;
             return *this;
         }
 
@@ -118,6 +120,12 @@ class LDABuilder : public ILDABuilder<Scalar>
         template <typename ...Args>
         LDABuilder & set_supervised_online_m_step(Args... args) {
             m_step_ = std::make_shared<OnlineSupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_semi_supervised_batch_m_step(Args... args) {
+            m_step_ = std::make_shared<SemiSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }

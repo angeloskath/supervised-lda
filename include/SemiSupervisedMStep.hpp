@@ -17,6 +17,17 @@ template <typename Scalar>
 class SemiSupervisedMStep : public SupervisedMStep<Scalar>
 {
     public:
+        SemiSupervisedMStep(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) : SupervisedMStep<Scalar>(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            )
+        {}
+
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,
             const std::shared_ptr<Parameters> v_parameters,

@@ -216,22 +216,40 @@ LDA<double> create_lda_for_training(
     builder.set_workers(args["--workers"].asLong());
 
     // Choose the e step
-    if (args["--fast_e_step"].asBool()) {
-        builder.set_fast_supervised_e_step(
+    if (args["--semi_supervised"].asBool()) {
+        builder.set_e(builder.get_semi_supervised_e_step(
+            builder.get_supervised_e_step(
+                args["--e_step_iterations"].asLong(),
+                std::stof(args["--e_step_tolerance"].asString()),
+                args["--fixed_point_iterations"].asLong()
+            ),
+            builder.get_fast_classic_e_step(
+                args["--e_step_iterations"].asLong(),
+                std::stof(args["--e_step_tolerance"].asString())
+            )
+        ));
+    } else if (args["--fast_e_step"].asBool()) {
+        builder.set_e(builder.get_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             args["--fixed_point_iterations"].asLong()
-        );
+        ));
     } else {
-        builder.set_supervised_e_step(
+        builder.set_e(builder.get_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             args["--fixed_point_iterations"].asLong()
-        );
+        ));
     }
 
     // Choose the m step
-    if (args["--online_m_step"].asBool()) {
+    if (args["--semi_supervised"].asBool()) {
+        builder.set_semi_supervised_batch_m_step(
+            args["--m_step_iterations"].asLong(),
+            std::stof(args["--m_step_tolerance"].asString()),
+            std::stof(args["--regularization_penalty"].asString())
+        );
+    } else if (args["--online_m_step"].asBool()) {
         builder.set_supervised_online_m_step(
             create_class_weights(y),
             std::stof(args["--regularization_penalty"].asString()),
@@ -269,7 +287,7 @@ R"(Supervised LDA and other flavors of LDA.
     Usage:
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
-                   [--fast_e_step] [--online_m_step]
+                   [--fast_e_step] [--online_m_step] [--semi_supervised]
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [--beta_weight=BW]
                    [--momentum=MM] [--learning_rate=LR] [--batch_size=BS]
@@ -296,6 +314,7 @@ R"(Supervised LDA and other flavors of LDA.
                                 likelihood in order to be faster
         --online_m_step         Choose online M step that updates the model
                                 parameters after seeing mini_batch documents
+        --semi_supervised       Train a semi supervised lda
         --m_step_iterations=MI  The maximum number of iterations to perform
                                 in the M step [default: 200]
         --m_step_tolerance=MT   The minimum accepted relative increase in log
@@ -352,15 +371,14 @@ int main(int argc, char **argv) {
 
         // Load LDA model from file
         auto model = load_lda(args["MODEL"].asString());
-        LDA<double> lda =
-            LDABuilder<double>().
-                set_workers(args["--workers"].asLong()).
-                set_fast_classic_e_step(
-                    args["--e_step_iterations"].asLong(),
-                    std::stof(args["--e_step_tolerance"].asString())
-                ).
-                initialize_topics_from_model(model).
-                initialize_eta_from_model(model);
+        LDABuilder<double> b;
+        LDA<double> lda = b.set_workers(args["--workers"].asLong()).
+            set_e(b.get_fast_classic_e_step(
+                args["--e_step_iterations"].asLong(),
+                std::stof(args["--e_step_tolerance"].asString())
+            )).
+            initialize_topics_from_model(model).
+            initialize_eta_from_model(model);
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
@@ -376,15 +394,14 @@ int main(int argc, char **argv) {
 
         // Load LDA model from file
         auto model = load_lda(args["MODEL"].asString());
-        LDA<double> lda =
-            LDABuilder<double>().
-                set_workers(args["--workers"].asLong()).
-                set_fast_classic_e_step(
-                    args["--e_step_iterations"].asLong(),
-                    std::stof(args["--e_step_tolerance"].asString())
-                ).
-                initialize_topics_from_model(model).
-                initialize_eta_from_model(model);
+        LDABuilder<double> b;
+        LDA<double> lda = b.set_workers(args["--workers"].asLong()).
+            set_e(b.get_fast_classic_e_step(
+                args["--e_step_iterations"].asLong(),
+                std::stof(args["--e_step_tolerance"].asString())
+            )).
+            initialize_topics_from_model(model).
+            initialize_eta_from_model(model);
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
