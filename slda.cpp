@@ -102,7 +102,7 @@ class TrainingProgress : public IEventListener
                 }
 
                 // keep track of the likelihood
-                if (!std::isnan(progress->likelihood()) && !std::isinf(progress->likelihood())) {
+                if (std::isfinite(progress->likelihood()) && progress->likelihood() < 0) {
                     likelihood_ += progress->likelihood();
                     cnt_likelihoods_++;
                 }
