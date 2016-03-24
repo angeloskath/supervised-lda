@@ -144,6 +144,21 @@ namespace e_step_utils
         const VectorX<Scalar> & gamma,
         Ref<MatrixX<Scalar> > phi
     );
+
+    /**
+     * Update Multinomial parameter phi, according to the following approximation
+     *
+     *
+     */
+    template <typename Scalar>
+    void compute_supervised_approximate_phi(
+        const VectorX<Scalar> & X_ratio,
+        int y,
+        const MatrixX<Scalar> & beta,
+        const MatrixX<Scalar> & eta,
+        const VectorX<Scalar> & gamma,
+        Ref<MatrixX<Scalar> > phi
+    );
 }
 
 #endif  // _E_STEP_UTILS_HPP_

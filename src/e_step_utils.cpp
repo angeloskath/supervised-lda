@@ -169,6 +169,35 @@ void compute_unsupervised_phi(
     phi = phi.array().rowwise() / phi.colwise().sum().array();
 }
 
+template <typename Scalar>
+void compute_supervised_approximate_phi(
+    const VectorX<Scalar> & X_ratio,
+    int y,
+    const MatrixX<Scalar> & beta,
+    const MatrixX<Scalar> & eta,
+    const VectorX<Scalar> & gamma,
+    Ref<MatrixX<Scalar> > phi
+) {
+    auto cwise_digamma = CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+
+    auto phi_scaled = (phi.array().rowwise() * X_ratio.transpose().array()).matrix();
+    MatrixX<Scalar> t = (eta.transpose() * phi_scaled).unaryExpr(cwise_fast_exp);
+    t = t.array().rowwise() / t.colwise().sum().array();
+
+    auto t1 = gamma.unaryExpr(cwise_digamma);
+    auto t2 = digamma(gamma.sum()) + 1;
+
+    // Eigen is a little peculiar, thus we had to make this tricky subtract
+    // We actually wanted to implement this:
+    //
+    //     X_ratio.transpose().array * (eta.col(y) - (eta * t).colwise()).array().rowwise()
+    // 
+    // But Eigen refused to understand it, so we had to write it this way.
+    phi = (-((eta * t).colwise() - eta.col(y))).array().rowwise() * X_ratio.transpose().array();
+    phi = beta.array() * (phi.array().colwise() + t1.array() - t2).unaryExpr(cwise_fast_exp);
+    phi = phi.array().rowwise() / phi.colwise().sum().array();
+}
 
 // Template instantiations
 template float compute_unsupervised_likelihood(
@@ -280,5 +309,20 @@ template void compute_unsupervised_phi(
     const VectorX<double> & gamma,
     Ref<MatrixX<double> > phi
 );
-
+template void compute_supervised_approximate_phi(
+    const VectorX<float> & X_ratio,
+    int y,
+    const MatrixX<float> & beta,
+    const MatrixX<float> & eta,
+    const VectorX<float> & gamma,
+    Ref<MatrixX<float> > phi
+);
+template void compute_supervised_approximate_phi(
+    const VectorX<double> & X_ratio,
+    int y,
+    const MatrixX<double> & beta,
+    const MatrixX<double> & eta,
+    const VectorX<double> & gamma,
+    Ref<MatrixX<double> > phi
+);
 }
