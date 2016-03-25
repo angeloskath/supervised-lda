@@ -1,4 +1,4 @@
-#include "iostream"
+#include <iostream>
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
@@ -114,6 +114,7 @@ TYPED_TEST(TestApproximateSupervisedExpectationStep, ComputeApproximateSupervise
 
     EXPECT_GT(likelihood_supervised_approximation, likelihood_baseline);
     EXPECT_GT(likelihood_supervised_approximation, likelihood_unsupervised);
+    EXPECT_GT(likelihood_supervised, likelihood_unsupervised);
     // What should the following be
     //
     // EXPECT_GT(likelihood_supervised_approximation, likelihood_supervised);
