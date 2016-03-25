@@ -6,11 +6,9 @@
 template <typename Scalar>
 ApproximatedSupervisedEStep<Scalar>::ApproximatedSupervisedEStep(
     size_t e_step_iterations,
-    Scalar e_step_tolerance,
-    size_t fixed_point_iterations
+    Scalar e_step_tolerance
 ) {
     e_step_iterations_ = e_step_iterations;
-    fixed_point_iterations_ = fixed_point_iterations;
     e_step_tolerance_ = e_step_tolerance;
 }
 
@@ -40,23 +38,14 @@ std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // to check for convergence
-    Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
+    VectorX gamma_old = VectorX::Zero(num_topics);
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
-
-        new_likelihood = e_step_utils::compute_supervised_likelihood<Scalar>(
-            X,
-            y,
-            alpha,
-            beta,
-            eta,
-            phi,
-            gamma
-        );
-        if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
+        // check for early stopping
+        if (converged(gamma_old, gamma)) {
             break;
         }
-        old_likelihood = new_likelihood;
+        gamma_old = gamma;
 
         e_step_utils::compute_supervised_approximate_phi<Scalar>(
             X_ratio,
@@ -72,9 +61,20 @@ std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
     }
 
     // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(new_likelihood);
+    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(0);
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
+}
+
+
+template <typename Scalar>
+bool ApproximatedSupervisedEStep<Scalar>::converged(
+    const VectorX & gamma_old,
+    const VectorX & gamma
+) {
+    Scalar mean_change = (gamma_old - gamma).array().abs().sum() / gamma.rows();
+
+    return mean_change < e_step_tolerance_;
 }
 
 // Template instantiation

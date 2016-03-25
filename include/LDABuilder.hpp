@@ -9,7 +9,7 @@
 #include <Eigen/Core>
 
 #include "initialize.hpp"
-#include "FastSupervisedEStep.hpp"
+#include "ApproximatedSupervisedEStep.hpp"
 #include "FastUnsupervisedEStep.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
@@ -93,7 +93,7 @@ class LDABuilder : public ILDABuilder<Scalar>
         }
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
-            return std::make_shared<FastSupervisedEStep<Scalar> >(args...);
+            return std::make_shared<ApproximatedSupervisedEStep<Scalar> >(args...);
         }
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {

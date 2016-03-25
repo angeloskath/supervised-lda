@@ -12,8 +12,7 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
     public:
         ApproximatedSupervisedEStep(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-2,
-            size_t fixed_point_iterations = 20
+            Scalar e_step_tolerance = 1e-2
         );
 
         /** Maximize the ELBO w.r.t phi and gamma
@@ -40,10 +39,10 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
         ) override;
 
     private:
+        bool converged(const VectorX & gamma_old, const VectorX & gamma);
+
         // The maximum number of iterations in E-step
         size_t e_step_iterations_;
-        // The maximum number of iterations while maximizing phi in E-step
-        size_t fixed_point_iterations_;
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step
         Scalar e_step_tolerance_;

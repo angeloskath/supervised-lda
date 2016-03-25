@@ -231,8 +231,7 @@ LDA<double> create_lda_for_training(
     } else if (args["--fast_e_step"].asBool()) {
         builder.set_e(builder.get_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),
-            std::stof(args["--e_step_tolerance"].asString()),
-            args["--fixed_point_iterations"].asLong()
+            std::stof(args["--e_step_tolerance"].asString())
         ));
     } else {
         builder.set_e(builder.get_supervised_e_step(
