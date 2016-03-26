@@ -228,6 +228,11 @@ LDA<double> create_lda_for_training(
                 std::stof(args["--e_step_tolerance"].asString())
             )
         ));
+    } else if (args["--unsupervised_e_step"].asBool()) {
+        builder.set_e(builder.get_fast_classic_e_step(
+            args["--e_step_iterations"].asLong(),
+            std::stof(args["--e_step_tolerance"].asString())
+        ));
     } else if (args["--fast_e_step"].asBool()) {
         builder.set_e(builder.get_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),
@@ -286,7 +291,8 @@ R"(Supervised LDA and other flavors of LDA.
     Usage:
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
-                   [--fast_e_step] [--online_m_step] [--semi_supervised]
+                   [--unsupervised_e_step] [--fast_e_step]
+                   [--online_m_step] [--semi_supervised]
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [--beta_weight=BW]
                    [--momentum=MM] [--learning_rate=LR] [--batch_size=BS]
@@ -309,6 +315,7 @@ R"(Supervised LDA and other flavors of LDA.
                                 in the E step [default: 10]
         --e_step_tolerance=ET   The minimum accepted relative increase in log
                                 likelihood during the E step [default: 1e-4]
+        --unsupervised_e_step   Use the unsupervised E step to calculate phi and gamma
         --fast_e_step           Choose a variant of E step that doesn't compute
                                 likelihood in order to be faster
         --online_m_step         Choose online M step that updates the model
@@ -320,7 +327,7 @@ R"(Supervised LDA and other flavors of LDA.
                                 likelihood during the M step [default: 1e-4]
         --fixed_point_iterations=FI  The number of fixed point iterations to compute
                                      \phi [default: 20]
-        -L L, --regularization_penalty=L  The regularization penalty for the Multinomiali
+        -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
                                           Logistic Regression [default: 0.05]
         --beta_weight=BW        Set the weight of the previous beta parameters
                                 w.r.t to the new from the minibatch [default: 0.9]
