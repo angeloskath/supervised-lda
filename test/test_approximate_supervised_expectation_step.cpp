@@ -95,6 +95,7 @@ TYPED_TEST(TestApproximateSupervisedExpectationStep, ComputeApproximateSupervise
     // Compute phi with the supervised approximation
     e_step_utils::compute_supervised_approximate_phi<TypeParam> (
         X_ratio,
+        X.sum(),
         y,
         beta,
         eta,

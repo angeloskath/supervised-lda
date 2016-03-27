@@ -153,6 +153,7 @@ namespace e_step_utils
     template <typename Scalar>
     void compute_supervised_approximate_phi(
         const VectorX<Scalar> & X_ratio,
+        int num_words,
         int y,
         const MatrixX<Scalar> & beta,
         const MatrixX<Scalar> & eta,

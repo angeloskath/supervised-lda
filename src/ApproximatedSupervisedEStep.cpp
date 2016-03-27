@@ -49,6 +49,7 @@ std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
 
         e_step_utils::compute_supervised_approximate_phi<Scalar>(
             X_ratio,
+            num_words,
             y,
             beta,
             eta,
