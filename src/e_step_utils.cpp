@@ -196,7 +196,8 @@ void compute_supervised_approximate_phi(
     // But Eigen refused to understand it, so we had to write it this way.
     phi = (-((eta * t).colwise() - eta.col(y))).array().rowwise() * X_ratio.transpose().array();
     phi = beta.array() * (phi.array().colwise() + t1.array() - t2).unaryExpr(cwise_fast_exp);
-    phi = phi.array().rowwise() / phi.colwise().sum().array();
+    //phi = phi.array().rowwise() / phi.colwise().sum().array();
+    normalize_cols(phi);
 }
 
 // Template instantiations
