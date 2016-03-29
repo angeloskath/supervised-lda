@@ -30,10 +30,9 @@ void initialize_eta_zeros(
 );
 
 template <typename Scalar>
-void initialize_eta_const(
+void initialize_eta_multinomial(
     const std::shared_ptr<Parameters> parameters,
     const std::shared_ptr<Corpus> corpus,
-    Scalar value,
     size_t topics=600
 );
 

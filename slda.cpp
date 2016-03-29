@@ -286,6 +286,10 @@ LDA<double> create_lda_for_training(
         builder.
             initialize_topics_from_model(model).
             initialize_eta_from_model(model);
+    } else if (args["--multinomial"].asBool()) {
+        builder.
+            initialize_topics("seeded", X, args["--topics"].asLong()).
+            initialize_eta("multinomial", X, y, args["--topics"].asLong());
     } else {
         builder.
             initialize_topics("seeded", X, args["--topics"].asLong()).

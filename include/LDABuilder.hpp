@@ -176,8 +176,8 @@ class LDABuilder : public ILDABuilder<Scalar>
             if (type == "zeros") {
                 initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
             }
-            else if (type == "const") {
-                
+            else if (type == "multinomial") {
+                initialize_eta_multinomial<Scalar>(model_parameters_, corpus, args...);
             }
             else {
                 throw std::invalid_argument(type + " is an unknown eta initialization method");
