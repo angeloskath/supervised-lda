@@ -238,6 +238,12 @@ LDA<double> create_lda_for_training(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString())
         ));
+    } else if (args["--multinomial"].asBool()) {
+        builder.set_e(builder.get_supervised_multinomial_e_step(
+            args["--e_step_iterations"].asLong(),
+            std::stof(args["--e_step_tolerance"].asString()),
+            std::stof(args["--mu"].asString())
+        ));
     } else {
         builder.set_e(builder.get_supervised_e_step(
             args["--e_step_iterations"].asLong(),
@@ -261,6 +267,10 @@ LDA<double> create_lda_for_training(
             std::stof(args["--momentum"].asString()),
             std::stof(args["--learning_rate"].asString()),
             std::stof(args["--beta_weight"].asString())
+        );
+    } else if (args["--multinomial"].asBool()) {
+        builder.set_supervised_multinomial_m_step(
+            std::stof(args["--mu"].asString())
         );
     } else {
         builder.set_supervised_batch_m_step(
@@ -291,9 +301,10 @@ R"(Supervised LDA and other flavors of LDA.
     Usage:
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
+                   [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
+                   [--multinomial] [--mu=MU]
                    [--unsupervised_e_step] [--fast_e_step]
                    [--online_m_step] [--semi_supervised]
-                   [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--regularization_penalty=L] [--beta_weight=BW]
                    [--momentum=MM] [--learning_rate=LR] [--batch_size=BS]
                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
@@ -327,6 +338,9 @@ R"(Supervised LDA and other flavors of LDA.
                                 likelihood during the M step [default: 1e-4]
         --fixed_point_iterations=FI  The number of fixed point iterations to compute
                                      \phi [default: 20]
+        --multinomial           Use the multinomial version of supervised LDA
+        --mu=MU                 The multinomial prior on the naive bayesian
+                                classification [default: 2]
         -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
                                           Logistic Regression [default: 0.05]
         --beta_weight=BW        Set the weight of the previous beta parameters

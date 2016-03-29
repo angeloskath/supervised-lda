@@ -29,4 +29,12 @@ void initialize_eta_zeros(
     size_t topics=600
 );
 
+template <typename Scalar>
+void initialize_eta_const(
+    const std::shared_ptr<Parameters> parameters,
+    const std::shared_ptr<Corpus> corpus,
+    Scalar value,
+    size_t topics=600
+);
+
 #endif  // INITIALIZE_HPP

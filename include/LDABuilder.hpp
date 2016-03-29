@@ -11,6 +11,8 @@
 #include "initialize.hpp"
 #include "ApproximatedSupervisedEStep.hpp"
 #include "FastUnsupervisedEStep.hpp"
+#include "MultinomialSupervisedEStep.hpp"
+#include "MultinomialSupervisedMStep.hpp"
 #include "IEStep.hpp"
 #include "IMStep.hpp"
 #include "LDA.hpp"
@@ -99,6 +101,10 @@ class LDABuilder : public ILDABuilder<Scalar>
         std::shared_ptr<IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
             return std::make_shared<SemiSupervisedEStep<Scalar> >(args...);
         }
+        template <typename ...Args>
+        std::shared_ptr<IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
+            return std::make_shared<MultinomialSupervisedEStep<Scalar> >(args...);
+        }
         LDABuilder & set_e(std::shared_ptr<IEStep<Scalar> > e_step) {
             e_step_ = e_step;
             return *this;
@@ -126,6 +132,12 @@ class LDABuilder : public ILDABuilder<Scalar>
         template <typename ...Args>
         LDABuilder & set_semi_supervised_batch_m_step(Args... args) {
             m_step_ = std::make_shared<SemiSupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_supervised_multinomial_m_step(Args... args) {
+            m_step_ = std::make_shared<MultinomialSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -163,6 +175,9 @@ class LDABuilder : public ILDABuilder<Scalar>
 
             if (type == "zeros") {
                 initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
+            }
+            else if (type == "const") {
+                
             }
             else {
                 throw std::invalid_argument(type + " is an unknown eta initialization method");

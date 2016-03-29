@@ -75,6 +75,29 @@ void initialize_eta_zeros(
     model_parameters->eta = MatrixX<Scalar>::Zero(topics, max+1);
 }
 
+template <typename Scalar>
+void initialize_eta_const(
+    const std::shared_ptr<Parameters> parameters,
+    const std::shared_ptr<Corpus> corpus,
+    Scalar value,
+    size_t topics=600
+) {
+    auto model_parameters = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
+
+    int max = -1;
+    // Find the total number of different classes
+    for (size_t i=0; i < corpus->size(); i++) {
+        max = std::max(
+            max,
+            std::static_pointer_cast<ClassificationDocument>(
+                corpus->at(i)
+            )->get_class()
+        );
+    }
+
+    model_parameters->eta = MatrixX<Scalar>::Constant(topics, max+1, value);
+}
+
 // Template instantiation
 template void initialize_topics_seeded<float>(
     const std::shared_ptr<Parameters>,
@@ -108,5 +131,17 @@ template void initialize_eta_zeros<float>(
 template void initialize_eta_zeros<double>(
     const std::shared_ptr<Parameters>,
     const std::shared_ptr<Corpus>,
+    size_t
+);
+template void initialize_eta_const<float>(
+    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<Corpus>,
+    float,
+    size_t
+);
+template void initialize_eta_const<double>(
+    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<Corpus>,
+    double,
     size_t
 );

@@ -33,7 +33,9 @@ void MultinomialSupervisedMStep<Scalar>::doc_m_step(
     // Allocate memory for our sufficient statistics buffers
     if (b_.rows() == 0) {
         b_ = MatrixX::Zero(phi.rows(), phi.cols());
-        h_ = MatrixX::Zero(phi.rows(), num_classes_);
+
+        auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(m_parameters);
+        h_ = MatrixX::Zero(model->eta.rows(), model->eta.cols());
     }
 
     // Scale phi according to the word counts
@@ -43,6 +45,11 @@ void MultinomialSupervisedMStep<Scalar>::doc_m_step(
     b_.array() += phi_scaled;
 
     // Update for eta with smoothing
-    h_.col(y) += phi_scaled.rowwise().sum();
+    h_.col(y).array() += phi_scaled.rowwise().sum();
     h_.array() += mu_ - 1;
 }
+
+
+// Template instantiation
+template class MultinomialSupervisedMStep<float>;
+template class MultinomialSupervisedMStep<double>;

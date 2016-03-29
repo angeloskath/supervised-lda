@@ -10,8 +10,8 @@ class MultinomialSupervisedMStep : public IMStep<Scalar>
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
     
     public:
-        MultinomialSupervisedMStep(int num_classes, Scalar mu=2)
-            : num_classes_(num_classes), mu_(mu)
+        MultinomialSupervisedMStep(Scalar mu = 2.)
+            : mu_(mu)
         {}
 
         /**
@@ -42,7 +42,6 @@ class MultinomialSupervisedMStep : public IMStep<Scalar>
     private:
         MatrixX b_;
         MatrixX h_;
-        int num_classes_;
         Scalar mu_;
 };
 #endif  // _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
