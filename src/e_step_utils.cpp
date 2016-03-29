@@ -85,6 +85,39 @@ Scalar compute_supervised_likelihood(
 }
 
 template <typename Scalar>
+Scalar compute_supervised_multinomial_likelihood(
+    const VectorXi & X,
+    int y,
+    const VectorX<Scalar> &alpha,
+    const MatrixX<Scalar> &beta,
+    const MatrixX<Scalar> &eta,
+    const MatrixX<Scalar> &phi,
+    const VectorX<Scalar> &gamma,
+    Scalar mu
+) {
+    auto cwise_lgamma = CwiseLgamma<Scalar>();
+
+    Scalar likelihood = compute_unsupervised_likelihood(
+        X,
+        alpha,
+        beta,
+        phi,
+        gamma
+    );
+    int num_classes = eta.cols();
+
+    // E_q[log p(y | z, \eta)]
+    auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
+    likelihood += (phi_scaled.transpose() * eta.col(y).array().log().matrix()).sum();
+    
+    // E_q[log p(\eta | \mu)]
+    likelihood += (mu - 1.0) * eta.array().log().sum();
+    likelihood += std::lgamma(num_classes * mu) - num_classes * mu.unaryExpr(cwise_lgamma);
+
+    return likelihood;
+}
+
+template <typename Scalar>
 void compute_h(
     const VectorXi & X,
     const VectorX<Scalar> & X_ratio,
