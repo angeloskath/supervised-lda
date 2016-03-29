@@ -198,6 +198,28 @@ void compute_supervised_approximate_phi(
     normalize_cols(phi);
 }
 
+template <typename Scalar>
+void compute_supervised_multinomial_phi(
+    const VectorXi & X,
+    int y,
+    const MatrixX<Scalar> & beta,
+    const MatrixX<Scalar> & eta,
+    const VectorX<Scalar> & gamma,
+    Ref<MatrixX<Scalar> > phi
+) {
+    auto cwise_digamma = CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+
+    auto t1 = gamma.unaryExpr(cwise_digamma).array();
+    auto t2 = digamma(gamma.sum()) + 1;
+
+    phi = beta.array().colwise() * (
+        (t1 - t2).unaryExpr(cwise_fast_exp).array() * eta.col(y).array()
+    );
+    //phi = phi.array().rowwise() / phi.colwise().sum().array();
+    normalize_cols(phi);
+}
+
 // Template instantiations
 template float compute_unsupervised_likelihood(
     const VectorXi & X,
@@ -320,6 +342,22 @@ template void compute_supervised_approximate_phi(
 template void compute_supervised_approximate_phi(
     const VectorX<double> & X_ratio,
     int num_words,
+    int y,
+    const MatrixX<double> & beta,
+    const MatrixX<double> & eta,
+    const VectorX<double> & gamma,
+    Ref<MatrixX<double> > phi
+);
+template void compute_supervised_multinomial_phi(
+    const VectorXi & X,
+    int y,
+    const MatrixX<float> & beta,
+    const MatrixX<float> & eta,
+    const VectorX<float> & gamma,
+    Ref<MatrixX<float> > phi
+);
+template void compute_supervised_multinomial_phi(
+    const VectorXi & X,
     int y,
     const MatrixX<double> & beta,
     const MatrixX<double> & eta,
