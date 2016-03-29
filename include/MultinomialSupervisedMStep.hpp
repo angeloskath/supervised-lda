@@ -40,8 +40,12 @@ class MultinomialSupervisedMStep : public IMStep<Scalar>
         ) override;
 
     private:
+        MatrixX phi_scaled_;
+        VectorX phi_scaled_sum_;
         MatrixX b_;
         MatrixX h_;
         Scalar mu_;
+
+        Scalar log_py_;
 };
 #endif  // _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
