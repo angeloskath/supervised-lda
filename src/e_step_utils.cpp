@@ -106,7 +106,7 @@ Scalar compute_supervised_multinomial_likelihood(
 
     // E_q[log p(y | z, \eta)]
     auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
-    likelihood += (phi_scaled.transpose().colwise() * eta.col(y).array().log()).sum();
+    likelihood += (phi_scaled.colwise() * eta.col(y).array().log()).sum();
     
     // E_q[log p(\eta | \mu)]
     likelihood += (mu - 1.0) * eta.array().log().sum();
