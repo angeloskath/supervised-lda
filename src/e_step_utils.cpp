@@ -236,6 +236,7 @@ void compute_supervised_multinomial_phi(
     const MatrixX<Scalar> & beta,
     const MatrixX<Scalar> & eta,
     const VectorX<Scalar> & gamma,
+    Scalar eta_weight,
     Ref<MatrixX<Scalar> > phi
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
@@ -245,7 +246,7 @@ void compute_supervised_multinomial_phi(
     auto t2 = digamma(gamma.sum()) + 1;
 
     phi = beta.array().colwise() * (
-        (t1 - t2).unaryExpr(cwise_fast_exp).array() * eta.col(y).array()
+        (eta_weight*eta.col(y).array().log() + t1 - t2).unaryExpr(cwise_fast_exp).array()
     );
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
     normalize_cols(phi);
@@ -405,6 +406,7 @@ template void compute_supervised_multinomial_phi(
     const MatrixX<float> & beta,
     const MatrixX<float> & eta,
     const VectorX<float> & gamma,
+    float eta_weight,
     Ref<MatrixX<float> > phi
 );
 template void compute_supervised_multinomial_phi(
@@ -413,6 +415,7 @@ template void compute_supervised_multinomial_phi(
     const MatrixX<double> & beta,
     const MatrixX<double> & eta,
     const VectorX<double> & gamma,
+    double eta_weight,
     Ref<MatrixX<double> > phi
 );
 }

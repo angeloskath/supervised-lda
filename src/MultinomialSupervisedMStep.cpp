@@ -63,7 +63,7 @@ void MultinomialSupervisedMStep<Scalar>::doc_m_step(
     h_.array() += mu_ - 1;
 
     // Calculate E_q[log(p(y | z, \eta))] to report it in the maximization step
-    log_py_ += (phi_scaled_sum_ * model->eta.col(y).array().log().matrix()).value();
+    log_py_ += (phi_scaled_sum_.transpose() * model->eta.col(y).array().log().matrix()).value();
 }
 
 

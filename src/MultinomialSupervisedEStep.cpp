@@ -7,11 +7,13 @@ template <typename Scalar>
 MultinomialSupervisedEStep<Scalar>::MultinomialSupervisedEStep(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    int mu
+    int mu,
+    Scalar eta_weight
 ) {
     e_step_iterations_ = e_step_iterations;
     e_step_tolerance_ = e_step_tolerance;
     mu_ = mu;
+    eta_weight_ = eta_weight;
 }
 
 template <typename Scalar>
@@ -55,6 +57,7 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
             beta,
             eta,
             gamma,
+            eta_weight_,
             phi
         );
 

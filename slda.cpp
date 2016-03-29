@@ -242,7 +242,8 @@ LDA<double> create_lda_for_training(
         builder.set_e(builder.get_supervised_multinomial_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
-            std::stof(args["--mu"].asString())
+            std::stof(args["--mu"].asString()),
+            std::stof(args["--eta_weight"].asString())
         ));
     } else {
         builder.set_e(builder.get_supervised_e_step(
@@ -306,7 +307,7 @@ R"(Supervised LDA and other flavors of LDA.
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
-                   [--multinomial] [--mu=MU]
+                   [--multinomial] [--mu=MU] [--eta_weight=EW]
                    [--unsupervised_e_step] [--fast_e_step]
                    [--online_m_step] [--semi_supervised]
                    [--regularization_penalty=L] [--beta_weight=BW]
@@ -345,6 +346,7 @@ R"(Supervised LDA and other flavors of LDA.
         --multinomial           Use the multinomial version of supervised LDA
         --mu=MU                 The multinomial prior on the naive bayesian
                                 classification [default: 2]
+        --eta_weight=EW         The weight of eta in the multinomial phi update [default: 1]
         -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
                                           Logistic Regression [default: 0.05]
         --beta_weight=BW        Set the weight of the previous beta parameters

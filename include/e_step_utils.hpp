@@ -180,6 +180,7 @@ namespace e_step_utils
         const MatrixX<Scalar> & beta,
         const MatrixX<Scalar> & eta,
         const VectorX<Scalar> & gamma,
+        Scalar eta_weight,
         Ref<MatrixX<Scalar> > phi
     );
 }

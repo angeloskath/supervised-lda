@@ -13,7 +13,8 @@ class MultinomialSupervisedEStep: public UnsupervisedEStep<Scalar>
         MultinomialSupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            int mu = 2
+            int mu = 2,
+            Scalar eta_weight = 1
         );
 
         /** Maximize the ELBO w.r.t phi and gamma
@@ -45,6 +46,7 @@ class MultinomialSupervisedEStep: public UnsupervisedEStep<Scalar>
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
         int mu_;
+        Scalar eta_weight_;
 };
 
 #endif   //  _MULTINOMIALSUPERVISEDESTEP_HPP_
