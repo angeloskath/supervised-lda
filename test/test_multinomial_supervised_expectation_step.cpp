@@ -77,10 +77,6 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
     eta.array().rowwise() /= eta.colwise().sum().array();
     
     MatrixX<TypeParam> phi_unsupervised = phi;
-    MatrixX<TypeParam> phi_supervised = phi;
-    MatrixX<TypeParam> phi_supervised_approximation = phi;
-    MatrixX<TypeParam> phi_old = phi;
-
     TypeParam mu = 2.0;
 
     TypeParam likelihood_baseline = e_step_utils::compute_supervised_multinomial_likelihood(
@@ -94,7 +90,25 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
         mu
     );
 
-    e_step_utils::compute_supervised_multinomial_phi(
+    // Compute phi with unsupervised method
+    e_step_utils::compute_unsupervised_phi<TypeParam> (
+        beta,
+        gamma,
+        phi_unsupervised
+    );
+    // Compute new likelihood
+    TypeParam likelihood_unsupervised = e_step_utils::compute_supervised_likelihood(
+        X,
+        y,
+        alpha,
+        beta,
+        eta,
+        phi_unsupervised,
+        gamma
+    );
+
+    // Compute phi with multinomial supervised method
+    e_step_utils::compute_supervised_multinomial_phi<TypeParam>(
         X,
         y,
         beta,
@@ -102,7 +116,7 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
         gamma,
         phi
     );
-
+    // Compute new likelihood
     TypeParam likelihood = e_step_utils::compute_supervised_multinomial_likelihood(
         X,
         y,
@@ -115,6 +129,7 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
     );
     
     EXPECT_GT(likelihood, likelihood_baseline);
+    //EXPECT_GT(likelihood, likelihood_unsupervised);
 }
 
 int main(int argc, char **argv) {
