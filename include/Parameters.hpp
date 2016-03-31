@@ -77,4 +77,24 @@ struct VariationalParameters : public Parameters
 };
 
 
+/**
+ * The supervised correspondence variational parameters add a variational
+ * parameter for sampling a topic assignment to predict the class.
+ */
+template <typename Scalar>
+struct SupervisedCorrespondenceVariationalParameters : public VariationalParameters<Scalar>
+{
+    SupervisedCorrespondenceVariationalParameters() {}
+    SupervisedCorrespondenceVariationalParameters(
+        Matrix<Scalar, Dynamic, 1> g,
+        Matrix<Scalar, Dynamic, Dynamic> p,
+        Matrix<Scalar, Dynamic, 1> t
+    ) : VariationalParameters<Scalar>(g, p),
+        tau(std::move(t))
+    {}
+
+    Matrix<Scalar, Dynamic, 1> tau;
+};
+
+
 #endif  // _PARAMETERS_HPP_

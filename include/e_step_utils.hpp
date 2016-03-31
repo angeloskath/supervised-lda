@@ -185,6 +185,26 @@ namespace e_step_utils
         Scalar eta_weight,
         Ref<MatrixX<Scalar> > phi
     );
+
+    template <typename Scalar>
+    void compute_supervised_correspondence_phi(
+        const VectorXi & X,
+        int y,
+        const MatrixX<Scalar> & beta,
+        const MatrixX<Scalar> & eta,
+        const VectorX<Scalar> & gamma,
+        const VectorX<Scalar> & tau,
+        Ref<MatrixX<Scalar> > phi
+    );
+
+    template <typename Scalar>
+    void compute_supervised_correspondence_tau(
+        const VectorXi & X,
+        int y,
+        const MatrixX<Scalar> & eta,
+        const MatrixX<Scalar> & phi,
+        Ref<VectorX<Scalar> > tau
+    );
 }
 
 #endif  // _E_STEP_UTILS_HPP_

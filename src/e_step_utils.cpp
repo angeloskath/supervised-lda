@@ -255,6 +255,45 @@ void compute_supervised_multinomial_phi(
     normalize_cols(phi);
 }
 
+template <typename Scalar>
+void compute_supervised_correspondence_phi(
+    const VectorXi & X,
+    int y,
+    const MatrixX<Scalar> & beta,
+    const MatrixX<Scalar> & eta,
+    const VectorX<Scalar> & gamma,
+    const VectorX<Scalar> & tau,
+    Ref<MatrixX<Scalar> > phi
+) {
+    auto cwise_digamma = CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+
+    auto t1 = gamma.unaryExpr(cwise_digamma).array();
+    auto tau_scaled = (tau.array() * X.cast<Scalar>().array()).matrix();
+
+    phi = (beta.array().colwise() * t1.unaryExpr(cwise_fast_exp)).array() *
+        (eta.col(y).array().log().matrix() * tau_scaled.transpose()).unaryExpr(cwise_fast_exp).array();
+    //phi = phi.array().rowwise() / phi.colwise().sum().array();
+    normalize_cols(phi);
+}
+
+template <typename Scalar>
+void compute_supervised_correspondence_tau(
+    const VectorXi & X,
+    int y,
+    const MatrixX<Scalar> & eta,
+    const MatrixX<Scalar> & phi,
+    Ref<VectorX<Scalar> > tau
+) {
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+
+    tau = (
+        X.cast<Scalar>().array() * (phi.transpose() * eta.col(y).array().log().matrix()).array()
+    ).unaryExpr(cwise_fast_exp);
+    // tau = tau.array() / tau.sum();
+    normalize_cols(tau);
+}
+
 // Template instantiations
 template float compute_unsupervised_likelihood(
     const VectorXi & X,
@@ -424,5 +463,37 @@ template void compute_supervised_multinomial_phi(
     const VectorX<double> & gamma,
     double eta_weight,
     Ref<MatrixX<double> > phi
+);
+template void compute_supervised_correspondence_phi(
+    const VectorXi & X,
+    int y,
+    const MatrixX<float> & beta,
+    const MatrixX<float> & eta,
+    const VectorX<float> & gamma,
+    const VectorX<float> & tau,
+    Ref<MatrixX<float> > phi
+);
+template void compute_supervised_correspondence_phi(
+    const VectorXi & X,
+    int y,
+    const MatrixX<double> & beta,
+    const MatrixX<double> & eta,
+    const VectorX<double> & gamma,
+    const VectorX<double> & tau,
+    Ref<MatrixX<double> > phi
+);
+template void compute_supervised_correspondence_tau(
+    const VectorXi & X,
+    int y,
+    const MatrixX<float> & eta,
+    const MatrixX<float> & phi,
+    Ref<VectorX<float> > tau
+);
+template void compute_supervised_correspondence_tau(
+    const VectorXi & X,
+    int y,
+    const MatrixX<double> & eta,
+    const MatrixX<double> & phi,
+    Ref<VectorX<double> > tau
 );
 }
