@@ -119,6 +119,44 @@ Scalar compute_supervised_multinomial_likelihood(
 }
 
 template <typename Scalar>
+Scalar compute_supervised_correspondence_likelihood(
+    const VectorXi & X,
+    int y,
+    const VectorX<Scalar> &alpha,
+    const MatrixX<Scalar> &beta,
+    const MatrixX<Scalar> &eta,
+    const MatrixX<Scalar> &phi,
+    const VectorX<Scalar> &gamma,
+    const VectorX<Scalar> &tau,
+    Scalar mu
+) {
+    Scalar likelihood = compute_unsupervised_likelihood(
+        X,
+        alpha,
+        beta,
+        phi,
+        gamma
+    );
+
+    // Add extra term in H(q)
+    likelihood += -(tau.array() * X.cast<Scalar>().array() * (tau.array() + 1e-44).log()).sum();
+
+    // E_q[log p(y | \lambda, \eta, z)]
+    auto phi_scaled = phi.array().rowwise() * (X.cast<Scalar>().transpose().array() * tau.transpose().array());
+    likelihood += (phi_scaled.colwise() * eta.col(y).array().log()).sum();
+
+    // E_q[log p(\lambda | N)]
+    likelihood += -std::log(X.sum());
+
+    // E_q[log p(\eta | \mu)]
+    int num_classes = eta.cols();
+    likelihood += (mu - 1.0) * eta.array().log().sum();
+    likelihood += (std::lgamma(num_classes * mu) - num_classes * std::lgamma(mu));
+
+    return likelihood;
+}
+
+template <typename Scalar>
 void compute_h(
     const VectorXi & X,
     const VectorX<Scalar> & X_ratio,
@@ -296,81 +334,104 @@ void compute_supervised_correspondence_tau(
 
 // Template instantiations
 template float compute_unsupervised_likelihood(
-    const VectorXi & X,
-    const VectorX<float> &alpha,
-    const MatrixX<float> &beta,
-    const MatrixX<float> &phi,
-    const VectorX<float> &gamma
+const VectorXi & X,
+const VectorX<float> &alpha,
+const MatrixX<float> &beta,
+const MatrixX<float> &phi,
+const VectorX<float> &gamma
 );
 template double compute_unsupervised_likelihood(
-    const VectorXi & X,
-    const VectorX<double> &alpha,
-    const MatrixX<double> &beta,
-    const MatrixX<double> &phi,
-    const VectorX<double> &gamma
+const VectorXi & X,
+const VectorX<double> &alpha,
+const MatrixX<double> &beta,
+const MatrixX<double> &phi,
+const VectorX<double> &gamma
 );
 template float compute_supervised_likelihood(
-    const VectorXi & X,
-    int y,
-    const VectorX<float> &alpha,
-    const MatrixX<float> &beta,
-    const MatrixX<float> &eta,
-    const MatrixX<float> &phi,
-    const VectorX<float> &gamma
+const VectorXi & X,
+int y,
+const VectorX<float> &alpha,
+const MatrixX<float> &beta,
+const MatrixX<float> &eta,
+const MatrixX<float> &phi,
+const VectorX<float> &gamma
 );
 template double compute_supervised_likelihood(
-    const VectorXi & X,
-    int y,
-    const VectorX<double> &alpha,
-    const MatrixX<double> &beta,
-    const MatrixX<double> &eta,
-    const MatrixX<double> &phi,
-    const VectorX<double> &gamma
+const VectorXi & X,
+int y,
+const VectorX<double> &alpha,
+const MatrixX<double> &beta,
+const MatrixX<double> &eta,
+const MatrixX<double> &phi,
+const VectorX<double> &gamma
 );
 template float compute_supervised_likelihood(
-    const VectorXi & X,
-    int y,
-    const VectorX<float> &alpha,
-    const MatrixX<float> &beta,
-    const MatrixX<float> &eta,
-    const MatrixX<float> &phi,
-    const VectorX<float> &gamma,
-    const MatrixX<float> &h
+const VectorXi & X,
+int y,
+const VectorX<float> &alpha,
+const MatrixX<float> &beta,
+const MatrixX<float> &eta,
+const MatrixX<float> &phi,
+const VectorX<float> &gamma,
+const MatrixX<float> &h
 );
 template double compute_supervised_likelihood(
-    const VectorXi & X,
-    int y,
-    const VectorX<double> &alpha,
-    const MatrixX<double> &beta,
-    const MatrixX<double> &eta,
-    const MatrixX<double> &phi,
-    const VectorX<double> &gamma,
-    const MatrixX<double> &h
+const VectorXi & X,
+int y,
+const VectorX<double> &alpha,
+const MatrixX<double> &beta,
+const MatrixX<double> &eta,
+const MatrixX<double> &phi,
+const VectorX<double> &gamma,
+const MatrixX<double> &h
 );
 template float compute_supervised_multinomial_likelihood(
-    const VectorXi & X,
-    int y,
-    const VectorX<float> &alpha,
-    const MatrixX<float> &beta,
-    const MatrixX<float> &eta,
-    const MatrixX<float> &phi,
-    const VectorX<float> &gamma,
-    float prior_y,
-    float mu,
-    float portion
+const VectorXi & X,
+int y,
+const VectorX<float> &alpha,
+const MatrixX<float> &beta,
+const MatrixX<float> &eta,
+const MatrixX<float> &phi,
+const VectorX<float> &gamma,
+float prior_y,
+float mu,
+float portion
 );
 template double compute_supervised_multinomial_likelihood(
-    const VectorXi & X,
-    int y,
-    const VectorX<double> &alpha,
-    const MatrixX<double> &beta,
-    const MatrixX<double> &eta,
-    const MatrixX<double> &phi,
-    const VectorX<double> &gamma,
-    double prior_y,
-    double mu,
-    double portion
+const VectorXi & X,
+int y,
+const VectorX<double> &alpha,
+const MatrixX<double> &beta,
+const MatrixX<double> &eta,
+const MatrixX<double> &phi,
+const VectorX<double> &gamma,
+double prior_y,
+double mu,
+double portion
 );
+template float compute_supervised_correspondence_likelihood(
+const VectorXi & X,
+int y,
+const VectorX<float> &alpha,
+const MatrixX<float> &beta,
+const MatrixX<float> &eta,
+const MatrixX<float> &phi,
+const VectorX<float> &gamma,
+const VectorX<float> &tau,
+float mu
+);
+template double compute_supervised_correspondence_likelihood(
+const VectorXi & X,
+int y,
+const VectorX<double> &alpha,
+const MatrixX<double> &beta,
+const MatrixX<double> &eta,
+const MatrixX<double> &phi,
+const VectorX<double> &gamma,
+const VectorX<double> &tau,
+    double mu
+);
+
 template void compute_h(
     const VectorXi & X,
     const VectorX<float> & X_ratio,

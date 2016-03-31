@@ -78,6 +78,19 @@ namespace e_step_utils
         Scalar portion
     );
 
+    template <typename Scalar>
+    Scalar compute_supervised_correspondence_likelihood(
+        const VectorXi & X,
+        int y,
+        const VectorX<Scalar> &alpha,
+        const MatrixX<Scalar> &beta,
+        const MatrixX<Scalar> &eta,
+        const MatrixX<Scalar> &phi,
+        const VectorX<Scalar> &gamma,
+        const VectorX<Scalar> &tau,
+        Scalar mu
+    );
+
     /**
      * Compute the Matrix h as defined in [Wang, C., Blei, D. and Li, F.F.,
      * 2009, June. Simultaneous image classification and annotation. In
