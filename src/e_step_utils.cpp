@@ -308,10 +308,9 @@ void compute_supervised_correspondence_phi(
     auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
     auto t1 = gamma.unaryExpr(cwise_digamma).array();
-    auto tau_scaled = (tau.array() * X.cast<Scalar>().array()).matrix();
 
     phi = (beta.array().colwise() * t1.unaryExpr(cwise_fast_exp)).array() *
-        (eta.col(y).array().log().matrix() * tau_scaled.transpose()).unaryExpr(cwise_fast_exp).array();
+        (eta.col(y).array().log().matrix() * tau.transpose()).unaryExpr(cwise_fast_exp).array();
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
     normalize_cols(phi);
 }
@@ -327,7 +326,7 @@ void compute_supervised_correspondence_tau(
     auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
     tau = (
-        X.cast<Scalar>().array() * (phi.transpose() * eta.col(y).array().log().matrix()).array()
+        phi.transpose() * eta.col(y).array().log().matrix()
     ).unaryExpr(cwise_fast_exp);
     // tau = tau.array() / tau.sum();
     normalize_cols(tau);
