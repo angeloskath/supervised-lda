@@ -128,7 +128,8 @@ Scalar compute_supervised_correspondence_likelihood(
     const MatrixX<Scalar> &phi,
     const VectorX<Scalar> &gamma,
     const VectorX<Scalar> &tau,
-    Scalar mu
+    Scalar mu,
+    Scalar portion
 ) {
     Scalar likelihood = compute_unsupervised_likelihood(
         X,
@@ -150,8 +151,8 @@ Scalar compute_supervised_correspondence_likelihood(
 
     // E_q[log p(\eta | \mu)]
     int num_classes = eta.cols();
-    likelihood += (mu - 1.0) * eta.array().log().sum();
-    likelihood += (std::lgamma(num_classes * mu) - num_classes * std::lgamma(mu));
+    likelihood += portion * (mu - 1.0) * eta.array().log().sum();
+    likelihood += portion * (std::lgamma(num_classes * mu) - num_classes * std::lgamma(mu));
 
     return likelihood;
 }
@@ -418,7 +419,8 @@ const MatrixX<float> &eta,
 const MatrixX<float> &phi,
 const VectorX<float> &gamma,
 const VectorX<float> &tau,
-float mu
+float mu,
+float portion
 );
 template double compute_supervised_correspondence_likelihood(
 const VectorXi & X,
@@ -429,7 +431,8 @@ const MatrixX<double> &eta,
 const MatrixX<double> &phi,
 const VectorX<double> &gamma,
 const VectorX<double> &tau,
-    double mu
+double mu,
+double portion
 );
 
 template void compute_h(

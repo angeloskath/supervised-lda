@@ -88,7 +88,8 @@ namespace e_step_utils
         const MatrixX<Scalar> &phi,
         const VectorX<Scalar> &gamma,
         const VectorX<Scalar> &tau,
-        Scalar mu
+        Scalar mu,
+        Scalar portion
     );
 
     /**
