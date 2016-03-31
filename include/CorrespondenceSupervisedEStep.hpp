@@ -1,20 +1,19 @@
-#ifndef _MULTINOMIALSUPERVISEDESTEP_HPP_
-#define _MULTINOMIALSUPERVISEDESTEP_HPP__
+#ifndef _CORRESPONDENCESUPERVISEDESTEP_HPP_
+#define _CORRESPONDENCESUPERVISEDESTEP_HPP__
 
 #include "UnsupervisedEStep.hpp"
 
 template<typename Scalar>
-class MultinomialSupervisedEStep: public UnsupervisedEStep<Scalar>
+class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
-        MultinomialSupervisedEStep(
+        CorrespondenceSupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            Scalar mu = 2,
-            Scalar eta_weight = 1
+            Scalar mu = 2.
         );
 
         /** Maximize the ELBO w.r.t phi and gamma
@@ -45,8 +44,8 @@ class MultinomialSupervisedEStep: public UnsupervisedEStep<Scalar>
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
+        // The prior for the class predicting parameters
         Scalar mu_;
-        Scalar eta_weight_;
 };
 
-#endif   //  _MULTINOMIALSUPERVISEDESTEP_HPP_
+#endif   //  _CORRESPONDENCESUPERVISEDESTEP_HPP_

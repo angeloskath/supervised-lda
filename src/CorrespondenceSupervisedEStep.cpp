@@ -1,23 +1,21 @@
 #include "ProgressEvents.hpp"
-#include "MultinomialSupervisedEStep.hpp"
+#include "CorrespondenceSupervisedEStep.hpp"
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
 template <typename Scalar>
-MultinomialSupervisedEStep<Scalar>::MultinomialSupervisedEStep(
+CorrespondenceSupervisedEStep<Scalar>::CorrespondenceSupervisedEStep(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    Scalar mu,
-    Scalar eta_weight
+    Scalar mu
 ) {
     e_step_iterations_ = e_step_iterations;
     e_step_tolerance_ = e_step_tolerance;
     mu_ = mu;
-    eta_weight_ = eta_weight;
 }
 
 template <typename Scalar>
-std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
+std::shared_ptr<Parameters> CorrespondenceSupervisedEStep<Scalar>::doc_e_step(
     const std::shared_ptr<Document> doc,
     const std::shared_ptr<Parameters> parameters
 ) {
@@ -30,7 +28,6 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
     // Get the document's class
     int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
     int corpus_size = doc->get_corpus()->size();
-    Scalar prior_y = doc->get_corpus<ClassificationCorpus>()->get_prior(y);
 
     // Cast parameters to model parameters in order to save all necessary
     // matrixes
@@ -42,6 +39,7 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
     // The variational parameters to be computed
     MatrixX phi = MatrixX::Constant(num_topics, voc_size, 1.0/num_topics);
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
+    VectorX tau = VectorX::Constant(voc_size, 1.0/voc_size);
 
     // to check for convergence
     VectorX gamma_old = VectorX::Zero(num_topics);
@@ -53,14 +51,24 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
         }
         gamma_old = gamma;
 
-        e_step_utils::compute_supervised_multinomial_phi<Scalar>(
+        // Maximize the likelihood w.r.t phi
+        e_step_utils::compute_supervised_correspondence_phi<Scalar>(
             X,
             y,
             beta,
             eta,
             gamma,
-            eta_weight_,
+            tau,
             phi
+        );
+
+        // Maximize the likelihood w.r.t tau
+        e_step_utils::compute_supervised_correspondence_tau<Scalar>(
+            X,
+            y,
+            eta,
+            phi,
+            tau
         );
 
         // Equation (6) in Supervised topic models, Blei, McAulife 2008
@@ -69,7 +77,7 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
 
     // notify that the e step has finished
     this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
-        e_step_utils::compute_supervised_multinomial_likelihood<Scalar>(
+        e_step_utils::compute_supervised_correspondence_likelihood<Scalar>(
             X,
             y,
             alpha,
@@ -77,18 +85,22 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
             eta,
             phi,
             gamma,
-            prior_y,
+            tau,
             mu_,
             1.0 / corpus_size
         )
     );
 
-    return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
+    return std::make_shared<SupervisedCorrespondenceVariationalParameters<Scalar> >(
+        gamma,
+        phi,
+        tau
+    );
 }
 
 
 template <typename Scalar>
-bool MultinomialSupervisedEStep<Scalar>::converged(
+bool CorrespondenceSupervisedEStep<Scalar>::converged(
     const VectorX & gamma_old,
     const VectorX & gamma
 ) {
@@ -98,6 +110,5 @@ bool MultinomialSupervisedEStep<Scalar>::converged(
 }
 
 // Template instantiation
-template class MultinomialSupervisedEStep<float>;
-template class MultinomialSupervisedEStep<double>;
-
+template class CorrespondenceSupervisedEStep<float>;
+template class CorrespondenceSupervisedEStep<double>;
