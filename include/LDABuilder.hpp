@@ -10,6 +10,8 @@
 
 #include "initialize.hpp"
 #include "ApproximatedSupervisedEStep.hpp"
+#include "CorrespondenceSupervisedEStep.hpp"
+#include "CorrespondenceSupervisedMStep.hpp"
 #include "FastUnsupervisedEStep.hpp"
 #include "MultinomialSupervisedEStep.hpp"
 #include "MultinomialSupervisedMStep.hpp"
@@ -105,6 +107,10 @@ class LDABuilder : public ILDABuilder<Scalar>
         std::shared_ptr<IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
             return std::make_shared<MultinomialSupervisedEStep<Scalar> >(args...);
         }
+        template <typename ...Args>
+        std::shared_ptr<IEStep<Scalar> > get_supervised_correspondence_e_step(Args... args) {
+            return std::make_shared<CorrespondenceSupervisedEStep<Scalar> >(args...);
+        }
         LDABuilder & set_e(std::shared_ptr<IEStep<Scalar> > e_step) {
             e_step_ = e_step;
             return *this;
@@ -138,6 +144,12 @@ class LDABuilder : public ILDABuilder<Scalar>
         template <typename ...Args>
         LDABuilder & set_supervised_multinomial_m_step(Args... args) {
             m_step_ = std::make_shared<MultinomialSupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_supervised_correspondence_m_step(Args... args) {
+            m_step_ = std::make_shared<CorrespondenceSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }

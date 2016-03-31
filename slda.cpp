@@ -245,6 +245,12 @@ LDA<double> create_lda_for_training(
             std::stof(args["--mu"].asString()),
             std::stof(args["--eta_weight"].asString())
         ));
+    } else if (args["--correspondence"].asBool()) {
+        builder.set_e(builder.get_supervised_correspondence_e_step(
+            args["--e_step_iterations"].asLong(),
+            std::stof(args["--e_step_tolerance"].asString()),
+            std::stof(args["--mu"].asString())
+        ));
     } else {
         builder.set_e(builder.get_supervised_e_step(
             args["--e_step_iterations"].asLong(),
@@ -273,6 +279,10 @@ LDA<double> create_lda_for_training(
         builder.set_supervised_multinomial_m_step(
             std::stof(args["--mu"].asString())
         );
+    } else if (args["--correspondence"].asBool()) {
+        builder.set_supervised_correspondence_m_step(
+            std::stof(args["--mu"].asString())
+        );
     } else {
         builder.set_supervised_batch_m_step(
             args["--m_step_iterations"].asLong(),
@@ -287,7 +297,7 @@ LDA<double> create_lda_for_training(
         builder.
             initialize_topics_from_model(model).
             initialize_eta_from_model(model);
-    } else if (args["--multinomial"].asBool()) {
+    } else if (args["--multinomial"].asBool() || args["--correspondence"].asBool()) {
         builder.
             initialize_topics("seeded", X, args["--topics"].asLong()).
             initialize_eta("multinomial", X, y, args["--topics"].asLong());
@@ -307,7 +317,7 @@ R"(Supervised LDA and other flavors of LDA.
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--m_step_iterations=MI] [--e_step_tolerance=ET]
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
-                   [--multinomial] [--mu=MU] [--eta_weight=EW]
+                   [--multinomial] [--correspondence] [--mu=MU] [--eta_weight=EW]
                    [--unsupervised_e_step] [--fast_e_step]
                    [--online_m_step] [--semi_supervised]
                    [--regularization_penalty=L] [--beta_weight=BW]
@@ -344,6 +354,7 @@ R"(Supervised LDA and other flavors of LDA.
         --fixed_point_iterations=FI  The number of fixed point iterations to compute
                                      \phi [default: 20]
         --multinomial           Use the multinomial version of supervised LDA
+        --correspondence        Use the correspondence version of supervised LDA
         --mu=MU                 The multinomial prior on the naive bayesian
                                 classification [default: 2]
         --eta_weight=EW         The weight of eta in the multinomial phi update [default: 1]
