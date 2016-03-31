@@ -73,7 +73,9 @@ namespace e_step_utils
         const MatrixX<Scalar> &eta,
         const MatrixX<Scalar> &phi,
         const VectorX<Scalar> &gamma,
-        Scalar mu
+        Scalar prior_y,
+        Scalar mu,
+        Scalar portion
     );
 
     /**

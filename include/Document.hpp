@@ -10,6 +10,9 @@
 
 using namespace Eigen;
 
+// Forward declaration for the compiler
+class Corpus;
+
 
 /**
  * A Document is the minimal document needed for any type of LDA
@@ -18,7 +21,13 @@ using namespace Eigen;
 class Document
 {
     public:
+        virtual const std::shared_ptr<const Corpus> get_corpus() const = 0;
         virtual const VectorXi & get_words() const = 0;
+
+        template <typename T>
+        const std::shared_ptr<const T> get_corpus() const {
+            return std::static_pointer_cast<const T>(get_corpus());
+        }
 };
 
 
@@ -52,17 +61,31 @@ class Corpus
 
 
 /**
+ * A corpus that contains information about the documents' classes (namely
+ * their priors).
+ */
+class ClassificationCorpus : public Corpus
+{
+    public:
+        virtual float get_prior(int y) const = 0;
+};
+
+
+/**
  * Eigen Document is a document backed by an Eigen::VectorXi.
  */
 class EigenDocument : public Document
 {
     public:
-        EigenDocument(VectorXi X);
+        EigenDocument(VectorXi X) : EigenDocument(X, nullptr) {}
+        EigenDocument(VectorXi X, std::shared_ptr<const Corpus> corpus);
 
+        const std::shared_ptr<const Corpus> get_corpus() const override;
         const VectorXi & get_words() const override;
 
     private:
         VectorXi X_;
+        std::shared_ptr<const Corpus> corpus_;
 };
 
 
@@ -75,6 +98,7 @@ class ClassificationDecorator : public ClassificationDocument
     public:
         ClassificationDecorator(std::shared_ptr<Document> doc, int y);
 
+        const std::shared_ptr<const Corpus> get_corpus() const override;
         const VectorXi & get_words() const override;
         int get_class() const override;
 
@@ -145,7 +169,7 @@ class EigenCorpus : public Corpus
  * EigenClassificationCorpus wraps a pair of matrices X, y and implements the
  * Corpus interface with them using X as the words and y as the classes.
  */
-class EigenClassificationCorpus : public EigenCorpus
+class EigenClassificationCorpus : public ClassificationCorpus
 {
     public:
         EigenClassificationCorpus(
@@ -154,10 +178,21 @@ class EigenClassificationCorpus : public EigenCorpus
             int random_state = 0
         );
 
-        const std::shared_ptr<Document> at(size_t index) const override;
+        size_t size() const override;
+        virtual const std::shared_ptr<Document> at(size_t index) const override;
+        void shuffle() override;
+        float get_prior(int y) const override;
 
     private:
+        /** To implement shuffle */
+        CorpusIndexes indices_;
+
+        // The data
+        const MatrixXi & X_;
         const VectorXi & y_;
+
+        // The class priors
+        VectorXf priors_;
 };
 
 

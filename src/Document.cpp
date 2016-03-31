@@ -3,13 +3,19 @@
 #include <utility>
 
 #include "Document.hpp"
+#include "utils.hpp"
 
 // 
 // EigenDocument
 //
-EigenDocument::EigenDocument(VectorXi X)
-    : X_(std::move(X))
+EigenDocument::EigenDocument(VectorXi X, std::shared_ptr<const Corpus> corpus)
+    : X_(std::move(X)),
+      corpus_(corpus)
 {}
+
+const std::shared_ptr<const Corpus> EigenDocument::get_corpus() const {
+    return corpus_;
+}
 
 const VectorXi & EigenDocument::get_words() const {
     return X_;
@@ -25,6 +31,10 @@ ClassificationDecorator::ClassificationDecorator(
 ) : document_(doc),
     y_(y)
 {}
+
+const std::shared_ptr<const Corpus> ClassificationDecorator::get_corpus() const {
+    return document_->get_corpus();
+}
 
 const VectorXi & ClassificationDecorator::get_words() const {
     return document_->get_words();
@@ -80,15 +90,38 @@ EigenClassificationCorpus::EigenClassificationCorpus(
     const MatrixXi & X,
     const VectorXi & y,
     int random_state
-) : EigenCorpus(X, random_state),
-    y_(y)
-{}
+) : indices_(X.cols(), random_state),
+    X_(X),
+    y_(y),
+    priors_(y.maxCoeff()+1)
+{
+    priors_.fill(0);
+    for (int i=0; i<y_.rows(); i++) {
+        priors_[y_[i]] ++;
+    }
+    priors_.array() /= priors_.sum();
+}
+
+size_t EigenClassificationCorpus::size() const {
+    return X_.cols();
+}
 
 const std::shared_ptr<Document> EigenClassificationCorpus::at(size_t index) const {
     int i = indices_.get_index(index);
 
     return std::make_shared<ClassificationDecorator>(
-        std::make_shared<EigenDocument>(X_.col(i)),
+        std::make_shared<EigenDocument>(
+            X_.col(i),
+            std::shared_ptr<const Corpus>(this, [](const Corpus*){})
+        ),
         y_[i]
     );
+}
+
+void EigenClassificationCorpus::shuffle() {
+    indices_.shuffle();
+}
+
+float EigenClassificationCorpus::get_prior(int y) const {
+    return priors_[y];
 }

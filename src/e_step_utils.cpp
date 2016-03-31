@@ -93,7 +93,9 @@ Scalar compute_supervised_multinomial_likelihood(
     const MatrixX<Scalar> &eta,
     const MatrixX<Scalar> &phi,
     const VectorX<Scalar> &gamma,
-    Scalar mu
+    Scalar prior_y,
+    Scalar mu,
+    Scalar portion
 ) {
     Scalar likelihood = compute_unsupervised_likelihood(
         X,
@@ -107,10 +109,11 @@ Scalar compute_supervised_multinomial_likelihood(
     // E_q[log p(y | z, \eta)]
     auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
     likelihood += (phi_scaled.colwise() * eta.col(y).array().log()).sum();
-    
+    likelihood -= (X.sum() - 1) * std::log(prior_y);
+
     // E_q[log p(\eta | \mu)]
-    likelihood += (mu - 1.0) * eta.array().log().sum();
-    likelihood += std::lgamma(num_classes * mu) - num_classes * std::lgamma(mu);
+    likelihood += portion * (mu - 1.0) * eta.array().log().sum();
+    likelihood += portion * (std::lgamma(num_classes * mu) - num_classes * std::lgamma(mu));
 
     return likelihood;
 }
@@ -313,7 +316,9 @@ template float compute_supervised_multinomial_likelihood(
     const MatrixX<float> &eta,
     const MatrixX<float> &phi,
     const VectorX<float> &gamma,
-    float mu
+    float prior_y,
+    float mu,
+    float portion
 );
 template double compute_supervised_multinomial_likelihood(
     const VectorXi & X,
@@ -323,7 +328,9 @@ template double compute_supervised_multinomial_likelihood(
     const MatrixX<double> &eta,
     const MatrixX<double> &phi,
     const VectorX<double> &gamma,
-    double mu
+    double prior_y,
+    double mu,
+    double portion
 );
 template void compute_h(
     const VectorXi & X,

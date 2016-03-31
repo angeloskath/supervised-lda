@@ -36,7 +36,9 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
         eta.array() -= eta.minCoeff() - 0.001;
         eta.array().rowwise() /= eta.colwise().sum().array();
 
+        TypeParam prior_y = 0.3;
         TypeParam mu = 2.0;
+        TypeParam portion = 0.1;
 
         TypeParam likelihood = e_step_utils::compute_supervised_multinomial_likelihood(
             X,
@@ -46,7 +48,9 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
             eta,
             phi,
             gamma,
-            mu
+            prior_y,
+            mu,
+            portion
         );
 
         ASSERT_FALSE(std::isnan(likelihood)) << phi.array().log();
@@ -77,7 +81,10 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
     eta.array().rowwise() /= eta.colwise().sum().array();
     
     MatrixX<TypeParam> phi_unsupervised = phi;
+    TypeParam eta_weight = 1.0;
+    TypeParam prior_y = 0.3;
     TypeParam mu = 2.0;
+    TypeParam portion = 0.1;
 
     TypeParam likelihood_baseline = e_step_utils::compute_supervised_multinomial_likelihood(
         X,
@@ -87,7 +94,9 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
         eta,
         phi,
         gamma,
-        mu
+        prior_y,
+        mu,
+        portion
     );
 
     // Compute phi with unsupervised method
@@ -114,6 +123,7 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
         beta,
         eta,
         gamma,
+        eta_weight,
         phi
     );
     // Compute new likelihood
@@ -125,7 +135,9 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
         eta,
         phi,
         gamma,
-        mu
+        prior_y,
+        mu,
+        portion
     );
     
     EXPECT_GT(likelihood, likelihood_baseline);

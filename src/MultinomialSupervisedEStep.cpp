@@ -29,6 +29,8 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
 
     // Get the document's class
     int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
+    int corpus_size = doc->get_corpus()->size();
+    Scalar prior_y = doc->get_corpus<ClassificationCorpus>()->get_prior(y);
 
     // Cast parameters to model parameters in order to save all necessary
     // matrixes
@@ -75,7 +77,9 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
             eta,
             phi,
             gamma,
-            mu_
+            prior_y,
+            mu_,
+            1.0 / corpus_size
         )
     );
 

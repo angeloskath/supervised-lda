@@ -9,7 +9,7 @@ void MultinomialSupervisedMStep<Scalar>::m_step(
     // Normalize according to the statistics
     auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
     model->beta = b_;
-    model->eta = h_;
+    model->eta = h_.array() + mu_ - 1;
     normalize_rows(model->beta);
     normalize_rows(model->eta);
 
@@ -60,10 +60,10 @@ void MultinomialSupervisedMStep<Scalar>::doc_m_step(
 
     // Update for eta with smoothing
     h_.col(y) += phi_scaled_sum_;
-    h_.array() += mu_ - 1;
 
     // Calculate E_q[log(p(y | z, \eta))] to report it in the maximization step
     log_py_ += (phi_scaled_sum_.transpose() * model->eta.col(y).array().log().matrix()).value();
+    //log_py_ -= (X.sum() - 1) * std::log(doc->get_corpus<ClassificationCorpus>()->get_prior(y));
 }
 
 
