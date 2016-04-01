@@ -61,7 +61,7 @@ namespace e_step_utils
         const MatrixX<Scalar> &eta,
         const MatrixX<Scalar> &phi,
         const VectorX<Scalar> &gamma,
-        const MatrixX<Scalar> &h
+        const VectorX<Scalar> &h
     );
 
     template <typename Scalar>
@@ -116,23 +116,20 @@ namespace e_step_utils
         const VectorX<Scalar> & X_ratio,
         const MatrixX<Scalar> &eta,
         const MatrixX<Scalar> &phi,
-        Ref<MatrixX<Scalar> > h
+        Ref<VectorX<Scalar> > h
     );
 
-    /**
-     * Perform a fixed point iteration update for the variational parameters
-     * phi of the supervised lda model.
-     */
     template <typename Scalar>
-    void fixed_point_iteration(
+    void compute_supervised_phi(
+        const VectorXi & X,
         const VectorX<Scalar> & X_ratio,
         int y,
         const MatrixX<Scalar> & beta,
         const MatrixX<Scalar> & eta,
         const VectorX<Scalar> & gamma,
-        const MatrixX<Scalar> &h,
-        Ref<MatrixX<Scalar> > phi_old,
-        Ref<MatrixX<Scalar> > phi
+        size_t fixed_point_iterations,
+        Ref<MatrixX<Scalar> > phi,
+        Ref<VectorX<Scalar> > h
     );
 
     /**

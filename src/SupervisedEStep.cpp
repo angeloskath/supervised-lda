@@ -40,14 +40,26 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // allocate memory for helper variables
-    MatrixX h(num_topics, voc_size);
-    MatrixX phi_old(num_topics, voc_size);
+    VectorX h(num_topics);
 
     // to check for convergence
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
-        e_step_utils::compute_h<Scalar>(X, X_ratio, eta, phi, h);
+        e_step_utils::compute_supervised_phi<Scalar>(
+            X,
+            X_ratio,
+            y,
+            beta,
+            eta,
+            gamma,
+            fixed_point_iterations_,
+            phi,
+            h
+        );
+
+        // Equation (6) in Supervised topic models, Blei, McAulife 2008
+        e_step_utils::compute_gamma<Scalar>(X, alpha, phi, gamma);
 
         new_likelihood = e_step_utils::compute_supervised_likelihood<Scalar>(
             X,
@@ -63,23 +75,6 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
             break;
         }
         old_likelihood = new_likelihood;
-
-        // fixed point iterations to maximize w.r.t. phi
-        for (size_t i=0; i<fixed_point_iterations_; i++) {
-            e_step_utils::fixed_point_iteration<Scalar>(
-                X_ratio,
-                y,
-                beta,
-                eta,
-                gamma,
-                h,
-                phi_old,
-                phi
-            );
-        }
-
-        // Equation (6) in Supervised topic models, Blei, McAulife 2008
-        e_step_utils::compute_gamma<Scalar>(X, alpha, phi, gamma);
     }
 
     // notify that the e step has finished

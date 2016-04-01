@@ -52,7 +52,7 @@ Scalar compute_supervised_likelihood(
     const VectorX<Scalar> &gamma
 ) {
     // Computing h is an overkill and should be changed
-    MatrixX<Scalar> h(phi.rows(), phi.cols());
+    VectorX<Scalar> h(phi.rows());
     VectorX<Scalar> X_ratio = X.cast<Scalar>() / X.sum();
     compute_h<Scalar>(X, X_ratio, eta, phi, h);
 
@@ -67,7 +67,7 @@ Scalar compute_supervised_likelihood(
     const MatrixX<Scalar> &eta,
     const MatrixX<Scalar> &phi,
     const VectorX<Scalar> &gamma,
-    const MatrixX<Scalar> &h
+    const VectorX<Scalar> &h
 ) {
     Scalar likelihood = compute_unsupervised_likelihood(
         X,
@@ -78,8 +78,13 @@ Scalar compute_supervised_likelihood(
     );
 
     // E_q[log p(y | z,n)] approximated using Jensens inequality
+    int n;
+    for (n=X.rows()-1; n>=0; n--) {
+        if (X[n] > 0)
+            break;
+    }
     likelihood += (eta.col(y).transpose() * phi * X.cast<Scalar>()).value() / X.sum();
-    likelihood += - std::log((h.col(0).transpose() * phi.col(0)).value());
+    likelihood += - std::log((h.transpose() * phi.col(n)).value());
 
     return likelihood;
 }
@@ -163,59 +168,93 @@ void compute_h(
     const VectorX<Scalar> & X_ratio,
     const MatrixX<Scalar> &eta,
     const MatrixX<Scalar> &phi,
-    Ref<MatrixX<Scalar> > h
+    Ref<VectorX<Scalar> > h
 ) {
     auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
-    MatrixX<Scalar> exp_eta(h.rows(), h.cols());
-    VectorX<Scalar> products(phi.cols());
-    int num_classes = eta.cols();
+    MatrixX<Scalar> exp_eta_scaled(eta.rows(), eta.cols());
+    VectorX<Scalar> products = VectorX<Scalar>::Constant(eta.cols(), 1.0);
 
-    h.fill(0);
-    for (int y=0; y<num_classes; y++) {
-        auto eta_scaled = eta.col(y) * X_ratio.transpose();
-        //exp_eta = eta_scaled.array().exp();
-        exp_eta = eta_scaled.array().unaryExpr(cwise_fast_exp);
-        products = (exp_eta.transpose() * phi).diagonal();
+    // Compute the products that will allow us to compute h for the last word
+    for (int n=0; n<X.rows(); n++) {
+        exp_eta_scaled = (eta * X_ratio[n]).unaryExpr(cwise_fast_exp);
+        //exp_eta_scaled = (eta * X_ratio[n]).array().exp();
+        products.array() *= (exp_eta_scaled.transpose() * phi.col(n)).array();
+    }
 
-        // products.prod() / products.array() accounting for the zeros in phi
-        auto t1 = products.unaryExpr(
-            CwiseScalarDivideByMatrix<Scalar>(
-                product_of_nonzeros(products)
-            )
-        );
-        auto t2 = exp_eta * t1.asDiagonal();
+    for (int n=X.rows()-1; n>=0; n--) {
+        // Skip this word if it is not in the document
+        if (X[n] == 0)
+            continue;
 
-        h += t2;
+        exp_eta_scaled = (eta * X_ratio[n]).unaryExpr(cwise_fast_exp);
+        //exp_eta_scaled = (eta * X_ratio[n]).array().exp();
+
+        // Remove the nth word
+        products.array() /= (exp_eta_scaled.transpose() * phi.col(n)).array();
+
+        // Compute h w.r.t phi_n
+        h = exp_eta_scaled * products;
     }
 }
 
 template <typename Scalar>
-void fixed_point_iteration(
+void compute_supervised_phi(
+    const VectorXi & X,
     const VectorX<Scalar> & X_ratio,
     int y,
     const MatrixX<Scalar> & beta,
     const MatrixX<Scalar> & eta,
     const VectorX<Scalar> & gamma,
-    const MatrixX<Scalar> &h,
-    Ref<MatrixX<Scalar> > phi_old,
-    Ref<MatrixX<Scalar> > phi
+    size_t fixed_point_iterations,
+    Ref<MatrixX<Scalar> > phi,
+    Ref<VectorX<Scalar> > h
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
     auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
-    // Frist thing 's first copy the phi to the old phi
-    phi_old = phi;
+    MatrixX<Scalar> exp_eta_scaled(eta.rows(), eta.cols());
+    VectorX<Scalar> products = VectorX<Scalar>::Constant(eta.cols(), 1.0);
+    VectorX<Scalar> psi_gamma = gamma.unaryExpr(cwise_digamma);
 
-    auto t1 = gamma.unaryExpr(cwise_digamma);
-    auto t2 = eta.col(y) * X_ratio.transpose();
-    // TODO: h.transpose() * phi_old can be cached
-    // auto t3 = h.array().rowwise() / (h.transpose() * phi_old).diagonal().transpose().array();
-    auto t3 = h / (h.col(0).transpose() * phi_old.col(0)).value();
+    // Compute the products that will allow us to compute and update h
+    for (int n=0; n<X.rows(); n++) {
+        exp_eta_scaled = (eta * X_ratio[n]).unaryExpr(cwise_fast_exp);
+        //exp_eta_scaled = (eta * X_ratio[n]).array().exp();
+        products.array() *= (exp_eta_scaled.transpose() * phi.col(n)).array();
+    }
 
-    phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).unaryExpr(cwise_fast_exp);
-    //phi = beta.array() * ((t2.colwise() + t1).array() - t3.array()).exp();
-    normalize_cols(phi);
+    for (int n=0; n<X.rows(); n++) {
+        // Skip this word if it is not in the document
+        if (X[n] == 0)
+            continue;
+
+        exp_eta_scaled = (eta * X_ratio[n]).unaryExpr(cwise_fast_exp);
+        //exp_eta_scaled = (eta * X_ratio[n]).array().exp();
+
+        // Remove the nth word
+        products.array() /= (exp_eta_scaled.transpose() * phi.col(n)).array();
+
+        // Compute h w.r.t phi_n
+        h = exp_eta_scaled * products;
+
+        // Fixed point iterations
+        for (size_t i=0; i<fixed_point_iterations; i++) {
+            Scalar t = 1. / (h.transpose() * phi.col(n)).value() / X[n];
+
+            phi.col(n).array() = beta.col(n).array() * (
+                psi_gamma + X_ratio[n]*eta.col(y) + h * t
+            ).array().unaryExpr(cwise_fast_exp);
+            //phi.col(n).array() = beta.col(n).array() * (
+            //    psi_gamma + X_ratio[n]*eta.col(y) + h * t
+            //).array().exp();
+
+            phi.col(n).array() /= phi.col(n).sum();
+        }
+
+        // Recompute the products with the updated phi
+        products.array() *= (exp_eta_scaled.transpose() * phi.col(n)).array();
+    }
 }
 
 template <typename Scalar>
@@ -334,140 +373,140 @@ void compute_supervised_correspondence_tau(
 
 // Template instantiations
 template float compute_unsupervised_likelihood(
-const VectorXi & X,
-const VectorX<float> &alpha,
-const MatrixX<float> &beta,
-const MatrixX<float> &phi,
-const VectorX<float> &gamma
+    const VectorXi & X,
+    const VectorX<float> &alpha,
+    const MatrixX<float> &beta,
+    const MatrixX<float> &phi,
+    const VectorX<float> &gamma
 );
 template double compute_unsupervised_likelihood(
-const VectorXi & X,
-const VectorX<double> &alpha,
-const MatrixX<double> &beta,
-const MatrixX<double> &phi,
-const VectorX<double> &gamma
+    const VectorXi & X,
+    const VectorX<double> &alpha,
+    const MatrixX<double> &beta,
+    const MatrixX<double> &phi,
+    const VectorX<double> &gamma
 );
 template float compute_supervised_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<float> &alpha,
-const MatrixX<float> &beta,
-const MatrixX<float> &eta,
-const MatrixX<float> &phi,
-const VectorX<float> &gamma
+    const VectorXi & X,
+    int y,
+    const VectorX<float> &alpha,
+    const MatrixX<float> &beta,
+    const MatrixX<float> &eta,
+    const MatrixX<float> &phi,
+    const VectorX<float> &gamma
 );
 template double compute_supervised_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<double> &alpha,
-const MatrixX<double> &beta,
-const MatrixX<double> &eta,
-const MatrixX<double> &phi,
-const VectorX<double> &gamma
+    const VectorXi & X,
+    int y,
+    const VectorX<double> &alpha,
+    const MatrixX<double> &beta,
+    const MatrixX<double> &eta,
+    const MatrixX<double> &phi,
+    const VectorX<double> &gamma
 );
 template float compute_supervised_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<float> &alpha,
-const MatrixX<float> &beta,
-const MatrixX<float> &eta,
-const MatrixX<float> &phi,
-const VectorX<float> &gamma,
-const MatrixX<float> &h
+    const VectorXi & X,
+    int y,
+    const VectorX<float> &alpha,
+    const MatrixX<float> &beta,
+    const MatrixX<float> &eta,
+    const MatrixX<float> &phi,
+    const VectorX<float> &gamma,
+    const VectorX<float> &h
 );
 template double compute_supervised_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<double> &alpha,
-const MatrixX<double> &beta,
-const MatrixX<double> &eta,
-const MatrixX<double> &phi,
-const VectorX<double> &gamma,
-const MatrixX<double> &h
+    const VectorXi & X,
+    int y,
+    const VectorX<double> &alpha,
+    const MatrixX<double> &beta,
+    const MatrixX<double> &eta,
+    const MatrixX<double> &phi,
+    const VectorX<double> &gamma,
+    const VectorX<double> &h
 );
 template float compute_supervised_multinomial_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<float> &alpha,
-const MatrixX<float> &beta,
-const MatrixX<float> &eta,
-const MatrixX<float> &phi,
-const VectorX<float> &gamma,
-float prior_y,
-float mu,
-float portion
+    const VectorXi & X,
+    int y,
+    const VectorX<float> &alpha,
+    const MatrixX<float> &beta,
+    const MatrixX<float> &eta,
+    const MatrixX<float> &phi,
+    const VectorX<float> &gamma,
+    float prior_y,
+    float mu,
+    float portion
 );
 template double compute_supervised_multinomial_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<double> &alpha,
-const MatrixX<double> &beta,
-const MatrixX<double> &eta,
-const MatrixX<double> &phi,
-const VectorX<double> &gamma,
-double prior_y,
-double mu,
-double portion
+    const VectorXi & X,
+    int y,
+    const VectorX<double> &alpha,
+    const MatrixX<double> &beta,
+    const MatrixX<double> &eta,
+    const MatrixX<double> &phi,
+    const VectorX<double> &gamma,
+    double prior_y,
+    double mu,
+    double portion
 );
 template float compute_supervised_correspondence_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<float> &alpha,
-const MatrixX<float> &beta,
-const MatrixX<float> &eta,
-const MatrixX<float> &phi,
-const VectorX<float> &gamma,
-const VectorX<float> &tau,
-float mu,
-float portion
+    const VectorXi & X,
+    int y,
+    const VectorX<float> &alpha,
+    const MatrixX<float> &beta,
+    const MatrixX<float> &eta,
+    const MatrixX<float> &phi,
+    const VectorX<float> &gamma,
+    const VectorX<float> &tau,
+    float mu,
+    float portion
 );
 template double compute_supervised_correspondence_likelihood(
-const VectorXi & X,
-int y,
-const VectorX<double> &alpha,
-const MatrixX<double> &beta,
-const MatrixX<double> &eta,
-const MatrixX<double> &phi,
-const VectorX<double> &gamma,
-const VectorX<double> &tau,
-double mu,
-double portion
+    const VectorXi & X,
+    int y,
+    const VectorX<double> &alpha,
+    const MatrixX<double> &beta,
+    const MatrixX<double> &eta,
+    const MatrixX<double> &phi,
+    const VectorX<double> &gamma,
+    const VectorX<double> &tau,
+    double mu,
+    double portion
 );
-
 template void compute_h(
     const VectorXi & X,
     const VectorX<float> & X_ratio,
     const MatrixX<float> &eta,
     const MatrixX<float> &phi,
-    Ref<MatrixX<float> > h
+    Ref<VectorX<float> > h
 );
 template void compute_h(
     const VectorXi & X,
     const VectorX<double> & X_ratio,
     const MatrixX<double> &eta,
     const MatrixX<double> &phi,
-    Ref<MatrixX<double> > h
+    Ref<VectorX<double> > h
 );
-
-template void fixed_point_iteration(
+template void compute_supervised_phi(
+    const VectorXi & X,
     const VectorX<float> & X_ratio,
     int y,
     const MatrixX<float> & beta,
     const MatrixX<float> & eta,
     const VectorX<float> & gamma,
-    const MatrixX<float> &h,
-    Ref<MatrixX<float> > phi_old,
-    Ref<MatrixX<float> > phi
+    size_t fixed_point_iterations,
+    Ref<MatrixX<float> > phi,
+    Ref<VectorX<float> > h
 );
-template void fixed_point_iteration(
+template void compute_supervised_phi(
+    const VectorXi & X,
     const VectorX<double> & X_ratio,
     int y,
     const MatrixX<double> & beta,
     const MatrixX<double> & eta,
     const VectorX<double> & gamma,
-    const MatrixX<double> &h,
-    Ref<MatrixX<double> > phi_old,
-    Ref<MatrixX<double> > phi
+    size_t fixed_point_iterations,
+    Ref<MatrixX<double> > phi,
+    Ref<VectorX<double> > h
 );
 template void compute_gamma(
     const VectorXi & X,
