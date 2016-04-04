@@ -120,15 +120,15 @@ namespace e_step_utils
     );
 
     template <typename Scalar>
-    void compute_supervised_phi(
+    void compute_supervised_phi_gamma(
         const VectorXi & X,
         const VectorX<Scalar> & X_ratio,
         int y,
         const MatrixX<Scalar> & beta,
         const MatrixX<Scalar> & eta,
-        const VectorX<Scalar> & gamma,
         size_t fixed_point_iterations,
         Ref<MatrixX<Scalar> > phi,
+        Ref<VectorX<Scalar> > gamma,
         Ref<VectorX<Scalar> > h
     );
 

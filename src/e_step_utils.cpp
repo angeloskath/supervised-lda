@@ -199,15 +199,15 @@ void compute_h(
 }
 
 template <typename Scalar>
-void compute_supervised_phi(
+void compute_supervised_phi_gamma(
     const VectorXi & X,
     const VectorX<Scalar> & X_ratio,
     int y,
     const MatrixX<Scalar> & beta,
     const MatrixX<Scalar> & eta,
-    const VectorX<Scalar> & gamma,
     size_t fixed_point_iterations,
     Ref<MatrixX<Scalar> > phi,
+    Ref<VectorX<Scalar> > gamma,
     Ref<VectorX<Scalar> > h
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
@@ -216,6 +216,7 @@ void compute_supervised_phi(
     MatrixX<Scalar> exp_eta_scaled(eta.rows(), eta.cols());
     VectorX<Scalar> products = VectorX<Scalar>::Constant(eta.cols(), 1.0);
     VectorX<Scalar> psi_gamma = gamma.unaryExpr(cwise_digamma);
+    VectorX<Scalar> old_phi_n = VectorX<Scalar>::Zero(eta.cols());
 
     // Compute the products that will allow us to compute and update h
     for (int n=0; n<X.rows(); n++) {
@@ -239,14 +240,15 @@ void compute_supervised_phi(
         h = exp_eta_scaled * products;
 
         // Fixed point iterations
+        old_phi_n = phi.col(n);
         for (size_t i=0; i<fixed_point_iterations; i++) {
             Scalar t = 1. / (h.transpose() * phi.col(n)).value() / X[n];
 
             phi.col(n).array() = beta.col(n).array() * (
-                psi_gamma + X_ratio[n]*eta.col(y) + h * t
+                psi_gamma + X_ratio[n]*eta.col(y) - h * t
             ).array().unaryExpr(cwise_fast_exp);
             //phi.col(n).array() = beta.col(n).array() * (
-            //    psi_gamma + X_ratio[n]*eta.col(y) + h * t
+            //    psi_gamma + X_ratio[n]*eta.col(y) - h * t
             //).array().exp();
 
             phi.col(n).array() /= phi.col(n).sum();
@@ -254,6 +256,10 @@ void compute_supervised_phi(
 
         // Recompute the products with the updated phi
         products.array() *= (exp_eta_scaled.transpose() * phi.col(n)).array();
+
+        // Recompute gamma by removing the old phi and inserting the new one
+        gamma += X[n]*(phi.col(n) - old_phi_n);
+        psi_gamma = gamma.unaryExpr(cwise_digamma);
     }
 }
 
@@ -486,26 +492,26 @@ template void compute_h(
     const MatrixX<double> &phi,
     Ref<VectorX<double> > h
 );
-template void compute_supervised_phi(
+template void compute_supervised_phi_gamma(
     const VectorXi & X,
     const VectorX<float> & X_ratio,
     int y,
     const MatrixX<float> & beta,
     const MatrixX<float> & eta,
-    const VectorX<float> & gamma,
     size_t fixed_point_iterations,
     Ref<MatrixX<float> > phi,
+    Ref<VectorX<float> > gamma,
     Ref<VectorX<float> > h
 );
-template void compute_supervised_phi(
+template void compute_supervised_phi_gamma(
     const VectorXi & X,
     const VectorX<double> & X_ratio,
     int y,
     const MatrixX<double> & beta,
     const MatrixX<double> & eta,
-    const VectorX<double> & gamma,
     size_t fixed_point_iterations,
     Ref<MatrixX<double> > phi,
+    Ref<VectorX<double> > gamma,
     Ref<VectorX<double> > h
 );
 template void compute_gamma(

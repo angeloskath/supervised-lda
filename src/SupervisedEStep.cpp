@@ -46,20 +46,17 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
-        e_step_utils::compute_supervised_phi<Scalar>(
+        e_step_utils::compute_supervised_phi_gamma<Scalar>(
             X,
             X_ratio,
             y,
             beta,
             eta,
-            gamma,
             fixed_point_iterations_,
             phi,
+            gamma,
             h
         );
-
-        // Equation (6) in Supervised topic models, Blei, McAulife 2008
-        e_step_utils::compute_gamma<Scalar>(X, alpha, phi, gamma);
 
         new_likelihood = e_step_utils::compute_supervised_likelihood<Scalar>(
             X,
