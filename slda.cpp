@@ -276,6 +276,12 @@ LDA<double> create_lda_for_training(
             std::stof(args["--learning_rate"].asString()),
             std::stof(args["--beta_weight"].asString())
         );
+    } else if (args["--second_order_m_step"].asBool()) {
+        builder.set_second_order_supervised_batch_m_step(
+            args["--m_step_iterations"].asLong(),
+            std::stof(args["--m_step_tolerance"].asString()),
+            std::stof(args["--regularization_penalty"].asString())
+        );
     } else if (args["--multinomial"].asBool()) {
         builder.set_supervised_multinomial_m_step(
             std::stof(args["--mu"].asString())
@@ -320,7 +326,7 @@ R"(Supervised LDA and other flavors of LDA.
                    [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
                    [--multinomial] [--correspondence] [--mu=MU] [--eta_weight=EW]
                    [--unsupervised_e_step] [--fast_e_step]
-                   [--online_m_step] [--semi_supervised]
+                   [--second_order_m_step] [--online_m_step] [--semi_supervised]
                    [--regularization_penalty=L] [--beta_weight=BW]
                    [--momentum=MM] [--learning_rate=LR] [--batch_size=BS]
                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
@@ -345,6 +351,7 @@ R"(Supervised LDA and other flavors of LDA.
         --unsupervised_e_step   Use the unsupervised E step to calculate phi and gamma
         --fast_e_step           Choose a variant of E step that doesn't compute
                                 likelihood in order to be faster
+        --second_order_m_step   Use the second order approximation for the M step
         --online_m_step         Choose online M step that updates the model
                                 parameters after seeing mini_batch documents
         --semi_supervised       Train a semi supervised lda

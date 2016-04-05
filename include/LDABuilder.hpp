@@ -19,6 +19,7 @@
 #include "IMStep.hpp"
 #include "LDA.hpp"
 #include "OnlineSupervisedMStep.hpp"
+#include "SecondOrderSupervisedMStep.hpp"
 #include "SemiSupervisedEStep.hpp"
 #include "SemiSupervisedMStep.hpp"
 #include "SupervisedEStep.hpp"
@@ -126,6 +127,12 @@ class LDABuilder : public ILDABuilder<Scalar>
         template <typename ...Args>
         LDABuilder & set_supervised_batch_m_step(Args... args) {
             m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
+
+            return *this;
+        }
+        template <typename ...Args>
+        LDABuilder & set_second_order_supervised_batch_m_step(Args... args) {
+            m_step_ = std::make_shared<SecondOrderSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
