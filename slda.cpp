@@ -5,6 +5,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 #include <docopt/docopt.h>
@@ -421,8 +422,11 @@ int main(int argc, char **argv) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
         }
 
-        MatrixXd doc_topic_distribution = lda.transform(X);
+        MatrixXd doc_topic_distribution;
+        VectorXi y_predicted;
+        std::tie(doc_topic_distribution, y_predicted) = lda.transform_predict(X);
         numpy_format::save(args["OUTPUT"].asString(), doc_topic_distribution);
+        std::cout << "Accuracy score: " << accuracy_score(y, y_predicted) << std::endl;
     } 
     else if (args["evaluate"].asBool()){
         MatrixXi X, y;

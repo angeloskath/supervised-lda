@@ -163,18 +163,21 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
 
 template <typename Scalar>
 typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const MatrixXi &X) {
+    return decision_function(transform(X));
+}
+
+
+template <typename Scalar>
+typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const MatrixX &X) {
     // this function requires a supervised LDA so let's cast our models
     // parameters accordingly
     auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(
         model_parameters_
     );
 
-    // get the representation
-    MatrixX gammas = transform(X);
-
     // the linear model is trained on
     // E_q[\bar z] = \fraction{\gamma - \alpha}{\sum_i \gamma_i}
-    MatrixX expected_z_bar = gammas.colwise() - model->alpha;
+    MatrixX expected_z_bar = X.colwise() - model->alpha;
     expected_z_bar.array().rowwise() /= expected_z_bar.array().colwise().sum();
 
     // finally return the linear scores like a boss
@@ -184,14 +187,30 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const MatrixXi &X) 
 
 template <typename Scalar>
 VectorXi LDA<Scalar>::predict(const MatrixXi &X) {
-    VectorXi predictions(X.cols());
-    MatrixX scores = decision_function(X);
+    return predict(decision_function(X));
+}
 
-    for (int d=0; d<X.cols(); d++) {
+
+template <typename Scalar>
+VectorXi LDA<Scalar>::predict(const MatrixX &scores) {
+    VectorXi predictions(scores.cols());
+
+    for (int d=0; d<scores.cols(); d++) {
         scores.col(d).maxCoeff( &predictions[d] );
     }
 
     return predictions;
+}
+
+
+template <typename Scalar>
+std::tuple<typename LDA<Scalar>::MatrixX, VectorXi> LDA<Scalar>::transform_predict(
+    const MatrixXi &X
+) {
+    MatrixX gammas = transform(X);
+    VectorXi predictions = predict(decision_function(gammas));
+
+    return std::make_tuple(gammas, predictions);
 }
 
 

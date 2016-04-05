@@ -93,6 +93,12 @@ class LDA
         VectorXi predict(const MatrixXi &X);
 
         /**
+         * Return both the class predictions and the transformed data using a
+         * single LDA expectation step.
+         */
+        std::tuple<MatrixX, VectorXi> transform_predict(const MatrixXi &X);
+
+        /**
          * Get the progress visitor for this lda instance.
          */
         std::shared_ptr<IEventDispatcher> get_event_dispatcher() {
@@ -145,6 +151,18 @@ class LDA
          * A doc_e_step worker thread
          */
         void doc_e_step_worker();
+
+        /**
+         * Implement the decision function using already transformed data.
+         * Topic representations instead of BOW.
+         */
+        MatrixX decision_function(const MatrixX &X);
+
+        /**
+         * Transform the decision function to class predictions.
+         */
+        VectorXi predict(const MatrixX &scores);
+
 
     private:
         /**
