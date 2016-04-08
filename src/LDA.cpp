@@ -109,7 +109,10 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<Corpus> corpus) {
 
     // destroy the thread pool
     destroy_worker_pool();
-    
+
+    // Perform any corpuswise action related to e step
+    e_step_->e_step();
+
     // perform the batch part of m step
     m_step_->m_step(
         model_parameters_  // output
