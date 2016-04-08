@@ -1,6 +1,7 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+
 namespace e_step_utils
 {
 
@@ -182,6 +183,8 @@ void compute_h(
         products.array() *= (exp_eta_scaled.transpose() * phi.col(n)).array();
     }
 
+    // Traverse words in reverse order in order to find the "last word" of the
+    // document, that occurs at least one time in the document 
     for (int n=X.rows()-1; n>=0; n--) {
         // Skip this word if it is not in the document
         if (X[n] == 0)
@@ -195,6 +198,7 @@ void compute_h(
 
         // Compute h w.r.t phi_n
         h = exp_eta_scaled * products;
+        break;
     }
 }
 

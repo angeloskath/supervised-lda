@@ -1,7 +1,5 @@
-
 #include <random>
 #include <vector>
-#include <iostream>
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>

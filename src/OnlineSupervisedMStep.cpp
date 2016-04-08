@@ -1,5 +1,4 @@
 #include <utility>
-#include <iostream>
 
 #include "MultinomialLogisticRegression.hpp"
 #include "OnlineSupervisedMStep.hpp"
