@@ -34,6 +34,11 @@ class SemiSupervisedEStep : public IEStep<Scalar>
             const std::shared_ptr<Parameters> parameters
         ) override;
 
+        /**
+         * Inform both the sub e steps that an epoch has finished.
+         */
+        void e_step() override;
+
     private:
         std::shared_ptr<IEStep<Scalar> > supervised_step_;
         std::shared_ptr<IEStep<Scalar> > unsupervised_step_;

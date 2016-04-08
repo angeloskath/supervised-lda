@@ -68,6 +68,11 @@ std::shared_ptr<Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }
 
+template <typename Scalar>
+void UnsupervisedEStep<Scalar>::e_step() {
+    // pass
+}
+
 // Template instantiation
 template class UnsupervisedEStep<float>;
 template class UnsupervisedEStep<double>;

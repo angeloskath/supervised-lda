@@ -71,6 +71,12 @@ std::shared_ptr<Parameters> FastUnsupervisedEStep<Scalar>::doc_e_step(
 
 
 template <typename Scalar>
+void FastUnsupervisedEStep<Scalar>::e_step() {
+    // pass
+}
+
+
+template <typename Scalar>
 bool FastUnsupervisedEStep<Scalar>::converged(
     const VectorX & gamma_old,
     const VectorX & gamma

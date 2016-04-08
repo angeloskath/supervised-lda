@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "ProgressEvents.hpp"
 #include "ApproximatedSupervisedEStep.hpp"
 #include "e_step_utils.hpp"
@@ -6,10 +8,17 @@
 template <typename Scalar>
 ApproximatedSupervisedEStep<Scalar>::ApproximatedSupervisedEStep(
     size_t e_step_iterations,
-    Scalar e_step_tolerance
+    Scalar e_step_tolerance,
+    Scalar C,
+    CWeightType weight_type,
+    bool compute_likelihood
 ) {
     e_step_iterations_ = e_step_iterations;
     e_step_tolerance_ = e_step_tolerance;
+    C_ = C;
+    weight_type_ = weight_type;
+    compute_likelihood_ = compute_likelihood;
+    epochs_ = 0;
 }
 
 template <typename Scalar>
@@ -54,6 +63,7 @@ std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
             beta,
             eta,
             gamma,
+            get_weight(),
             phi
         );
 
@@ -62,9 +72,29 @@ std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
     }
 
     // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(0);
+    if (compute_likelihood_) {
+        this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
+            e_step_utils::compute_supervised_likelihood<Scalar>(
+                X,
+                y,
+                alpha,
+                beta,
+                eta,
+                phi,
+                gamma
+            )
+        );
+    } else {
+        this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(0);
+    }
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
+}
+
+
+template <typename Scalar>
+void ApproximatedSupervisedEStep<Scalar>::e_step() {
+    epochs_ ++;
 }
 
 
@@ -76,6 +106,18 @@ bool ApproximatedSupervisedEStep<Scalar>::converged(
     Scalar mean_change = (gamma_old - gamma).array().abs().sum() / gamma.rows();
 
     return mean_change < e_step_tolerance_;
+}
+
+
+template <typename Scalar>
+Scalar ApproximatedSupervisedEStep<Scalar>::get_weight() {
+    switch (weight_type_) {
+        case ExponentialDecay:
+            return std::pow(C_, epochs_);
+        default:
+        case Constant:
+            return C_;
+    }
 }
 
 // Template instantiation

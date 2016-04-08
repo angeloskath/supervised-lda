@@ -10,9 +10,18 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
+        enum CWeightType
+        {
+            Constant = 1,
+            ExponentialDecay
+        };
+
         ApproximatedSupervisedEStep(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-2
+            Scalar e_step_tolerance = 1e-2,
+            Scalar C = 1,
+            CWeightType weight_type = CWeightType::Constant,
+            bool compute_likelihood = true
         );
 
         /** Maximize the ELBO w.r.t phi and gamma
@@ -38,14 +47,32 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
             const std::shared_ptr<Parameters> parameters
         ) override;
 
+        /**
+         * Store the epochs we 've seen so far.
+         */
+        void e_step() override;
+
     private:
         bool converged(const VectorX & gamma_old, const VectorX & gamma);
+
+        /**
+         * Get the weight for the supervised part of the e step.
+         */
+        Scalar get_weight();
 
         // The maximum number of iterations in E-step
         size_t e_step_iterations_;
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
-    
+        // A parameter weighting the supervised component in the variational
+        // distribution.
+        Scalar C_;
+        // Compute the exact supervised likelihood to track convergence
+        bool compute_likelihood_;
+        // Determines how the parameter C updates in time
+        CWeightType weight_type_;
+        // The epochs seen so far
+        int epochs_;
 };
 #endif   // _APPROXIMATEDSUPERVISEDESTEP_HPP_

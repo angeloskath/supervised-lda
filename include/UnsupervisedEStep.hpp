@@ -33,6 +33,10 @@ class UnsupervisedEStep : public IEStep<Scalar>
             const std::shared_ptr<Parameters> parameters
         ) override;
 
+        /**
+         * Just do nothing for now.
+         */
+        virtual void e_step() override;
 
     protected:
         /**

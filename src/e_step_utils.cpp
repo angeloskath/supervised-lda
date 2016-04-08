@@ -295,22 +295,23 @@ void compute_supervised_approximate_phi(
     const MatrixX<Scalar> & beta,
     const MatrixX<Scalar> & eta,
     const VectorX<Scalar> & gamma,
+    Scalar C,
     Ref<MatrixX<Scalar> > phi
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
     auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
-    MatrixX<Scalar> z_bar = (
-        phi.array().rowwise() * X_ratio.transpose().array()
-    ).rowwise().sum();
-    MatrixX<Scalar> t = (eta.transpose() * z_bar).unaryExpr(cwise_fast_exp);
-    t = t.array().rowwise() / t.colwise().sum().array();
-
-    auto t1 = gamma.unaryExpr(cwise_digamma).array();
-    auto t2 = digamma(gamma.sum()) + 1;
+    auto psi_gamma = gamma.unaryExpr(cwise_digamma).array();
+    MatrixX<Scalar> z_bar = (phi.array().rowwise() * X_ratio.transpose().array()).rowwise().sum();
+    MatrixX<Scalar> softmax_eta_z = (eta.transpose() * z_bar).unaryExpr(cwise_fast_exp);
+    softmax_eta_z = softmax_eta_z.array().rowwise() / softmax_eta_z.colwise().sum().array();
+    Scalar max_eta = eta.maxCoeff();
+    MatrixX<Scalar> eta_scaled = eta;
+    if (max_eta > 0)
+        eta_scaled /= max_eta;
 
     phi = beta.array().colwise() * (
-        t1 - t2 + (eta.col(y) - eta * t).array() / num_words
+        psi_gamma + C*(eta_scaled.col(y) - eta_scaled * softmax_eta_z).array()
     ).unaryExpr(cwise_fast_exp).array();
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
     normalize_cols(phi);
@@ -543,6 +544,7 @@ template void compute_supervised_approximate_phi(
     const MatrixX<float> & beta,
     const MatrixX<float> & eta,
     const VectorX<float> & gamma,
+    float C,
     Ref<MatrixX<float> > phi
 );
 template void compute_supervised_approximate_phi(
@@ -552,6 +554,7 @@ template void compute_supervised_approximate_phi(
     const MatrixX<double> & beta,
     const MatrixX<double> & eta,
     const VectorX<double> & gamma,
+    double C,
     Ref<MatrixX<double> > phi
 );
 template void compute_supervised_multinomial_phi(

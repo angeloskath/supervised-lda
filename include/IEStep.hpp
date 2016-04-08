@@ -34,5 +34,14 @@ class IEStep : public EventDispatcherComposition
             const std::shared_ptr<Document> doc,
             const std::shared_ptr<Parameters> parameters
         )=0;
+
+        /**
+         * Perform action that should be performed once for each epoch for the
+         * whole corpus. One use of this method is so that the e steps can know
+         * which epcoh they are running for.
+         *
+         * TODO: Determine if any parameters are needed
+         */
+        virtual void e_step()=0;
 };
 #endif //  _IESTEP_HPP_

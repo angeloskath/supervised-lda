@@ -36,6 +36,13 @@ std::shared_ptr<Parameters> SemiSupervisedEStep<Scalar>::doc_e_step(
 }
 
 
+template <typename Scalar>
+void SemiSupervisedEStep<Scalar>::e_step() {
+    supervised_step_->e_step();
+    unsupervised_step_->e_step();
+}
+
+
 // template instantiation
 template class SemiSupervisedEStep<float>;
 template class SemiSupervisedEStep<double>;

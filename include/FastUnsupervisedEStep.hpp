@@ -39,6 +39,8 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
             const std::shared_ptr<Parameters> parameters
         ) override;
 
+        void e_step() override;
+
     private:
         bool converged(const VectorX & gamma_old, const VectorX & gamma);
 
