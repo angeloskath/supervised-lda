@@ -544,5 +544,39 @@ typename DenseBase<Derived>::Scalar product_of_nonzeros(
     return p;
 }
 
+/**
+ * Sum the rows scaled by another vector
+ */
+template <typename Derived1, typename Derived2, typename Derived3>
+void sum_rows_scaled(
+    const MatrixBase<Derived1> & x,
+    const MatrixBase<Derived2> & y,
+    MatrixBase<Derived3> & result
+) {
+    for (int i=0; i<x.rows(); i++) {
+        if (y[i] == 0)
+            continue;
+
+        result += y[i] * x.row(i);
+    }
+}
+
+/**
+ * Sum the cols scaled by another vector
+ */
+template <typename Derived1, typename Derived2, typename Derived3>
+void sum_cols_scaled(
+    const MatrixBase<Derived1> & x,
+    const MatrixBase<Derived2> & y,
+    MatrixBase<Derived3> & result
+) {
+    for (int i=0; i<x.cols(); i++) {
+        if (y[i] == 0)
+            continue;
+
+        result += y[i] * x.col(i);
+    }
+}
+
 
 #endif // UTILS_H

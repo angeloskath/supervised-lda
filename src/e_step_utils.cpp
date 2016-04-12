@@ -277,7 +277,12 @@ void compute_gamma(
     const MatrixX<Scalar> & phi,
     Ref<VectorX<Scalar> > gamma
 ) {
-    gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
+    // We implement the following line in a safer manner to avoid possible NaN by 0 * inf
+    //
+    // gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
+
+    gamma = alpha;
+    sum_cols_scaled(phi, X, gamma);
 }
 
 template <typename Scalar>
@@ -309,9 +314,12 @@ void compute_supervised_approximate_phi(
     auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
     auto psi_gamma = gamma.unaryExpr(cwise_digamma).array();
-    MatrixX<Scalar> z_bar = (phi.array().rowwise() * X_ratio.transpose().array()).rowwise().sum();
-    MatrixX<Scalar> softmax_eta_z = (eta.transpose() * z_bar).unaryExpr(cwise_fast_exp);
-    softmax_eta_z = softmax_eta_z.array().rowwise() / softmax_eta_z.colwise().sum().array();
+    VectorX<Scalar> z_bar = VectorX<Scalar>::Zero(phi.rows());
+    sum_cols_scaled(phi, X_ratio, z_bar);
+
+    VectorX<Scalar> softmax_eta_z = (eta.transpose() * z_bar).unaryExpr(cwise_fast_exp);
+    softmax_eta_z = softmax_eta_z / softmax_eta_z.sum();
+
     Scalar max_eta = eta.maxCoeff();
     MatrixX<Scalar> eta_scaled = eta;
     if (max_eta > 0)
