@@ -178,6 +178,9 @@ void compute_h(
 
     // Compute the products that will allow us to compute h for the last word
     for (int n=0; n<X.rows(); n++) {
+        if (X[n] == 0)
+            continue;
+
         exp_eta_scaled = (eta * X_ratio[n]).unaryExpr(cwise_fast_exp);
         //exp_eta_scaled = (eta * X_ratio[n]).array().exp();
         products.array() *= (exp_eta_scaled.transpose() * phi.col(n)).array();
