@@ -292,11 +292,12 @@ void compute_unsupervised_phi(
     Ref<MatrixX<Scalar> > phi
 ) {
     auto cwise_digamma = CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = CwiseFastExp<Scalar>();
 
-    auto t1 = gamma.unaryExpr(cwise_digamma).array();
-    auto t2 = digamma(gamma.sum());
-    phi = beta.array().colwise() * (t1 - t2).exp();
-    phi = phi.array().rowwise() / phi.colwise().sum().array();
+    auto exp_psi_gamma = gamma.unaryExpr(cwise_digamma).unaryExpr(cwise_fast_exp).array();
+    phi = beta.array().colwise() * exp_psi_gamma;
+    //phi = phi.array().rowwise() / phi.colwise().sum().array();
+    normalize_cols(phi);
 }
 
 template <typename Scalar>
