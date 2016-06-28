@@ -1,8 +1,8 @@
 LDA++
 =====
 
-**LDA++** was developed to allow quick experimentation with variational
-inference methods for Latend Dirichlet Allocation based models.
+LDA++ was developed to allow quick experimentation with variational
+inference methods for Latent Dirichlet Allocation based models.
 
 The project is designed in two separate parts. A library that allows the
 implementation of new variational inference methods for models based on LDA and
