@@ -72,10 +72,26 @@ namespace numpy_format {
     }
 
 
+    /**
+     * NumpyOutput provides an easy way to serialize a contiguous array using
+     * the numpy format.
+     *
+     * Examples:
+     *
+     *     MatrixXf x = MatrixXf::Random(10, 20);
+     *     std::cout << numpy_format::NumpyOutput<float>(x);
+     */
     template <typename Scalar>
     class NumpyOutput
     {
         public:
+            /**
+             * Construct a NumpyOutput object from raw data.
+             *
+             * @param data    The contiguous in memory data
+             * @param shape   The logical array shape of the data
+             * @param fortran Wether the data is row major (false) or column major (true) order
+             */
             NumpyOutput(
                 const Scalar *data,
                 std::vector<size_t> shape,
@@ -85,6 +101,11 @@ namespace numpy_format {
                 fortran_(fortran)
             {}
 
+            /**
+             * Construct a NumpyOutput object from any Eigen Matrix.
+             *
+             * @param matrix The matrix containing the data
+             */
             template <int Rows, int Cols, int Options>
             NumpyOutput(const Eigen::Matrix<Scalar, Rows, Cols, Options> &matrix)
                 : NumpyOutput(
@@ -97,13 +118,29 @@ namespace numpy_format {
                 )
             {}
 
+            /**
+             * Return the numpy dtype for the data including the endianess.
+             */
             std::string dtype() const {
                 return std::string(is_big_endian() ? ">" : "<") +
                        dtype_for_scalar<Scalar>();
             }
 
+            /**
+             * Return the data as a constant character array.
+             */
             const char * data() const { return reinterpret_cast<const char *>(data_); }
+
+            /**
+             * Return a vector containing the shape of the numpy array (rows,
+             * columns, etc).
+             */
             const std::vector<size_t> & shape() const { return shape_; }
+
+            /**
+             * Wether the data is fortran contiguous (column major) or C
+             * contiguous (row major).
+             */
             bool fortran_contiguous() const { return fortran_; }
 
         private:
@@ -165,6 +202,16 @@ namespace numpy_format {
     };
 
 
+    /**
+     * NumpyInput allows the unserialization of a contiguous numpy array from a
+     * stream.
+     *
+     * Example:
+     *
+     *     numpy_format::NumpyInput<float> ni;
+     *     std::cin >> ni;
+     *     MatrixXf x = ni;
+     */
     template <typename Scalar>
     class NumpyInput
     {
@@ -175,6 +222,14 @@ namespace numpy_format {
             const Scalar * data() const { return data_.data(); }
             const std::vector<size_t> & shape() const { return shape_; }
 
+            /**
+             * This operator allows the implicit cast of a NumpyInput to a
+             * compatible Eigen matrix.
+             *
+             *     numpy_format::NumpyInput<float> ni;
+             *     std::cin >> ni;
+             *     MatrixXf x = ni; // this conversion is done with this operator
+             */
             template <int Rows, int Cols, int Options>
             operator Eigen::Matrix<Scalar, Rows, Cols, Options>() const {
                 // get the needed rows, cols
@@ -204,6 +259,15 @@ namespace numpy_format {
             }
 
         private:
+            /**
+             * Parse the serialized numpy array into a NumpyInput from an input strem.
+             *
+             *     numpy_format::NumpyInput<float> ni;
+             *     std::cin >> ni; // this operator here
+             *
+             * Only version 1 of the numpy format is supported but that should
+             * not present any problems.
+             */
             friend std::istream & operator>>(std::istream &is, NumpyInput &data) {
                 // reset the NumpyInput instance
                 data.data_.clear();
