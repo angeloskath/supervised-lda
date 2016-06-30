@@ -21,6 +21,19 @@ class LineSearch
     public:
         typedef typename ParameterType::Scalar Scalar;
 
+        /**
+         * Search for a good enough function value in the direction given and
+         * the function given.
+         *
+         * This function changes its parameter x0 which is passed by reference.
+         *
+         * @param  problem   The function to be minimized
+         * @param  x0        The improved position (passed by reference)
+         * @param  grad_x0   The gradient at the initial x0
+         * @param  direction The direction of search which can be different than
+         *                  the gradient to account for Newton methods
+         * @return The function value at the final x0
+         */
         virtual Scalar search(
             const ProblemType &problem,
             Ref<ParameterType> x0,
@@ -40,6 +53,9 @@ class ConstantLineSearch : public LineSearch<ProblemType, ParameterType>
     public:
         typedef typename ParameterType::Scalar Scalar;
 
+        /**
+         * @param alpha The amount to move towards the search direction
+         */
         ConstantLineSearch(Scalar alpha) : alpha_(alpha) {}
 
         Scalar search(
@@ -61,10 +77,22 @@ class ConstantLineSearch : public LineSearch<ProblemType, ParameterType>
  * Armijo line search is a simple backtracking line search where the Armijo
  * condition is required.
  *
- * The Armijo condition is the following if p_k is the negative direction and
- * g_k the gradient.
+ * The Armijo condition is the following if \f$p_k\f$ is the negative direction and
+ * \f$g_k\f$ the gradient. In Armijo line search we search the largest \f$a_k
+ * \in \{\tau^n \mid n \in \{0\} \cup \mathbb{N}\}\f$ for which the Armijo
+ * condition stands.
  *
- *  f(x_k - a_k p_k) \leq f(x_k) - a_k b g_k^T p_k
+ *  \f[
+ *      f(x_k - a_k p_k) \leq f(x_k) - a_k b g_k^T p_k
+ *  \f]
+ *
+ *  \f$f(x_k) - a_k b g_k^T p_k\f$ is a linear approximation of the function at
+ *  \f$x_k\f$ (scaled by \f$b\f$) that we assume to be the upper bound for the
+ *  decrease.
+ *
+ *  In all the above \f$p_k\f$ is assumed to be of **unit length**.
+ *
+ *  See [Wolfe Conditions](https://en.wikipedia.org/wiki/Wolfe_conditions).
  */
 template <typename ProblemType, typename ParameterType>
 class ArmijoLineSearch : public LineSearch<ProblemType, ParameterType>
@@ -72,6 +100,10 @@ class ArmijoLineSearch : public LineSearch<ProblemType, ParameterType>
     public:
         typedef typename ParameterType::Scalar Scalar;
 
+        /**
+         * @param beta The amount of scaling to do the linear decrease
+         * @param tau  Defines the set of \f$a_k\f$ to try in the line search
+         */
         ArmijoLineSearch(Scalar beta=0.001, Scalar tau=0.5) : beta_(beta),
                                                               tau_(tau)
         {}
