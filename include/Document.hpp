@@ -17,13 +17,26 @@ class Corpus;
 /**
  * A Document is the minimal document needed for any type of LDA
  * implementation.
+ *
+ * It is meant to abstract away the source of the document data and the storage
+ * type etc.
  */
 class Document
 {
     public:
+        /**
+         * @return The corpus this document belongs to
+         */
         virtual const std::shared_ptr<const Corpus> get_corpus() const = 0;
+        /**
+         * @return The bag of words dense vector
+         */
         virtual const VectorXi & get_words() const = 0;
 
+        /**
+         * @return The corpus this documents belongs to after casting it to
+         *         another pointer type for saving a few keystrokes.
+         */
         template <typename T>
         const std::shared_ptr<const T> get_corpus() const {
             return std::static_pointer_cast<const T>(get_corpus());
@@ -38,6 +51,9 @@ class Document
 class ClassificationDocument : public Document
 {
     public:
+        /**
+         * @return The class of the document
+         */
         virtual int get_class() const = 0;
 };
 
@@ -67,6 +83,11 @@ class Corpus
 class ClassificationCorpus : public Corpus
 {
     public:
+        /**
+         * @param  y A class
+         * @return The count of the documents in class y divided by the count
+         *         of all the documents
+         */
         virtual float get_prior(int y) const = 0;
 };
 
@@ -96,6 +117,10 @@ class EigenDocument : public Document
 class ClassificationDecorator : public ClassificationDocument
 {
     public:
+        /**
+         * @param doc The document to be decorated
+         * @param y   The class of the document
+         */
         ClassificationDecorator(std::shared_ptr<Document> doc, int y);
 
         const std::shared_ptr<const Corpus> get_corpus() const override;
