@@ -9,6 +9,15 @@
 
 using namespace Eigen;
 
+/**
+ * Interface that defines an M-step iteration for any LDA inference.
+ *
+ * The maximization step maximizes the likelihood (actually the Evidence Lower
+ * Bound) of the data by changing the parameters and using the variational
+ * parameters as constants. In classical LDA this step computes the
+ * distribution over words for all topics using the variational parameters
+ * \f$\phi\f$ and \f$\gamma\f$.
+ */
 template <typename Scalar>
 class IMStep : public EventDispatcherComposition
 {
@@ -20,20 +29,27 @@ class IMStep : public EventDispatcherComposition
         /**
          * Maximize the ELBO.
          *
-         * @param parameters       Model parameters, after being updated in m_step
+         * This function usually changes the passed in parameters.
+         *
+         * @param parameters Model parameters (maybe changed after call)
          */
         virtual void m_step(
             std::shared_ptr<Parameters> parameters
         )=0;
 
         /**
-         * This function calculates all necessary parameters, that
-         * will be used for the maximazation step.
+         * Perform calculations for a specific document.
+         *
+         * The variational parameters are only passed to the maximization step
+         * in this method. In other implementations this method is usually
+         * called *sufficient statistics*.
+         *
+         * This method allows for the implementation of online LDA inference
+         * methods.
          *
          * @param doc              A single document
-         * @param v_parameters     The variational parameters used in m-step
-         *                         in order to maximize model parameters
-         * @param m_parameters     Model parameters, used as output in case of 
+         * @param v_parameters     The variational parameters computed in the e-step
+         * @param m_parameters     Model parameters could be changed in case of 
          *                         online methods
          */
         virtual void doc_m_step(

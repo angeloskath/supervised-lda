@@ -15,23 +15,14 @@ class MultinomialSupervisedMStep : public IMStep<Scalar>
         {}
 
         /**
-         * Maximize the ELBO w.r.t to \beta.
-         *
-         * @param parameters       Model parameters, after being updated in m_step
+         * @inheritdoc
          */
         virtual void m_step(
             std::shared_ptr<Parameters> parameters
         ) override;
 
         /**
-         * This function calculates all necessary parameters, that
-         * will be used for the maximazation step.
-         *
-         * @param doc              A single document
-         * @param v_parameters     The variational parameters used in m-step
-         *                         in order to maximize model parameters
-         * @param m_parameters     Model parameters, used as output in case of 
-         *                         online methods
+         * @inheritdoc
          */
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,

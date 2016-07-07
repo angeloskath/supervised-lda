@@ -554,6 +554,7 @@ void sum_rows_scaled(
     MatrixBase<Derived3> & result
 ) {
     for (int i=0; i<x.rows(); i++) {
+        // this is done so that the multiplication can never result in NaN
         if (y[i] == 0)
             continue;
 
@@ -571,6 +572,7 @@ void sum_cols_scaled(
     MatrixBase<Derived3> & result
 ) {
     for (int i=0; i<x.cols(); i++) {
+        // this is done so that the multiplication can never result in NaN
         if (y[i] == 0)
             continue;
 

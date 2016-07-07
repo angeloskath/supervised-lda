@@ -6,17 +6,25 @@
 
 
 /**
- * SemiSupervisedMStep passes the documents to either supervised doc_m_step or
- * unsupervised doc_m_step depending on wether the document's class is a non
- * negative integer.
+ * SemiSupervisedMStep passes the documents to either
+ * SupervisedMStep::doc_m_step or UnsupervisedMStep::doc_m_step depending on
+ * whether the document's class is a non negative integer.
  *
- * TODO: The fact that to do this easily we extend SupervisedMStep is an ugly
- *       choice we probably need to fix ASAP.
+ * The bad choice of inheritance over composition is also evident in this
+ * implementation although it does result in the minimum code written to
+ * implement SemiSupervisedMStep.
  */
 template <typename Scalar>
 class SemiSupervisedMStep : public SupervisedMStep<Scalar>
 {
     public:
+        /**
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement between
+         *                               consecutive gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
         SemiSupervisedMStep(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
@@ -28,6 +36,16 @@ class SemiSupervisedMStep : public SupervisedMStep<Scalar>
             )
         {}
 
+        /**
+         * Delegate to either SupervisedMStep or UnsupervisedMStep based on
+         * whether the document has a class.
+         *
+         * @param doc              A single document
+         * @param v_parameters     The variational parameters used in m-step
+         *                         in order to maximize model parameters
+         * @param m_parameters     Model parameters, used as output in case of 
+         *                         online methods
+         */
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,
             const std::shared_ptr<Parameters> v_parameters,

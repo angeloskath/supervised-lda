@@ -10,7 +10,13 @@
 using namespace Eigen;
 
 /**
-  * Interface that implements an e-step iteration for a single document
+  * Interface that defines an E-step iteration for any LDA inference.
+  *
+  * The expectation step maximizes the likelihood (actually the Evidence Lower
+  * Bound) of the data given constant parameters. In variational inference this
+  * is achieved by changing the free variational parameters. In classical LDA
+  * this step computes \f$\phi\f$ and \f$\gamma\f$ for every document given the
+  * distribution over words for all topics, usually \f$\beta\f$ in literature.
   */
 template <typename Scalar>
 class IEStep : public EventDispatcherComposition
@@ -21,7 +27,7 @@ class IEStep : public EventDispatcherComposition
     public:
 
         /**
-          * Maximize the ELBO
+          * Maximize the ELBO.
           *
           * @param doc          A sinle document
           * @param parameters   An instance of class Parameters, which
@@ -36,11 +42,9 @@ class IEStep : public EventDispatcherComposition
         )=0;
 
         /**
-         * Perform action that should be performed once for each epoch for the
+         * Perform actions that should be performed once for each epoch for the
          * whole corpus. One use of this method is so that the e steps can know
-         * which epcoh they are running for.
-         *
-         * TODO: Determine if any parameters are needed
+         * which epoch they are running for.
          */
         virtual void e_step()=0;
 };
