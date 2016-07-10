@@ -479,6 +479,7 @@ int main(int argc, char **argv) {
 
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
+            lda.get_event_dispatcher()->add_listener<LdaStopwatch>();
         }
 
         if (args["--snapshot_every"].asLong() > 0) {
@@ -487,8 +488,6 @@ int main(int argc, char **argv) {
                 args["--snapshot_every"].asLong()
             );
         }
-
-        lda.get_event_dispatcher()->add_listener<LdaStopwatch>();
 
         lda.fit(X, y);
 
