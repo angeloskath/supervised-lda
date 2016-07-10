@@ -1,4 +1,5 @@
 
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -119,7 +120,7 @@ class TrainingProgress : public IEventListener
             else if (event->id() == "EpochProgressEvent") {
                 if (likelihood_ < 0) {
                     std::cout << "Per document likelihood: " <<
-                        likelihood_ / cnt_likelihoods_ << std::endl << std::endl;
+                        likelihood_ / cnt_likelihoods_ << std::endl;
                 }
 
                 // reset the member variables
@@ -174,6 +175,70 @@ class SnapshotEvery : public IEventListener
         int every_;
         int seen_so_far_;
 };
+
+
+class LdaStopwatch : public IEventListener
+{
+    typedef std::chrono::high_resolution_clock clock;
+    typedef std::chrono::duration<double, std::milli> ms;
+
+    public:
+        LdaStopwatch()
+            : expectation_events(0), maximization_events(0)
+        {}
+
+        void on_event(std::shared_ptr<Event> event) {
+            // count all the expectation events and log the time we got the
+            // first one
+            if (event->id() == "ExpectationProgressEvent") {
+                if (expectation_events == 0) {
+                    expectation_start = clock::now();
+                }
+                expectation_events++;
+            }
+
+            // count all the maximization events and log the time we got the
+            // first one
+            else if (event->id() == "MaximizationProgressEvent") {
+                if (maximization_events == 0) {
+                    maximization_start = clock::now();
+                }
+                maximization_events++;
+            }
+
+            // calculate the duration of the expectation and maximization steps
+            // (total and per event) and report it
+            else if (event->id() == "EpochProgressEvent") {
+                epoch_stop = clock::now();
+
+                expectation_duration = maximization_start - expectation_start;
+                maximization_duration = epoch_stop - maximization_start;
+
+                std::cout << "Expectation took " << expectation_duration.count()
+                    << " ms (" << expectation_duration.count()/expectation_events << " ms/doc)"
+                    << std::endl
+                    << "Maximization took " << maximization_duration.count()
+                    << " ms (" << maximization_duration.count()/maximization_events << " ms/iter)"
+                    << std::endl;
+
+                // reset the counters for the next epoch
+                expectation_events = 0;
+                maximization_events = 0;
+            }
+        }
+
+    private:
+        ms expectation_duration;
+        ms maximization_duration;
+
+        clock::time_point expectation_start;
+        clock::time_point maximization_start;
+        clock::time_point epoch_stop;
+
+        size_t expectation_events;
+        size_t maximization_events;
+};
+
 
 void parse_input_data(std::string data_path, MatrixXi &X, MatrixXi &y) {
     // read the data in
@@ -422,6 +487,8 @@ int main(int argc, char **argv) {
                 args["--snapshot_every"].asLong()
             );
         }
+
+        lda.get_event_dispatcher()->add_listener<LdaStopwatch>();
 
         lda.fit(X, y);
 
