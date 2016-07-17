@@ -28,6 +28,10 @@
 #include "UnsupervisedMStep.hpp"
 
 
+/**
+ * An ILDABuilder is an interface for any class that can be cast into an LDA
+ * instance.
+ */
 template <typename Scalar>
 class ILDABuilder
 {
@@ -38,6 +42,12 @@ class ILDABuilder
 
 /**
  * The LDABuilder provides a simpler interface to build an LDA.
+ *
+ * The builder has the following three main responsibilities:
+ *
+ * 1. Create an expectation step
+ * 2. Create a maximization step
+ * 3. Create & Initialize the model parameters
  *
  * Examples:
  *
@@ -61,6 +71,15 @@ template <typename Scalar>
 class LDABuilder : public ILDABuilder<Scalar>
 {
     public:
+        /**
+         * Create a default builder that will create a simple unsupervised LDA.
+         *
+         * The default builder uses unsupervised expectation and maximization
+         * steps with 20 iterations and as many workers as there are cpus
+         * available.
+         *
+         * Before being usable the model parameters must be initialized.
+         */
         LDABuilder()
             : iterations_(20),
               workers_(std::thread::hardware_concurrency()),
@@ -71,89 +90,120 @@ class LDABuilder : public ILDABuilder<Scalar>
               )
         {}
 
-        // set generic parameters
+        /** Choose a number of iterations see LDA::fit */
         LDABuilder & set_iterations(size_t iterations) {
             iterations_ = iterations;
 
             return *this;
         }
+        /** Choose a number of workers for the expectation step */
         LDABuilder & set_workers(size_t workers) {
             workers_ = workers;
 
             return *this;
         }
 
-        // create e steps
+        /** Get the classic unsupervised LDA expectation step
+         * (UnsupervisedEStep) */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_classic_e_step(Args... args) {
             return std::make_shared<UnsupervisedEStep<Scalar> >(args...);
         }
+        /** Get the classic unsupervised LDA expectation step that doesn't
+         * report log likelihood (FastUnsupervisedEStep) */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_fast_classic_e_step(Args... args) {
             return std::make_shared<FastUnsupervisedEStep<Scalar> >(args...);
         }
+        /** Get the supervised LDA (sLDA) expectation step (SupervisedEStep) */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_supervised_e_step(Args... args) {
             return std::make_shared<SupervisedEStep<Scalar> >(args...);
         }
+        /** Get the fast approximate supervised LDA (fsLDA) expectation step
+         * (ApproximatedSupervisedEStep) */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
             return std::make_shared<ApproximatedSupervisedEStep<Scalar> >(args...);
         }
+        /** Get the SemiSupervisedEStep */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
             return std::make_shared<SemiSupervisedEStep<Scalar> >(args...);
         }
+        /** Get the MultinomialSupervisedEStep */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
             return std::make_shared<MultinomialSupervisedEStep<Scalar> >(args...);
         }
+        /** Get the CorrespondenceSupervisedEStep */
         template <typename ...Args>
         std::shared_ptr<IEStep<Scalar> > get_supervised_correspondence_e_step(Args... args) {
             return std::make_shared<CorrespondenceSupervisedEStep<Scalar> >(args...);
         }
+        /**
+         * Set an expectation step.
+         *
+         * This is meant to be used with all the methods get_*_e_step() as in
+         * the following example.
+         *
+         *     auto builder = LDABuilder<double>();
+         *     builder.set_e(builder.get_fast_classic_e_step());
+         */
         LDABuilder & set_e(std::shared_ptr<IEStep<Scalar> > e_step) {
             e_step_ = e_step;
             return *this;
         }
 
-        // create m steps
+        /** Set the maximization step to the classic unsupervised LDA M step
+         * (UnsupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_batch_m_step(Args... args) {
             m_step_ = std::make_shared<UnsupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
+        /** Set the maximization step to the first order approximation
+         * supervised (SupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_supervised_batch_m_step(Args... args) {
             m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
+        /** Set the maximization step to the second order approximation
+         * supervised (SupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_second_order_supervised_batch_m_step(Args... args) {
             m_step_ = std::make_shared<SecondOrderSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
+        /** Set the maximization step to an online variant that changes the
+         * parameters many times in a single epoch (OnlineSupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_supervised_online_m_step(Args... args) {
             m_step_ = std::make_shared<OnlineSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
+        /**
+         * Set the maximization step to semi supervised (SemiSupervisedMStep)
+         */
         template <typename ...Args>
         LDABuilder & set_semi_supervised_batch_m_step(Args... args) {
             m_step_ = std::make_shared<SemiSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
+        /** Set the maximization step to MultinomialSupervisedMStep */
         template <typename ...Args>
         LDABuilder & set_supervised_multinomial_m_step(Args... args) {
             m_step_ = std::make_shared<MultinomialSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
+        /** Set the maximization step to CorrespondenceSupervisedMStep */
         template <typename ...Args>
         LDABuilder & set_supervised_correspondence_m_step(Args... args) {
             m_step_ = std::make_shared<CorrespondenceSupervisedMStep<Scalar> >(args...);
@@ -161,7 +211,21 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
-        // initialize model parameters
+        /**
+         * Initialize the topic over words distributions, for each topic choose
+         * a distribution over the words.
+         *
+         * The available methods are 'seeded' and 'random' and the extra
+         * parameters are the number of topics as a size_t and an integer as
+         * random state.
+         *
+         * TODO: This should change as the set_*_m_step() methods.
+         *
+         * @param type A string that defines the initialization method.
+         * @param X    The word counts for each document in column-major order
+         * @param args The extra arguments needed for the initialization
+         *             functions
+         */
         template <typename ...Args>
         LDABuilder & initialize_topics(
             const std::string &type,
@@ -183,6 +247,21 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
+        /**
+         * Initialize the supervised model parameters which generate the class
+         * label (in the generative model).
+         *
+         * The initialization methods are 'zeros' and 'multinomial'. The extra
+         * parameters needed are the number of topics as a size_t.
+         *
+         * TODO: This should change as the set_*_m_step() methods.
+         *
+         * @param type A string that defines the initialization method
+         * @param X    The word counts for each document in column-major order
+         * @param y    The index of the class that each document belongs to
+         * @param args The extra arguments needed for the initialization
+         *             functions
+         */
         template <typename ...Args>
         LDABuilder & initialize_eta(
             const std::string &type,
@@ -205,6 +284,12 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
+        /**
+         * Initialize the topic distributions from another model.
+         *
+         * In practice copy \f$\beta\f$ and \f$\alpha\f$ from the passed in
+         * model to a local copy.
+         */
         LDABuilder & initialize_topics_from_model(
             std::shared_ptr<ModelParameters<Scalar> > model
         ) {
@@ -214,6 +299,12 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
+        /**
+         * Initialize the supervised model parameters from another model.
+         *
+         * In practice copy \f$\eta\f$ from the passed in model to a local
+         * copy.
+         */
         LDABuilder & initialize_eta_from_model(
             std::shared_ptr<SupervisedModelParameters<Scalar> > model
         ) {
@@ -222,6 +313,13 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
+        /**
+         * Build a brand new LDA instance from the configuration of the
+         * builder.
+         *
+         * Before returning it also checks a few things that would result in an
+         * unusable LDA instance and throws a runtime_error. 
+         */
         virtual operator LDA<Scalar>() const override {
             if (model_parameters_->beta.rows() == 0) {
                 throw std::runtime_error("You need to call initialize_topics before "
