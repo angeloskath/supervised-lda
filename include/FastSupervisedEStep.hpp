@@ -9,8 +9,13 @@
 
 /**
  * FastSupervisedEStep doesn't compute the log likelihood but checks for
- * convergence based on the change of the variational parameters and thus
- * avoids a lot of time consuming computations.
+ * convergence based on the change of the variational parameters.
+ *
+ * In the traditional categorical supervised expectation step the likelihood
+ * estimation is less resource intensive (compared to the rest of the e step)
+ * and thus FastSupervisedEStep is **not** recommended for use.
+ *
+ * For the specific mathematics used in the maximization see SupervisedEStep.
  */
 template <typename Scalar>
 class FastSupervisedEStep : public IEStep<Scalar>
@@ -19,24 +24,27 @@ class FastSupervisedEStep : public IEStep<Scalar>
     typedef Eigen::Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
+        /**
+         * @param e_step_iterations      The max number of times to alternate
+         *                               between maximizing for \f$\gamma\f$
+         *                               and for \f$\phi\f$
+         * @param e_step_tolerance       The minimum relative change in the
+         *                               variational parameter \f$\gamma\f$
+         * @param fixed_point_iterations The number of fixed point iterations
+         *                               used in the maximization for
+         *                               \f$\phi\f$
+         */
         FastSupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             size_t fixed_point_iterations = 20
         );
 
-        /** Maximize the ELBO w.r.t phi and gamma
+        /**
+         * See SupervisedEStep for the specific equations that are being
+         * maximized.
          *
-         * We use the following update functions until convergence.
-         *
-         * \phi_n \prop \beta_{w_n} exp(
-         *      \Psi(\gamma) +
-         *      \frac{1}{N} \eta_y^T +
-         *      \frac{h}{h^T \phi_n^{old}}
-         *  )
-         * \gamma = \alpha + \sum_{n=1}^N \phi_n
-         *
-         * @param doc          A sinle document
+         * @param doc          A single document
          * @param parameters   An instance of class Parameters, which
          *                     contains all necessary model parameters 
          *                     for e-step's implementation
@@ -51,6 +59,14 @@ class FastSupervisedEStep : public IEStep<Scalar>
         void e_step() override;
 
     private:
+        /**
+         * Check for convergence based on the change of the variational
+         * parameter \f$\gamma\f$.
+         *
+         * @param gamma_old The gamma of the previous iteration
+         * @param gamma     The gamma of this iteration
+         * @return Whether the change is small enough to indicate convergence
+         */
         bool converged(const VectorX & gamma_old, const VectorX & gamma);
 
         size_t e_step_iterations_;

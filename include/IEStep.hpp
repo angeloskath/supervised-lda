@@ -29,7 +29,7 @@ class IEStep : public EventDispatcherComposition
         /**
           * Maximize the ELBO.
           *
-          * @param doc          A sinle document
+          * @param doc          A single document
           * @param parameters   An instance of class Parameters, which
           *                     contains all necessary model parameters 
           *                     for e-step's implementation

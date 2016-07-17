@@ -10,6 +10,10 @@
  * SemiSupervisedEStep passes a document to either a supervised step or an
  * unsupervised step based on whether there exists class information for a
  * given document.
+ *
+ * SemiSupervisedEStep emits all the events emitted from the supervised or
+ * unsupervised expectation steps so one has to subscribe only to the
+ * SemiSupervisedEStep and not the steps passed in as constructor parameters.
  */
 template <typename Scalar>
 class SemiSupervisedEStep : public IEStep<Scalar>
@@ -18,6 +22,11 @@ class SemiSupervisedEStep : public IEStep<Scalar>
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
 
     public:
+        /**
+         * @param supervised_step   A pointer to a supervised expectation step
+         * @param unsupervised_step A pointer to an unsupervised expectation
+         *                          step
+         */
         SemiSupervisedEStep(
             std::shared_ptr<IEStep<Scalar> > supervised_step,
             std::shared_ptr<IEStep<Scalar> > unsupervised_step

@@ -3,6 +3,9 @@
 
 #include "UnsupervisedEStep.hpp"
 
+/**
+ *
+ */
 template<typename Scalar>
 class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
 {
