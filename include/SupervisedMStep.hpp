@@ -14,7 +14,7 @@
  *     \log p(w, y \mid \alpha, \beta, \eta) \geq
  *         \mathcal{L}(\gamma, \phi \mid \alpha, \beta, \eta) =
  *         \mathbb{E}_q[\log p(\theta \mid \alpha)] + \mathbb{E}_q[\log p(z \mid \theta)] +
- *         \mathbb{E}_q[\log p(w \mid \beta)] +
+ *         \mathbb{E}_q[\log p(w \mid z, \beta)] +
  *         H(q) + \mathbb{E}_q[\log p(y \mid z, \eta)]
  * \f]
  *

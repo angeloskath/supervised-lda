@@ -16,7 +16,7 @@
  *         \mathcal{L}(\gamma, \phi \mid \alpha, \beta) &=&
  *         \mathbb{E}_q[\log p(\theta \mid \alpha)] +
  *         \mathbb{E}_q[\log p(z \mid \theta)] +
- *         \mathbb{E}_q[\log p(w \mid \beta)] +
+ *         \mathbb{E}_q[\log p(w \mid z, \beta)] +
  *         H(q) \\
  *     \mathcal{L}_{\beta} &=& \mathbb{E}_q[\log p(w \mid \beta)] =
  *         \sum_d^D \sum_n^{N_d} \sum_i^K \phi_{dni} \log \beta_{iw_n} \\
@@ -54,8 +54,9 @@ class UnsupervisedMStep : public IMStep<Scalar>
         ) override;
 
         /**
-         * Aggregate the \f$\phi_{dji} X_{dj}\f$ for the specific document
-         * \f$d\f$ to a temporary variable.
+         * Compute the \f$ \sum_{d=1}^{\hat{d}}\phi_{dji} X_{dj}\f$, where \f$
+         * \hat{d}\f$ is this document and save its value to a temporary
+         * variable.
          *
          * @param doc              A single document
          * @param v_parameters     The variational parameters used in m-step
