@@ -44,12 +44,12 @@ class FastSupervisedEStep : public IEStep<Scalar>
          * See SupervisedEStep for the specific equations that are being
          * maximized.
          *
-         * @param doc          A single document
-         * @param parameters   An instance of class Parameters, which
-         *                     contains all necessary model parameters 
-         *                     for e-step's implementation
-         * @return             The variational parameters for the current
-         *                     model, after e-step is completed
+         * @param doc        A single document
+         * @param parameters An instance of class Parameters, which
+         *                   contains all necessary model parameters 
+         *                   for e-step's implementation
+         * @return           The variational parameters for the current
+         *                   model, after e-step is completed
          */
         std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,
