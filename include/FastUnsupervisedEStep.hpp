@@ -24,9 +24,9 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
         /**
          * @param e_step_iterations The max number of times to alternate
          *                          between maximizing for \f$\gamma\f$ and for
-         *                          \f$\phi\f$
+         *                          \f$\phi\f$.
          * @param e_step_tolerance  The minimum relative change in the
-         *                          variational parameter \f$\gamma\f$
+         *                          variational parameter \f$\gamma\f$.
          */
         FastUnsupervisedEStep(
             size_t e_step_iterations = 10,
@@ -34,14 +34,14 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
         );
 
         /**
-         * Maximize the ELBO w.r.t to phi and gamma
+         * Maximize the ELBO w.r.t to \f$\phi\f$ and \f$\gamma\f$.
          *
-         * @param doc          A single document
-         * @param parameters   An instance of class Parameters, which
-         *                     contains all necessary model parameters 
-         *                     for e-step's implementation
-         * @return             The variational parameters for the current
-         *                     model, after e-step is completed
+         * @param doc         A single document.
+         * @param parameters  An instance of class Parameters, which
+         *                    contains all necessary model parameters 
+         *                    for expecation step implementation.
+         * @return            The variational parameters for the current
+         *                    model, after expecation step is completed.
          */
         std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,
@@ -55,9 +55,9 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
          * Check for convergence based on the change of the variational
          * parameter \f$\gamma\f$.
          *
-         * @param gamma_old The gamma of the previous iteration
-         * @param gamma     The gamma of this iteration
-         * @return Whether the change is small enough to indicate convergence
+         * @param gamma_old The gamma of the previous iteration.
+         * @param gamma     The gamma of this iteration.
+         * @return Whether the change is small enough to indicate convergence.
          */
         bool converged(const VectorX & gamma_old, const VectorX & gamma);
 

@@ -27,12 +27,12 @@ class FastSupervisedEStep : public IEStep<Scalar>
         /**
          * @param e_step_iterations      The max number of times to alternate
          *                               between maximizing for \f$\gamma\f$
-         *                               and for \f$\phi\f$
+         *                               and for \f$\phi\f$.
          * @param e_step_tolerance       The minimum relative change in the
-         *                               variational parameter \f$\gamma\f$
+         *                               variational parameter \f$\gamma\f$.
          * @param fixed_point_iterations The number of fixed point iterations
          *                               used in the maximization for
-         *                               \f$\phi\f$
+         *                               \f$\phi\f$.
          */
         FastSupervisedEStep(
             size_t e_step_iterations = 10,
@@ -44,12 +44,12 @@ class FastSupervisedEStep : public IEStep<Scalar>
          * See SupervisedEStep for the specific equations that are being
          * maximized.
          *
-         * @param doc        A single document
+         * @param doc        A single document.
          * @param parameters An instance of class Parameters, which
          *                   contains all necessary model parameters 
-         *                   for e-step's implementation
+         *                   for expectation step implementation.
          * @return           The variational parameters for the current
-         *                   model, after e-step is completed
+         *                   model, after expectation step is completed.
          */
         std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,
@@ -63,14 +63,18 @@ class FastSupervisedEStep : public IEStep<Scalar>
          * Check for convergence based on the change of the variational
          * parameter \f$\gamma\f$.
          *
-         * @param gamma_old The gamma of the previous iteration
-         * @param gamma     The gamma of this iteration
-         * @return Whether the change is small enough to indicate convergence
+         * @param gamma_old The gamma of the previous iteration.
+         * @param gamma     The gamma of this iteration.
+         * @return Whether the change is small enough to indicate convergence.
          */
         bool converged(const VectorX & gamma_old, const VectorX & gamma);
 
+        // The maximum number of iterations in E-step.
         size_t e_step_iterations_;
+        // The convergence tolerance for the maximazation of the ELBO w.r.t.
+        // phi and gamma in E-step.
         Scalar e_step_tolerance_;
+        // The maximum number of iterations while maximizing phi in E-step.
         size_t fixed_point_iterations_;
 };
 

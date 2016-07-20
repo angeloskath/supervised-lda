@@ -63,7 +63,7 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
 
         /**
          *
-         * Maximize the ELBO w.r.t \f$\phi\f$ and \f$\gamma\f$.
+         * Maximize the ELBO w.r.t. \f$\phi\f$ and \f$\gamma\f$.
          *
          * The following steps are the mathematics that are implemented where
          * \f$\beta\f$ are the over words topics distributions, \f$\eta\f$ are

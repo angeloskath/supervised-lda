@@ -74,12 +74,12 @@ class UnsupervisedEStep : public IEStep<Scalar>
          * Compute a lower bound for the likelihood of the LDA model described
          * by the given parameters to have generated the word counts X.
          *
-         * @param X       The word counts for a single document
-         * @param alpha   The Dirichlet priors
-         * @param beta    The over word topic distributions
-         * @param phi     The Multinomial parameters
-         * @param gamma   The Dirichlet parameters
-         * @return        The log likelihood lower bound
+         * @param X     The word counts for a single document
+         * @param alpha The Dirichlet priors
+         * @param beta  The over word topic distributions
+         * @param phi   The Multinomial parameters
+         * @param gamma The Dirichlet parameters
+         * @return      The log likelihood lower bound
          */
         Scalar compute_likelihood(
             const VectorXi &X,
@@ -90,7 +90,7 @@ class UnsupervisedEStep : public IEStep<Scalar>
         );
 
     private:
-        // The maximum number of iterations in E-step
+        // The maximum number of iterations in E-step.
         size_t e_step_iterations_;
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step
