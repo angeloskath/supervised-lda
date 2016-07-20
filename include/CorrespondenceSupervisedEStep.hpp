@@ -74,7 +74,7 @@ class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
          * document's class, \f$w_n\f$ is n-th word vocabulary index, and
          * finally \f$\Psi(\cdot)\f$ is the first derivative of the \f$\log
          * \Gamma\f$ function.
-
+         *
          * 1. Repeat until convergence of \f$\gamma\f$.
          * 2. Compute \f$\phi_{ni} \propto \beta_{iw_n} \exp\left(
          *    \Psi(\gamma_i) + \tau_{ni} * \log\left( \eta_{yi} \right)
@@ -83,12 +83,12 @@ class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
          *    \log\left( \eta_{yi}\right)\right)\f$
          * 4. Compute \f$\gamma_i = \alpha_i + \sum_n^N \phi_{ni} \f$
          *
-         * @param doc         A single document.
-         * @param parameters  An instance of class Parameters, which
-         *                    contains all necessary model parameters 
-         *                    for e-step's implementation.
-         * @return            The variational parameters for the current
-         *                    model, after e-step is completed.
+         * @param doc        A single document.
+         * @param parameters An instance of class Parameters, which
+         *                   contains all necessary model parameters 
+         *                   for e-step's implementation.
+         * @return           The variational parameters for the current
+         *                   model, after e-step is completed.
          */
         std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,

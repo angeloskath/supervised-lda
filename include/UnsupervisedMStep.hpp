@@ -39,10 +39,10 @@ class UnsupervisedMStep : public IMStep<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
-    
+
     public:
         UnsupervisedMStep() {}
-        
+
         /**
          * Normalize the temporary variable aggregated in doc_m_step() and set
          * it to the model parameters.
@@ -69,7 +69,7 @@ class UnsupervisedMStep : public IMStep<Scalar>
             const std::shared_ptr<Parameters> v_parameters,
             std::shared_ptr<Parameters> m_parameters
         ) override;
-    
+
     private:
         MatrixX b_;
 };

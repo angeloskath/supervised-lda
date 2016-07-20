@@ -47,11 +47,11 @@ class CorrespondenceSupervisedMStep : public IMStep<Scalar>
          * Count the occurences of every word and class to implement maximum
          * likelihood estimation in the m_step()
          *
-         * @param doc              A single document
-         * @param v_parameters     The variational parameters used in m-step
-         *                         in order to maximize model parameters
-         * @param m_parameters     Model parameters, used as output in case of 
-         *                         online methods
+         * @param doc          A single document
+         * @param v_parameters The variational parameters used in m-step
+         *                     in order to maximize model parameters
+         * @param m_parameters Model parameters, used as output in case of 
+         *                     online methods
          */
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,

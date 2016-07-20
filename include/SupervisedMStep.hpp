@@ -42,7 +42,7 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;
-    
+
     public:
         /**
          * @param m_step_iterations      The maximum number of gradient descent
@@ -60,9 +60,9 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
             regularization_penalty_(regularization_penalty),
             docs_(0)
         {}
-        
+
         /**
-         * Maximize the ELBO w.r.t to \f$\beta\f$ and \f$\eta\f$.
+         * Maximize the ELBO w.r.t. to \f$\beta\f$ and \f$\eta\f$.
          *
          * Delegate the maximization regarding \f$\beta\f$ to UnsupervisedMStep
          * and maximize \f$\mathcal{L}_{\eta}\f$ using gradient descent.
@@ -72,24 +72,24 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
         virtual void m_step(
             std::shared_ptr<Parameters> parameters
         ) override;
-        
+
         /**
          * Delegate the collection of some sufficient statistics to
          * UnsupervisedMStep and keep in memory \f$\mathbb{E}_q[\bar z_d] =
          * \frac{1}{N} \sum_n^{N_d} \phi_{dn}\f$ for use in m_step().
          *
-         * @param doc              A single document
-         * @param v_parameters     The variational parameters used in m-step
-         *                         in order to maximize model parameters
-         * @param m_parameters     Model parameters, used as output in case of 
-         *                         online methods
+         * @param doc          A single document
+         * @param v_parameters The variational parameters used in m-step
+         *                     in order to maximize model parameters
+         * @param m_parameters Model parameters, used as output in case of 
+         *                     online methods
          */
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,
             const std::shared_ptr<Parameters> v_parameters,
             std::shared_ptr<Parameters> m_parameters
         ) override;
-        
+
     private:
         // The maximum number of iterations in M-step
         size_t m_step_iterations_;
@@ -98,7 +98,7 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
         Scalar m_step_tolerance_;
         // The regularization penalty for the multinomial logistic regression
         Scalar regularization_penalty_;
-        
+
         // Number of documents processed so far
         int docs_;
         MatrixX expected_z_bar_;

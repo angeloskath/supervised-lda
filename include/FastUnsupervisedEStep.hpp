@@ -34,14 +34,14 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
         );
 
         /**
-         * Maximize the ELBO w.r.t to \f$\phi\f$ and \f$\gamma\f$.
+         * Maximize the ELBO w.r.t. to \f$\phi\f$ and \f$\gamma\f$.
          *
-         * @param doc         A single document.
-         * @param parameters  An instance of class Parameters, which
-         *                    contains all necessary model parameters 
-         *                    for expecation step implementation.
-         * @return            The variational parameters for the current
-         *                    model, after expecation step is completed.
+         * @param doc        A single document.
+         * @param parameters An instance of class Parameters, which
+         *                   contains all necessary model parameters 
+         *                   for expecation step implementation.
+         * @return           The variational parameters for the current
+         *                   model, after expecation step is completed.
          */
         std::shared_ptr<Parameters> doc_e_step(
             const std::shared_ptr<Document> doc,

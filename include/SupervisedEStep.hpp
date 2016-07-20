@@ -46,7 +46,7 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
 
         /**
          *
-         * Maximize the ELBO w.r.t to \f$\phi\f$ and \f$\gamma\f$.
+         * Maximize the ELBO w.r.t. to \f$\phi\f$ and \f$\gamma\f$.
          *
          * The following steps are the mathematics that are implemented where
          * \f$\beta\f$ are the topics, \f$\eta\f$ are the logistic regression

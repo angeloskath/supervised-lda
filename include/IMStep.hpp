@@ -47,10 +47,10 @@ class IMStep : public EventDispatcherComposition
          * This method allows for the implementation of online LDA inference
          * methods.
          *
-         * @param doc              A single document
-         * @param v_parameters     The variational parameters computed in the e-step
-         * @param m_parameters     Model parameters could be changed in case of 
-         *                         online methods
+         * @param doc          A single document
+         * @param v_parameters The variational parameters computed in the e-step
+         * @param m_parameters Model parameters could be changed in case of 
+         *                     online methods
          */
         virtual void doc_m_step(
             const std::shared_ptr<Document> doc,
