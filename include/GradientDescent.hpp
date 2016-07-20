@@ -139,6 +139,18 @@ class ArmijoLineSearch : public LineSearch<ProblemType, ParameterType>
 
 /**
  * A very simple implementation of batch gradient descent.
+ *
+ * Given a problem, a line search and a starting point it performs the
+ * following simple iteration.
+ *
+ * 1. Repeat the following until convergence
+ * 2. Compute the gradient
+ * 3. Search in the direction of the gradient for sufficient decrease
+ *
+ * Convergence is decided by another part of the program through injection of a
+ * callback.
+ *
+ * TODO: Maybe bind the problem type through an interface
  */
 template <typename ProblemType, typename ParameterType>
 class GradientDescent
@@ -146,6 +158,12 @@ class GradientDescent
     public:
         typedef typename ParameterType::Scalar Scalar;
 
+        /**
+         * @param line_search A line search method
+         * @param progress    A callback that decides when the optimization has
+         *                    ended; it can also be used to get informed about
+         *                    the progress of the optimization
+         */
         GradientDescent(
             std::shared_ptr<LineSearch<ProblemType, ParameterType> > line_search,
             std::function<bool(Scalar, Scalar, size_t)> progress
@@ -153,6 +171,16 @@ class GradientDescent
             progress_(progress)
         {}
 
+        /**
+         * Minimize the function defined in the 'problem' argument.
+         *
+         * The 'problem' argument should implement the functions value() and
+         * gradient() in order to be used with the GradientDescent class.
+         *
+         * @param problem The function being minimized
+         * @param x0      The initial position during our minimization (it will
+         *                be overwritten with the optimal position)
+         */
         void minimize(const ProblemType &problem, Ref<ParameterType> x0) {
             // allocate memory for the gradient
             ParameterType grad(x0.rows(), x0.cols());
@@ -163,7 +191,7 @@ class GradientDescent
             // And the iterations in this one
             size_t iterations = 0;
 
-            // Whether we stop or not is decided by some one else
+            // Whether we stop or not is decided by someone else
             while (progress_(value, grad.template lpNorm<Infinity>(), iterations++)) {
                 problem.gradient(x0, grad);
                 value = line_search_->search(problem, x0, grad, grad);
