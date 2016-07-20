@@ -117,7 +117,7 @@ run the console application to infer topics on it.
     # Create 100 random documents with a vocabulary of 100 words. The cast to
     # int32 at the end is mandatory because the application expects that type
     # of array.
-    X = np.round(np.maximum(0, np.log(np.random.rand()+0.5))*20).astype(np.int32)
+    X = np.round(np.maximum(0, np.log(np.random.rand(100, 100)+0.5))*20).astype(np.int32)
 
     # Choose labels for our 100 documents.
     y = np.round(np.random.rand(100)*3).astype(np.int32)
