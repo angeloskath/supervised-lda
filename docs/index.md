@@ -17,7 +17,7 @@ In the following section, we provide an example to point out how this library
 works. In the currnet example we train an unsupervised LDA model on
 artificially generated data.
 
-```c++
+``` cpp
 #include <iostream>
 #include <Eigen/Core>
 #include <supervised-lda/LDABuilder.hpp>
@@ -53,7 +53,7 @@ We perform the same training using the console application distributed with the
 library having generated the data in python and saved them in a file named
 data.npy.
 
-```
+```bash
 $ bin/slda train --topics 10 --iterations 100 --unsupervised_e_step --workers 4 data.npy model.npy
 ```
 

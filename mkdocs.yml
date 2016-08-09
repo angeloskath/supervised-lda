@@ -4,5 +4,5 @@ repo_url: https://github.com/angeloskath/supervised-lda
 theme_dir: docs/custom_theme
 pages:
 - Home: index.md
-
+- Getting Started: getting-started.md
 include_nav: true

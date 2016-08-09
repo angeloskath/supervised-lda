@@ -3,6 +3,7 @@ body {
     background: url(../img/grid.png) repeat-x;
     background-attachment: fixed;
     background-color: #f8f8f8;
+    text-align: justify;
 }
 
 body > div.container {
@@ -27,13 +28,14 @@ div.source-links {
 
 div.col-md-9 img {
     max-width: 100%;
-    display: inline;
+    display: block;
     padding: 4px;
     line-height: 1.428571429;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
     margin: 20px auto 30px auto;
+    vertical-align: middle;
 }
 
 h1, h2, h3 {
