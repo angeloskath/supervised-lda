@@ -51,11 +51,26 @@
         </div>
 
         <footer class="col-md-12">
-            <hr>
+            {% if include_next_prev %}
+                {% if previous_page %}
+                <div id="previous" {% if not previous_page %}class="disabled"{% endif %}>
+                    <a rel="prev" href="{{ previous_page.url }}">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+               </div>
+               {% endif %}
+               {% if next_page %}
+                <div id="next" {% if not next_page %}class="disabled"{% endif %}>
+                    <a rel="next" href="{{ next_page.url }}">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+                {% endif %}
+                {% endif %}
             {% if copyright %}
+                <hr>
                 <p>{{ copyright }}</p>
             {% endif %}
-            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
 
         <script src="{{ base_url }}/js/jquery-1.10.2.min.js"></script>
