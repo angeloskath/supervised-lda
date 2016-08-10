@@ -18,7 +18,7 @@ struct Parameters
 
 
 /**
- * ModelParameters contains the basic LDA model parameters namely the prior for
+ * ModelParameters contain the basic LDA model parameters namely the prior for
  * the documents over topics distribution and the topics over words
  * distributions.
  */
@@ -39,7 +39,8 @@ struct ModelParameters : public Parameters
 
 
 /**
- * SupervisedModelParameters adds the linear model's parameters to LDA model.
+ * SupervisedModelParameters adds the extra logistic regression parameters to
+ * model parameters.
  */
 template <typename Scalar>
 struct SupervisedModelParameters : public ModelParameters<Scalar>
