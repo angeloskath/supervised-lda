@@ -20,7 +20,7 @@ MathJax.Hub.Queue(function() {
 # Parameters
 
 In **LDA++** parameters are simply structs that correspond to either model or
-variational parameters. One thing woth mentioning concerns the fact that
+variational parameters. One thing worth mentioning concerns the fact that
 **LDA++** introduces different model and variational parameters according to
 the trained model. For example, in case of model parameters there are two
 different structs, one that corresponds to unsupervised LDA and another to

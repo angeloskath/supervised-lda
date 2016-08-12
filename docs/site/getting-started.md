@@ -87,9 +87,9 @@ LDA.
 
 Variational inference provides us with a tractable lower bound, which can be
 maximized with respect to $\alpha$ and $\beta$. Quoting Blei et.al in
-[[1]](#lda), we can thus find approximate emprical Bayes estimates for LDA
+[[1]](#lda), we can thus find approximate empirical Bayes estimates for LDA
 model via alternating variational EM procedure that maximizes a lower bound
-with respect to the variatonal parameters $\gamma$ and $\phi$, and then, for
+with respect to the variational parameters $\gamma$ and $\phi$, and then, for
 fixed values of the variational parameters, maximizes the lower bound with
 respect to the model parameters $\alpha$ and $\beta$. To sum up, we perform
 variational inference for learning variational parameters in E-step while
@@ -113,7 +113,7 @@ a collection of *Documents*. Furthermore, we define two sets of *Parameters*,
 variational parameters respectively. Finally, there are also two interfaces
 that implement E-step and M-step of variational EM.
 
-### E-step Inteface
+### E-step Interface
 
 The E-step interface is very simple and implements merely two methods. The
 first method, **doc_e_step** defines 

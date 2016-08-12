@@ -2,7 +2,7 @@
 
 LDA++ is a C++ library for [Latent Dirichlet
 Allocation](http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf). The
-primamy goal of this library is to allow fast and easy experimentation with the
+primary goal of this library is to allow fast and easy experimentation with the
 variational inference algorithm for inference of various LDA models.
 
 Among the already implemented LDA variations are:
@@ -14,7 +14,7 @@ Among the already implemented LDA variations are:
 ## Example
 
 In the following section, we provide an example to point out how this library
-works. In the currnet example we train an unsupervised LDA model on
+works. In the current example we train an unsupervised LDA model on
 artificially generated data.
 
 ``` cpp

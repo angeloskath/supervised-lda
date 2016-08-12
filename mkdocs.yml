@@ -2,8 +2,12 @@ site_name: LDA++
 site_favicon: img/favicon.png
 repo_url: https://github.com/angeloskath/supervised-lda
 theme_dir: docs/custom_theme
+docs_dir: docs/site
+site_dir: docs/output
 pages:
 - Home: index.md
-- Getting Started: getting-started.md
-- Parameters: parameters.md
+- Documentation:
+  - Getting Started: getting-started.md
+  - Parameters: parameters.md
+  - Corpus & Documents: corpus_documents.md
 include_nav: true
