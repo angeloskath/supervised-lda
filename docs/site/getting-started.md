@@ -1,38 +1,20 @@
-<style TYPE="text/css">
-code.has-jax {font: inherit; font-size: 100%; background: inherit; border: inherit;}
-</style>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [['$','$'], ['\\(','\\)']],
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] // removed 'code' entry
-    }
-});
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i = 0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-});
-</script>
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
 # Getting Started
 
-**LDA++** is a fast and easy-to-use C++ library, that allows users to experiment
-with various LDA models. The purpose of this page is to help users become
-acquainted with **LDA++**. Latent Dirichlet Allocation (LDA) [[1]](#lda) in regards
-to natural language processing, to quote
-[wikipedia](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation), is  is
-a generative statistical model that allows sets of observations to be explained
+**LDA++** is a fast and easy-to-use C++ library, that allows users to
+experiment with various LDA models. The purpose of this page is to help users
+become acquainted with **LDA++**. Latent Dirichlet Allocation (LDA)
+[[1]](#lda), to quote
+[wikipedia](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation), is a
+generative statistical model that allows sets of observations to be explained
 by unobserved groups that explain why some parts of the data are similar. LDA
 was initially presented as a graphical model for topic discovery by Blei,
 Andrew Ng, and Michael I. Jordan in 2003. From 2003 onwards, a multitude of
-variations of the original model was developed such as supervised LDA
+variations of the original model were developed such as supervised LDA
 [[2]](#slda) and Corr-LDA [[3]](#corrlda). **LDA++** implements many of the
-existing LDA variations, as well as fsLDA [[4]](#fsLDA). In addition, among the
-implemented algorithms, we include a set of new variations that aim to improve
-existing models in terms of speed and reduce memory requirements.
+existing LDA variations, as well as fsLDA [[4]](#fsLDA) (a new variation
+created by the authors of the library). In addition, among the implemented
+algorithms, we include a set of new variations that aim to improve existing
+models in terms of speed and reduce memory requirements.
 
 ## Notation and Terminology 
 

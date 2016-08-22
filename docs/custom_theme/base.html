@@ -37,6 +37,26 @@
             ga('send', 'pageview');
         </script>
         {% endif %}
+
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                extensions: ["tex2jax.js"],
+                jax: ["input/TeX", "output/HTML-CSS"],
+                tex2jax: {
+                    inlineMath: [["$", "$"]],
+                    skipTags: ["script", "noscript", "style", "textarea", "pre"]
+                },
+                "HTML-CSS": {availableFonts: ["TeX"]},
+                TeX: {
+                    Macros: {
+                        Abs: ["\\left\\lvert #1 \\right\\rvert", 1]
+                    }
+                }
+            });
+        </script>
+        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js">
+        </script>
+
     </head>
 
     <body{% if current_page and current_page.is_homepage %} class="homepage"{% endif %}>
