@@ -64,3 +64,33 @@ install(TARGETS slda ldaplusplus
         LIBRARY DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include/ldaplusplus
         PATTERN "test" EXCLUDE)
+
+# Build the tests
+# We need to explicitly define a test the same way we explicitly define a
+# source file
+set(TEST_FILES
+    test/test_approximate_supervised_expectation_step.cpp
+    test/test_corpus.cpp
+    test/test_correspondence_supervised_expectation_step.cpp
+    test/test_correspondence_supervised_maximization_step.cpp
+    test/test_expectation_step.cpp
+    test/test_fit.cpp
+    test/test_maximization_step.cpp
+    test/test_mlr.cpp
+    test/test_multinomial_supervised_expectation_step.cpp
+    test/test_multinomial_supervised_maximization_step.cpp
+    test/test_numpy_data.cpp
+    test/test_online_maximization_step.cpp
+    test/test_second_order_mlr_approximation.cpp
+)
+# We exclude the test_all target from all so it is only built when requested
+add_executable(test_all EXCLUDE_FROM_ALL ${TEST_FILES})
+target_link_libraries(test_all gtest)
+target_link_libraries(test_all gtest_main)
+target_link_libraries(test_all m)
+target_link_libraries(test_all pthread)
+target_link_libraries(test_all ldaplusplus)
+# We will also add a custom target check that runs the tests
+# The || : below is so that make won't complain in case of failed tests. We
+# have gtest complaining in color and style no need for another whiner.
+add_custom_target(check ./test_all || : DEPENDS test_all)

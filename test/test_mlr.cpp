@@ -179,10 +179,3 @@ TYPED_TEST(TestMultinomialLogisticRegression, MinimizerOverfitSmall) {
 
     EXPECT_GT(1e-2, mlr.value(eta));
 }
-
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
