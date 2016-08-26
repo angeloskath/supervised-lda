@@ -81,9 +81,3 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
         EXPECT_LT(progress[i-1], progress[i]) << "Iteration:" << i;
     }
 }
-
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

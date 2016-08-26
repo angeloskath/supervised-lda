@@ -159,8 +159,3 @@ TYPED_TEST(TestApproximateSupervisedExpectationStep, ComputeApproximateSupervise
     //
     // EXPECT_GT(likelihood_supervised_approximation, likelihood_supervised);
 }
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

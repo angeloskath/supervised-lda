@@ -143,8 +143,3 @@ TYPED_TEST(TestMultinomialSupervisedExpectationStep, ComputeSupervisedMultinomia
     EXPECT_GT(likelihood, likelihood_baseline);
     //EXPECT_GT(likelihood, likelihood_unsupervised);
 }
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

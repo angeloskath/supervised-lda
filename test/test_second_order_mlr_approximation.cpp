@@ -15,15 +15,15 @@
 using namespace Eigen;
 
 template <typename T>
-class TestMultinomialLogisticRegression : public ParameterizedTest<T> {};
+class TestSecondOrderMultinomialLogisticRegression : public ParameterizedTest<T> {};
 
-TYPED_TEST_CASE(TestMultinomialLogisticRegression, ForFloatAndDouble);
+TYPED_TEST_CASE(TestSecondOrderMultinomialLogisticRegression, ForFloatAndDouble);
 
 /**
   * In this test we check if the gradient is correct by appling
   * a finite difference method.
   */
-TYPED_TEST(TestMultinomialLogisticRegression, Gradient) {
+TYPED_TEST(TestSecondOrderMultinomialLogisticRegression, Gradient) {
     // Gradient checking should only be made with a double type
     if (is_float<TypeParam>::value) {
         return;
@@ -85,7 +85,7 @@ TYPED_TEST(TestMultinomialLogisticRegression, Gradient) {
 }
 
 
-TYPED_TEST(TestMultinomialLogisticRegression, MinimizerOverfitSmall) {
+TYPED_TEST(TestSecondOrderMultinomialLogisticRegression, MinimizerOverfitSmall) {
     MatrixX<TypeParam> X(2, 10);
     VectorXi y(10);
 
@@ -122,10 +122,3 @@ TYPED_TEST(TestMultinomialLogisticRegression, MinimizerOverfitSmall) {
 
     EXPECT_GT(0.1, mlr.value(eta));
 }
-
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-

@@ -9,7 +9,8 @@ implementation of new variational inference methods for models based on LDA and
 a console application that allows the use of most models (focusing on
 supervised LDA) on serialized numpy arrays.
 
-Dedicated documentation site coming soon.
+Dedicated documentation site can be found at
+[ldaplusplus.com](http://ldaplusplus.com/) but it is still being developed.
 
 Models implemented
 ------------------
@@ -22,18 +23,28 @@ Models implemented
 Build
 -----
 
-After resolving the following dependencies
+We use CMake for building the project. The dependencies are not handled by
+CMake and must be installed manually. We also link explicitly to pthreads
+although `std::thread` is only used in the code. Finally, `Eigen` is included
+from an `Eigen` path like so `#include <Eigen/Core>`. If you have installed it
+in another folder then symlink it to `Eigen` as well.
+
+So, after resolving the following dependencies
 
 * [Eigen](http://eigen.tuxfamily.org/dox/)
 * [docopt.cpp](https://github.com/docopt/docopt.cpp)
-* [googletest](https://github.com/google/googletest) (platform wide install)
+* [googletest](https://github.com/google/googletest)
 
-Also **g++4.9** is explicitly defined in the Makefile but this should change in
-the future. For now just change it to whatever else you want but your mileage
-may vary.
+You can run the following standard commands.
 
-Then all you have to do is `make` and `make check`. To build a benchmark `make
-bin/benchmark_name_without_extension` and then run the executable generated.
+    $ mkdir build && cd build
+    $ cmake -DCMAKE_BUILD_TYPE=Release ..
+    $ # or cmake -DBUILD_SHARED_LIBS=OFF .. to build a static library
+    $ make
+    $ make check # to build and run the tests
+    $ make bench # to build the benchmarks (run them manually)
+    $ sudo make install
+    $ slda
 
 Console application
 -------------------

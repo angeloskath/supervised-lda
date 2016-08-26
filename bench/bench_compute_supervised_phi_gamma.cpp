@@ -20,29 +20,45 @@ int main(int argc, char **argv) {
 
     MatrixXd eta = MatrixXd::Random(600, 10);
 
-    VectorXd gamma = VectorXd::Random(600);
-    gamma.array() -= gamma.minCoeff();
-    gamma.array() /= gamma.sum();
-    gamma *= 1000;
+    VectorXd gamma = VectorXd::Constant(600, 0.1 + static_cast<double>(X_counts.sum()) / 600.0);
 
     MatrixXd phi_old(600, 1000);
     MatrixXd phi = MatrixXd::Random(600, 1000);
     phi.array() -= phi.minCoeff();
     phi.array().rowwise() /= phi.array().colwise().sum();
 
-    MatrixXd h(beta.rows(), beta.cols());
-    e_step_utils::compute_h<double>(X_counts, X, eta, phi, h);
+    VectorXd h(phi.rows());
 
     // Warm up the cache
     for (int i=0; i<10; i++) {
-        e_step_utils::fixed_point_iteration<double>(X, 0, beta, eta, gamma, h, phi_old, phi);
+        e_step_utils::compute_supervised_phi_gamma<double>(
+            X_counts,
+            X,
+            0,
+            beta,
+            eta,
+            1,
+            phi,
+            gamma,
+            h
+        );
     }
 
     std::chrono::high_resolution_clock clock;
     std::chrono::high_resolution_clock::duration s(0);
     for (int i=0; i<100; i++) {
         auto start = clock.now();
-        e_step_utils::fixed_point_iteration<double>(X, 0, beta, eta, gamma, h, phi_old, phi);
+        e_step_utils::compute_supervised_phi_gamma<double>(
+            X_counts,
+            X,
+            0,
+            beta,
+            eta,
+            1,
+            phi,
+            gamma,
+            h
+        );
         s += clock.now() - start;
     }
 
