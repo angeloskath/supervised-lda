@@ -79,7 +79,7 @@ template <typename Scalar>
 void initialize_eta_multinomial(
     const std::shared_ptr<Parameters> parameters,
     const std::shared_ptr<Corpus> corpus,
-    size_t topics=600
+    size_t topics
 ) {
     auto model_parameters = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
 
@@ -135,10 +135,10 @@ template void initialize_eta_zeros<double>(
 template void initialize_eta_multinomial<float>(
     const std::shared_ptr<Parameters>,
     const std::shared_ptr<Corpus>,
-    size_t
+    size_t topics=600
 );
 template void initialize_eta_multinomial<double>(
     const std::shared_ptr<Parameters>,
     const std::shared_ptr<Corpus>,
-    size_t
+    size_t topics=600
 );
