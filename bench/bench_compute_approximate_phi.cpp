@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
     X.array() -= X.minCoeff();
     X.array() /= X.sum();
     VectorXi X_counts = (X*1000).cast<int>();
+    int word_count = X_counts.sum();
 
     MatrixXd beta = MatrixXd::Random(600, 1000);
     beta.array() -= beta.minCoeff();
@@ -34,10 +35,12 @@ int main(int argc, char **argv) {
     for (int i=0; i<10; i++) {
         e_step_utils::compute_supervised_approximate_phi<double>(
             X,
+            word_count,
             0,
             beta,
             eta,
             gamma,
+            1.0,
             phi
         );
     }
@@ -48,10 +51,12 @@ int main(int argc, char **argv) {
         auto start = clock.now();
         e_step_utils::compute_supervised_approximate_phi<double>(
             X,
+            word_count,
             0,
             beta,
             eta,
             gamma,
+            1.0,
             phi
         );
         s += clock.now() - start;

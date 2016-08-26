@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     phi.array() -= phi.minCoeff();
     phi.array().rowwise() /= phi.array().colwise().sum();
 
-    MatrixXd h(phi.rows(), phi.cols());
+    VectorXd h(phi.rows());
 
     // Warm up the cache
     for (int i=0; i<10; i++) {

@@ -1,6 +1,30 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(LDA++)
 
+# This CMakeLists file is structured as follows
+#
+# 1. Build the ldaplusplus library (as a shared library by default).
+#    The sources are explicitly defined in the ${SOURCES} variable and the
+#    target is ldaplusplus.
+# 2. Build the slda executable linking it with the ldaplusplus library and the
+#    rest of the required libraries
+# 3. Set up the install target so that the library can be installed and used by
+#    others
+# 4. Build the tests in a single executable `test_all`. The test sources are
+#    explicitly defined in the ${TEST_FILES} variable. A target `check` is
+#    also created tha allows building and running all the tests in a single
+#    step
+# 5. Build the benchmarks.
+#
+# Example usage of this file
+#
+#     $ mkdir build
+#     $ cd build
+#     $ cmake -DCMAKE_BUILD_TYPE=Release ..
+#     $ make -j4
+#     $ make check
+#     $ sudo make install
+
 # Set the compiler flags
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
 
@@ -94,3 +118,19 @@ target_link_libraries(test_all ldaplusplus)
 # The || : below is so that make won't complain in case of failed tests. We
 # have gtest complaining in color and style no need for another whiner.
 add_custom_target(check ./test_all || : DEPENDS test_all)
+
+# Build the benchmarks
+set(BENCH_FILES
+    bench/bench_compute_approximate_phi.cpp
+    bench/bench_compute_h.cpp
+    bench/bench_compute_unsupervised_phi.cpp
+    bench/bench_compute_supervised_phi_gamma.cpp
+)
+foreach(BENCH_FILE ${BENCH_FILES})
+    get_filename_component(BENCH_TARGET ${BENCH_FILE} NAME_WE)
+    set(BENCH_TARGETS ${BENCH_TARGETS} ${BENCH_TARGET})
+    add_executable(${BENCH_TARGET} EXCLUDE_FROM_ALL ${BENCH_FILE})
+    target_link_libraries(${BENCH_TARGET} ldaplusplus)
+    target_link_libraries(${BENCH_TARGET} pthread)
+endforeach(BENCH_FILE)
+add_custom_target(bench : DEPENDS ${BENCH_TARGETS})
