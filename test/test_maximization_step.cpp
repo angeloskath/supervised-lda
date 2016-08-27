@@ -8,12 +8,13 @@
 
 #include "test/utils.hpp"
 
-#include "Parameters.hpp"
-#include "ProgressEvents.hpp"
-#include "SupervisedEStep.hpp"
-#include "SupervisedMStep.hpp"
+#include "ldaplusplus/Parameters.hpp"
+#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/SupervisedEStep.hpp"
+#include "ldaplusplus/SupervisedMStep.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 // T will be available as TypeParam in TYPED_TEST functions

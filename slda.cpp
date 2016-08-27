@@ -11,15 +11,15 @@
 
 #include <docopt/docopt.h>
 
-#include "ApproximatedSupervisedEStep.hpp"
-#include "Events.hpp"
-#include "IEStep.hpp"
-#include "IMStep.hpp"
-#include "LDABuilder.hpp"
-#include "LDA.hpp"
-#include "NumpyFormat.hpp"
-#include "Parameters.hpp"
-#include "ProgressEvents.hpp"
+#include "ldaplusplus/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/IEStep.hpp"
+#include "ldaplusplus/IMStep.hpp"
+#include "ldaplusplus/LDABuilder.hpp"
+#include "ldaplusplus/LDA.hpp"
+#include "ldaplusplus/NumpyFormat.hpp"
+#include "ldaplusplus/Parameters.hpp"
+#include "ldaplusplus/ProgressEvents.hpp"
 
 using namespace ldaplusplus;
 

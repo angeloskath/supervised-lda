@@ -8,11 +8,13 @@
 
 #include "test/utils.hpp"
 
-#include "MultinomialLogisticRegression.hpp"
-#include "GradientDescent.hpp"
-#include "SecondOrderLogisticRegressionApproximation.hpp"
+#include "ldaplusplus/MultinomialLogisticRegression.hpp"
+#include "ldaplusplus/GradientDescent.hpp"
+#include "ldaplusplus/SecondOrderLogisticRegressionApproximation.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
+
 
 template <typename T>
 class TestSecondOrderMultinomialLogisticRegression : public ParameterizedTest<T> {};

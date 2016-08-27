@@ -38,29 +38,29 @@ include_directories(include)
 # http://stackoverflow.com/questions/1027247/best-way-to-specify-sourcefiles-in-cmake
 # for an explanation (yes stackoverflow the very credible software authority)
 set(SOURCES
-    src/ApproximatedSupervisedEStep.cpp
-    src/CorrespondenceSupervisedEStep.cpp
-    src/CorrespondenceSupervisedMStep.cpp
-    src/Document.cpp
-    src/e_step_utils.cpp
-    src/Events.cpp
-    src/FastSupervisedEStep.cpp
-    src/FastUnsupervisedEStep.cpp
-    src/initialize.cpp
-    src/LDABuilder.cpp
-    src/LDA.cpp
-    src/MultinomialLogisticRegression.cpp
-    src/MultinomialSupervisedEStep.cpp
-    src/MultinomialSupervisedMStep.cpp
-    src/OnlineSupervisedMStep.cpp
-    src/SecondOrderLogisticRegressionApproximation.cpp
-    src/SecondOrderSupervisedMStep.cpp
-    src/SemiSupervisedEStep.cpp
-    src/SemiSupervisedMStep.cpp
-    src/SupervisedEStep.cpp
-    src/SupervisedMStep.cpp
-    src/UnsupervisedEStep.cpp
-    src/UnsupervisedMStep.cpp
+    src/ldaplusplus/ApproximatedSupervisedEStep.cpp
+    src/ldaplusplus/CorrespondenceSupervisedEStep.cpp
+    src/ldaplusplus/CorrespondenceSupervisedMStep.cpp
+    src/ldaplusplus/Document.cpp
+    src/ldaplusplus/e_step_utils.cpp
+    src/ldaplusplus/Events.cpp
+    src/ldaplusplus/FastSupervisedEStep.cpp
+    src/ldaplusplus/FastUnsupervisedEStep.cpp
+    src/ldaplusplus/initialize.cpp
+    src/ldaplusplus/LDABuilder.cpp
+    src/ldaplusplus/LDA.cpp
+    src/ldaplusplus/MultinomialLogisticRegression.cpp
+    src/ldaplusplus/MultinomialSupervisedEStep.cpp
+    src/ldaplusplus/MultinomialSupervisedMStep.cpp
+    src/ldaplusplus/OnlineSupervisedMStep.cpp
+    src/ldaplusplus/SecondOrderLogisticRegressionApproximation.cpp
+    src/ldaplusplus/SecondOrderSupervisedMStep.cpp
+    src/ldaplusplus/SemiSupervisedEStep.cpp
+    src/ldaplusplus/SemiSupervisedMStep.cpp
+    src/ldaplusplus/SupervisedEStep.cpp
+    src/ldaplusplus/SupervisedMStep.cpp
+    src/ldaplusplus/UnsupervisedEStep.cpp
+    src/ldaplusplus/UnsupervisedMStep.cpp
 )
 
 # Generate a shared and static library from the sources

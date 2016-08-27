@@ -3,9 +3,10 @@
 
 #include <Eigen/Core>
 
-#include "e_step_utils.hpp"
+#include "ldaplusplus/e_step_utils.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 int main(int argc, char **argv) {

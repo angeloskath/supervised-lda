@@ -4,9 +4,10 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
-#include "Document.hpp"
+#include "ldaplusplus/Document.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 TEST(TestCorpus, TestDocument) {

@@ -6,13 +6,14 @@
 
 #include "test/utils.hpp"
 
-#include "IEStep.hpp"
-#include "IMStep.hpp"
-#include "LDABuilder.hpp"
-#include "LDA.hpp"
-#include "ProgressEvents.hpp"
+#include "ldaplusplus/IEStep.hpp"
+#include "ldaplusplus/IMStep.hpp"
+#include "ldaplusplus/LDABuilder.hpp"
+#include "ldaplusplus/LDA.hpp"
+#include "ldaplusplus/ProgressEvents.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 // T will be available as TypeParam in TYPED_TEST functions
