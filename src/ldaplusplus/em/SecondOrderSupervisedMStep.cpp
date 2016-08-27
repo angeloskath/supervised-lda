@@ -1,6 +1,6 @@
 #include "ldaplusplus/optimization/GradientDescent.hpp"
 #include "ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
 
 namespace ldaplusplus {
@@ -95,7 +95,7 @@ void SecondOrderSupervisedMStep<Scalar>::m_step(
             Scalar gradNorm,
             size_t iterations
         ) {
-            this->get_event_dispatcher()->template dispatch<MaximizationProgressEvent<Scalar> >(
+            this->get_event_dispatcher()->template dispatch<events::MaximizationProgressEvent<Scalar> >(
                 -value  // minus the value to be minimized is the log likelihood
             );
 

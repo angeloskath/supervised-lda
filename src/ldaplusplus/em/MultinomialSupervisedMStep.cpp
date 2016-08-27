@@ -1,5 +1,5 @@
 #include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
@@ -19,7 +19,7 @@ void MultinomialSupervisedMStep<Scalar>::m_step(
     normalize_rows(model->eta);
 
     // Report the log_py
-    this->get_event_dispatcher()->template dispatch<MaximizationProgressEvent<Scalar> >(
+    this->get_event_dispatcher()->template dispatch<events::MaximizationProgressEvent<Scalar> >(
         log_py_
     );
 

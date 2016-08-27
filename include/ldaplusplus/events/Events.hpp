@@ -9,6 +9,7 @@
 #include <unordered_set>
 
 namespace ldaplusplus {
+namespace events {
 
 
 /**
@@ -244,5 +245,7 @@ class SameThreadEventDispatcher : public ThreadSafeEventDispatcher
         std::thread::id thread_id_;
 };
 
-}
+}  // namespace events
+}  // namespace ldaplusplus
+
 #endif  // _EVENTS_HPP_

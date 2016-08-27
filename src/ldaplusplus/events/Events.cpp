@@ -1,7 +1,8 @@
 
-#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/events/Events.hpp"
 
 namespace ldaplusplus {
+namespace events {
 
 
 Event::Event(std::string id) : id_(id) {}
@@ -122,4 +123,5 @@ void SameThreadEventDispatcher::dispatch(std::shared_ptr<Event> event) {
     }
 }
 
-}
+}  // namespace events
+}  // namespace ldaplusplus

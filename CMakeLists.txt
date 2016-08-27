@@ -55,7 +55,7 @@ set(SOURCES
     src/ldaplusplus/em/UnsupervisedEStep.cpp
     src/ldaplusplus/em/UnsupervisedMStep.cpp
     src/ldaplusplus/e_step_utils.cpp
-    src/ldaplusplus/Events.cpp
+    src/ldaplusplus/events/Events.cpp
     src/ldaplusplus/initialize.cpp
     src/ldaplusplus/LDABuilder.cpp
     src/ldaplusplus/LDA.cpp

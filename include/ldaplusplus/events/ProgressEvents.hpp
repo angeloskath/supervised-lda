@@ -1,15 +1,16 @@
-#ifndef _PROGRESS_VISITOR_HPP_
-#define _PROGRESS_VISITOR_HPP_
+#ifndef _PROGRESS_EVENTS_HPP_
+#define _PROGRESS_EVENTS_HPP_
 
 
-#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/events/Events.hpp"
 #include "ldaplusplus/Parameters.hpp"
 
 namespace ldaplusplus {
 
-
 template <typename Scalar>
 class LDA;
+
+namespace events {
 
 
 template <typename Scalar>
@@ -61,6 +62,7 @@ class EpochProgressEvent : public Event
        std::shared_ptr<Parameters> model_parameters_;
 };
 
+}  // namespace events
+}  // namespace ldaplusplus
 
-}
-#endif // _PROGRESS_VISITOR_HPP_
+#endif // _PROGRESS_EVENTS_HPP_

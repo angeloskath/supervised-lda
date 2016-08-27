@@ -56,7 +56,7 @@ class SemiSupervisedEStep : public IEStep<Scalar>
         std::shared_ptr<IEStep<Scalar> > supervised_step_;
         std::shared_ptr<IEStep<Scalar> > unsupervised_step_;
 
-        std::shared_ptr<IEventListener> event_forwarder_;
+        std::shared_ptr<events::IEventListener> event_forwarder_;
 };
 
 }  // namespace em

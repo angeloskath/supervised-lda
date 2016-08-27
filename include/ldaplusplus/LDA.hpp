@@ -12,7 +12,7 @@
 
 #include <Eigen/Core>
 
-#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/events/Events.hpp"
 #include "ldaplusplus/em/IEStep.hpp"
 #include "ldaplusplus/em/IMStep.hpp"
 #include "ldaplusplus/Parameters.hpp"
@@ -156,7 +156,7 @@ class LDA
         /**
          * Get the event dispatcher for this LDA instance.
          */
-        std::shared_ptr<IEventDispatcher> get_event_dispatcher() {
+        std::shared_ptr<events::IEventDispatcher> get_event_dispatcher() {
             return event_dispatcher_;
         }
 
@@ -196,7 +196,7 @@ class LDA
          * dispatcher in this thread.
          */
         void process_worker_events() {
-            std::static_pointer_cast<ThreadSafeEventDispatcher>(
+            std::static_pointer_cast<events::ThreadSafeEventDispatcher>(
                 event_dispatcher_
             )->process_events();
         }
@@ -256,7 +256,7 @@ class LDA
 
         // An event dispatcher that we will use to communicate with the
         // external components
-        std::shared_ptr<IEventDispatcher> event_dispatcher_;
+        std::shared_ptr<events::IEventDispatcher> event_dispatcher_;
 };
 
 

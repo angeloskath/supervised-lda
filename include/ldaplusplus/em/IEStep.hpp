@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/Document.hpp"
-#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/events/Events.hpp"
 #include "ldaplusplus/Parameters.hpp"
 
 using namespace Eigen;
@@ -23,7 +23,7 @@ namespace em {
   * distribution over words for all topics, usually \f$\beta\f$ in literature.
   */
 template <typename Scalar>
-class IEStep : public EventDispatcherComposition
+class IEStep : public events::EventDispatcherComposition
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;

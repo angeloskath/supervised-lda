@@ -2,7 +2,7 @@
 
 #include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
 #include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 
 namespace ldaplusplus {
 
@@ -119,7 +119,7 @@ void OnlineSupervisedMStep<Scalar>::m_step(
     eta_velocity_ = eta_momentum_ * eta_velocity_ - eta_learning_rate_ * eta_gradient_;
     eta += eta_velocity_;
 
-    this->get_event_dispatcher()->template dispatch<MaximizationProgressEvent<Scalar> >(
+    this->get_event_dispatcher()->template dispatch<events::MaximizationProgressEvent<Scalar> >(
         -mlr.value(eta)  // minus the value to be minimized is the log likelihood
     );
 }

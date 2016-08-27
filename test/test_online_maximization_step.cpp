@@ -9,7 +9,7 @@
 #include "test/utils.hpp"
 
 #include "ldaplusplus/Parameters.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/em/SupervisedEStep.hpp"
 #include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
 
@@ -59,9 +59,9 @@ TYPED_TEST(TestOnlineMaximizationStep, Maximization) {
 
     std::vector<TypeParam> progress;
     m_step.get_event_dispatcher()->add_listener(
-        [&progress](std::shared_ptr<Event> event) {
+        [&progress](std::shared_ptr<events::Event> event) {
             if (event->id() == "MaximizationProgressEvent") {
-                auto prog_ev = std::static_pointer_cast<MaximizationProgressEvent<TypeParam> >(event);
+                auto prog_ev = std::static_pointer_cast<events::MaximizationProgressEvent<TypeParam> >(event);
                 progress.push_back(prog_ev->likelihood());
             }
         }

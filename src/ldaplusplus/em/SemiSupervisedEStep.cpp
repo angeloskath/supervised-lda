@@ -12,7 +12,7 @@ SemiSupervisedEStep<Scalar>::SemiSupervisedEStep(
     unsupervised_step_(unsupervised_step)
 {
     event_forwarder_ = supervised_step_->get_event_dispatcher()->add_listener(
-        [this](std::shared_ptr<Event> event) {
+        [this](std::shared_ptr<events::Event> event) {
             this->get_event_dispatcher()->dispatch(event);
         }
     );

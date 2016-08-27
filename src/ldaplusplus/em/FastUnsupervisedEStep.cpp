@@ -1,5 +1,5 @@
 #include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
 #include "ldaplusplus/utils.hpp"
 
@@ -68,7 +68,7 @@ std::shared_ptr<Parameters> FastUnsupervisedEStep<Scalar>::doc_e_step(
     }
 
     // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(0);
+    this->get_event_dispatcher()->template dispatch<events::ExpectationProgressEvent<Scalar> >(0);
 
     return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
 }

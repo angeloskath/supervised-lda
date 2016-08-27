@@ -12,12 +12,12 @@
 #include <docopt/docopt.h>
 
 #include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
-#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/events/Events.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/LDABuilder.hpp"
 #include "ldaplusplus/LDA.hpp"
 #include "ldaplusplus/NumpyFormat.hpp"
 #include "ldaplusplus/Parameters.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
 
 using namespace ldaplusplus;
 
@@ -76,7 +76,7 @@ std::shared_ptr<SupervisedModelParameters<double> > load_lda(std::string model_p
 }
 
 
-class TrainingProgress : public IEventListener
+class TrainingProgress : public events::IEventListener
 {
     public:
         TrainingProgress() {
@@ -88,9 +88,9 @@ class TrainingProgress : public IEventListener
             cnt_likelihoods_ = 0;
         }
 
-        void on_event(std::shared_ptr<Event> event) {
+        void on_event(std::shared_ptr<events::Event> event) {
             if (event->id() == "ExpectationProgressEvent") {
-                auto progress = std::static_pointer_cast<ExpectationProgressEvent<double> >(event);
+                auto progress = std::static_pointer_cast<events::ExpectationProgressEvent<double> >(event);
 
                 // output the EM count
                 if (e_iterations_ == 0) {
@@ -110,7 +110,7 @@ class TrainingProgress : public IEventListener
                 }
             }
             else if (event->id() == "MaximizationProgressEvent") {
-                auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
+                auto progress = std::static_pointer_cast<events::MaximizationProgressEvent<double> >(event);
 
                 std::cout << "log p(y | \\bar{z}, eta): " << progress->likelihood() << std::endl;
 
@@ -141,16 +141,16 @@ class TrainingProgress : public IEventListener
 };
 
 
-class SnapshotEvery : public IEventListener
+class SnapshotEvery : public events::IEventListener
 {
     public:
         SnapshotEvery(std::string path, int every=10)
             : path_(std::move(path)), every_(every), seen_so_far_(0)
         {}
 
-        void on_event(std::shared_ptr<Event> event) {
+        void on_event(std::shared_ptr<events::Event> event) {
             if (event->id() == "EpochProgressEvent") {
-                auto progress = std::static_pointer_cast<EpochProgressEvent<double> >(event);
+                auto progress = std::static_pointer_cast<events::EpochProgressEvent<double> >(event);
 
                 seen_so_far_ ++;
                 if (seen_so_far_ % every_ == 0) {
@@ -176,7 +176,7 @@ class SnapshotEvery : public IEventListener
 };
 
 
-class LdaStopwatch : public IEventListener
+class LdaStopwatch : public events::IEventListener
 {
     typedef std::chrono::high_resolution_clock clock;
     typedef std::chrono::duration<double, std::milli> ms;
@@ -186,7 +186,7 @@ class LdaStopwatch : public IEventListener
             : expectation_events(0), maximization_events(0)
         {}
 
-        void on_event(std::shared_ptr<Event> event) {
+        void on_event(std::shared_ptr<events::Event> event) {
             // count all the expectation events and log the time we got the
             // first one
             if (event->id() == "ExpectationProgressEvent") {

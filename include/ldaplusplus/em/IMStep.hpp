@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/Document.hpp"
-#include "ldaplusplus/Events.hpp"
+#include "ldaplusplus/events/Events.hpp"
 #include "ldaplusplus/Parameters.hpp"
 
 using namespace Eigen;
@@ -23,7 +23,7 @@ namespace em {
  * \f$\phi\f$ and \f$\gamma\f$.
  */
 template <typename Scalar>
-class IMStep : public EventDispatcherComposition
+class IMStep : public events::EventDispatcherComposition
 {
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
     typedef Matrix<Scalar, Dynamic, 1> VectorX;

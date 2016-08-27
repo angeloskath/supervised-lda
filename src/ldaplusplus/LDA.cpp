@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "ldaplusplus/LDA.hpp"
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 
 namespace ldaplusplus {
 
@@ -22,7 +22,7 @@ LDA<Scalar>::LDA(
     m_step_(m_step),
     iterations_(iterations),
     workers_(workers),
-    event_dispatcher_(std::make_shared<SameThreadEventDispatcher>())
+    event_dispatcher_(std::make_shared<events::SameThreadEventDispatcher>())
 {
     set_up_event_dispatcher();
 }
@@ -121,7 +121,7 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<Corpus> corpus) {
     );
 
     // inform the world that the epoch is over
-    get_event_dispatcher()->template dispatch<EpochProgressEvent<Scalar> >(model_parameters_);
+    get_event_dispatcher()->template dispatch<events::EpochProgressEvent<Scalar> >(model_parameters_);
 }
 
 

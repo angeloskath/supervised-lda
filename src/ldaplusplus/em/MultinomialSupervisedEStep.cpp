@@ -1,4 +1,4 @@
-#include "ldaplusplus/ProgressEvents.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
 #include "ldaplusplus/utils.hpp"
@@ -73,7 +73,7 @@ std::shared_ptr<Parameters> MultinomialSupervisedEStep<Scalar>::doc_e_step(
     }
 
     // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<ExpectationProgressEvent<Scalar> >(
+    this->get_event_dispatcher()->template dispatch<events::ExpectationProgressEvent<Scalar> >(
         e_step_utils::compute_supervised_multinomial_likelihood<Scalar>(
             X,
             y,
