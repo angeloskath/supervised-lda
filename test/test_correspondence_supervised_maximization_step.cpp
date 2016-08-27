@@ -10,8 +10,8 @@
 
 #include "ldaplusplus/Parameters.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
-#include "ldaplusplus/CorrespondenceSupervisedEStep.hpp"
-#include "ldaplusplus/CorrespondenceSupervisedMStep.hpp"
+#include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
+#include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
 
 using namespace Eigen;
 using namespace ldaplusplus;
@@ -49,8 +49,8 @@ TYPED_TEST(TestCorrespondenceMaximizationStep, Maximization) {
         MatrixX<TypeParam>::Constant(10, 6, 1. / 6)
     );
 
-    CorrespondenceSupervisedEStep<TypeParam> e_step(10, 1e-2, 2);
-    CorrespondenceSupervisedMStep<TypeParam> m_step(2);
+    em::CorrespondenceSupervisedEStep<TypeParam> e_step(10, 1e-2, 2);
+    em::CorrespondenceSupervisedMStep<TypeParam> m_step(2);
 
     for (size_t i=0; i<corpus->size(); i++) {
         m_step.doc_m_step(

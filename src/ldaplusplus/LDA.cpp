@@ -13,8 +13,8 @@ namespace ldaplusplus {
 template <typename Scalar>
 LDA<Scalar>::LDA(
     std::shared_ptr<Parameters> model_parameters,
-    std::shared_ptr<IEStep<Scalar> > e_step,
-    std::shared_ptr<IMStep<Scalar> > m_step,
+    std::shared_ptr<em::IEStep<Scalar> > e_step,
+    std::shared_ptr<em::IMStep<Scalar> > m_step,
     size_t iterations,
     size_t workers
 ) : model_parameters_(model_parameters),

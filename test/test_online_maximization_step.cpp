@@ -10,8 +10,8 @@
 
 #include "ldaplusplus/Parameters.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
-#include "ldaplusplus/SupervisedEStep.hpp"
-#include "ldaplusplus/OnlineSupervisedMStep.hpp"
+#include "ldaplusplus/em/SupervisedEStep.hpp"
+#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
 
 using namespace Eigen;
 using namespace ldaplusplus;
@@ -50,8 +50,8 @@ TYPED_TEST(TestOnlineMaximizationStep, Maximization) {
         MatrixX<TypeParam>::Zero(10, 6)
     );
 
-    SupervisedEStep<TypeParam> e_step(10, 1e-2, 10);
-    OnlineSupervisedMStep<TypeParam> m_step(
+    em::SupervisedEStep<TypeParam> e_step(10, 1e-2, 10);
+    em::OnlineSupervisedMStep<TypeParam> m_step(
         6,
         1e-2,
         25

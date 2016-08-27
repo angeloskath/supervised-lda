@@ -38,29 +38,29 @@ include_directories(include)
 # http://stackoverflow.com/questions/1027247/best-way-to-specify-sourcefiles-in-cmake
 # for an explanation (yes stackoverflow the very credible software authority)
 set(SOURCES
-    src/ldaplusplus/ApproximatedSupervisedEStep.cpp
-    src/ldaplusplus/CorrespondenceSupervisedEStep.cpp
-    src/ldaplusplus/CorrespondenceSupervisedMStep.cpp
     src/ldaplusplus/Document.cpp
+    src/ldaplusplus/em/ApproximatedSupervisedEStep.cpp
+    src/ldaplusplus/em/CorrespondenceSupervisedEStep.cpp
+    src/ldaplusplus/em/CorrespondenceSupervisedMStep.cpp
+    src/ldaplusplus/em/FastSupervisedEStep.cpp
+    src/ldaplusplus/em/FastUnsupervisedEStep.cpp
+    src/ldaplusplus/em/MultinomialSupervisedEStep.cpp
+    src/ldaplusplus/em/MultinomialSupervisedMStep.cpp
+    src/ldaplusplus/em/OnlineSupervisedMStep.cpp
+    src/ldaplusplus/em/SecondOrderSupervisedMStep.cpp
+    src/ldaplusplus/em/SemiSupervisedEStep.cpp
+    src/ldaplusplus/em/SemiSupervisedMStep.cpp
+    src/ldaplusplus/em/SupervisedEStep.cpp
+    src/ldaplusplus/em/SupervisedMStep.cpp
+    src/ldaplusplus/em/UnsupervisedEStep.cpp
+    src/ldaplusplus/em/UnsupervisedMStep.cpp
     src/ldaplusplus/e_step_utils.cpp
     src/ldaplusplus/Events.cpp
-    src/ldaplusplus/FastSupervisedEStep.cpp
-    src/ldaplusplus/FastUnsupervisedEStep.cpp
     src/ldaplusplus/initialize.cpp
     src/ldaplusplus/LDABuilder.cpp
     src/ldaplusplus/LDA.cpp
-    src/ldaplusplus/MultinomialSupervisedEStep.cpp
-    src/ldaplusplus/MultinomialSupervisedMStep.cpp
-    src/ldaplusplus/OnlineSupervisedMStep.cpp
     src/ldaplusplus/optimization/MultinomialLogisticRegression.cpp
     src/ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.cpp
-    src/ldaplusplus/SecondOrderSupervisedMStep.cpp
-    src/ldaplusplus/SemiSupervisedEStep.cpp
-    src/ldaplusplus/SemiSupervisedMStep.cpp
-    src/ldaplusplus/SupervisedEStep.cpp
-    src/ldaplusplus/SupervisedMStep.cpp
-    src/ldaplusplus/UnsupervisedEStep.cpp
-    src/ldaplusplus/UnsupervisedMStep.cpp
 )
 
 # Generate a shared and static library from the sources

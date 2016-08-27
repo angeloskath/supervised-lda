@@ -10,8 +10,8 @@
 
 #include "ldaplusplus/Parameters.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
-#include "ldaplusplus/MultinomialSupervisedEStep.hpp"
-#include "ldaplusplus/MultinomialSupervisedMStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
 
 using namespace Eigen;
 using namespace ldaplusplus;
@@ -49,8 +49,8 @@ TYPED_TEST(TestMultinomialMaximizationStep, Maximization) {
         MatrixX<TypeParam>::Constant(10, 6, 1. / 6)
     );
 
-    MultinomialSupervisedEStep<TypeParam> e_step(10, 1e-2, 2);
-    MultinomialSupervisedMStep<TypeParam> m_step(2);
+    em::MultinomialSupervisedEStep<TypeParam> e_step(10, 1e-2, 2);
+    em::MultinomialSupervisedMStep<TypeParam> m_step(2);
 
     for (size_t i=0; i<corpus->size(); i++) {
         m_step.doc_m_step(

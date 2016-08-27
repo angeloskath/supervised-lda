@@ -13,8 +13,8 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/Events.hpp"
-#include "ldaplusplus/IEStep.hpp"
-#include "ldaplusplus/IMStep.hpp"
+#include "ldaplusplus/em/IEStep.hpp"
+#include "ldaplusplus/em/IMStep.hpp"
 #include "ldaplusplus/Parameters.hpp"
 
 using namespace Eigen;
@@ -58,8 +58,8 @@ class LDA
          */
         LDA(
             std::shared_ptr<Parameters> model_parameters,
-            std::shared_ptr<IEStep<Scalar> > e_step,
-            std::shared_ptr<IMStep<Scalar> > m_step,
+            std::shared_ptr<em::IEStep<Scalar> > e_step,
+            std::shared_ptr<em::IMStep<Scalar> > m_step,
             size_t iterations = 20,
             size_t workers = 1
         );
@@ -240,8 +240,8 @@ class LDA
         std::shared_ptr<Parameters> model_parameters_;
 
         // The LDA implementation
-        std::shared_ptr<IEStep<Scalar> > e_step_;
-        std::shared_ptr<IMStep<Scalar> > m_step_;
+        std::shared_ptr<em::IEStep<Scalar> > e_step_;
+        std::shared_ptr<em::IMStep<Scalar> > m_step_;
 
         // Member variables that affect the behaviour of fit
         size_t iterations_;

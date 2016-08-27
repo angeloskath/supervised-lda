@@ -9,9 +9,9 @@
 #include "test/utils.hpp"
 
 #include "ldaplusplus/Document.hpp"
-#include "ldaplusplus/FastSupervisedEStep.hpp"
+#include "ldaplusplus/em/FastSupervisedEStep.hpp"
 #include "ldaplusplus/Parameters.hpp"
-#include "ldaplusplus/SupervisedEStep.hpp"
+#include "ldaplusplus/em/SupervisedEStep.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
 
 using namespace Eigen;
@@ -120,7 +120,7 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
     TypeParam convergence_tolerance = -10;
     std::vector<TypeParam> likelihoods(10);
     for (int i=0; i<10; i++) {
-        SupervisedEStep<TypeParam> e_step(
+        em::SupervisedEStep<TypeParam> e_step(
             i,
             convergence_tolerance,
             fixed_point_iterations
@@ -180,7 +180,7 @@ TYPED_TEST(TestExpectationStep, FastDocEStep) {
     TypeParam convergence_tolerance = 0;
     std::vector<TypeParam> likelihoods(10);
     for (int i=0; i<10; i++) {
-        FastSupervisedEStep<TypeParam> e_step(
+        em::FastSupervisedEStep<TypeParam> e_step(
             i,
             convergence_tolerance,
             fixed_point_iterations

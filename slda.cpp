@@ -11,10 +11,8 @@
 
 #include <docopt/docopt.h>
 
-#include "ldaplusplus/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
 #include "ldaplusplus/Events.hpp"
-#include "ldaplusplus/IEStep.hpp"
-#include "ldaplusplus/IMStep.hpp"
 #include "ldaplusplus/LDABuilder.hpp"
 #include "ldaplusplus/LDA.hpp"
 #include "ldaplusplus/NumpyFormat.hpp"
@@ -302,11 +300,11 @@ LDA<double> create_lda_for_training(
             std::stof(args["--e_step_tolerance"].asString())
         ));
     } else if (args["--fast_e_step"].asBool()) {
-        typename ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
+        typename em::ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
         if (args["--supervised_weight_evolution"].asString() == "exponential") {
-            weight_evolution = ApproximatedSupervisedEStep<double>::ExponentialDecay;
+            weight_evolution = em::ApproximatedSupervisedEStep<double>::ExponentialDecay;
         } else {
-            weight_evolution = ApproximatedSupervisedEStep<double>::Constant;
+            weight_evolution = em::ApproximatedSupervisedEStep<double>::Constant;
         }
         builder.set_e(builder.get_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),

@@ -10,8 +10,8 @@
 
 #include "ldaplusplus/Parameters.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
-#include "ldaplusplus/SupervisedEStep.hpp"
-#include "ldaplusplus/SupervisedMStep.hpp"
+#include "ldaplusplus/em/SupervisedEStep.hpp"
+#include "ldaplusplus/em/SupervisedMStep.hpp"
 
 using namespace Eigen;
 using namespace ldaplusplus;
@@ -49,8 +49,8 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
         MatrixX<TypeParam>::Zero(10, 6)
     );
 
-    SupervisedEStep<TypeParam> e_step(10, 1e-2, 10);
-    SupervisedMStep<TypeParam> m_step(100, 0, 1e-2);
+    em::SupervisedEStep<TypeParam> e_step(10, 1e-2, 10);
+    em::SupervisedMStep<TypeParam> m_step(100, 0, 1e-2);
 
     for (size_t i=0; i<corpus->size(); i++) {
         m_step.doc_m_step(

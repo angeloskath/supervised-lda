@@ -9,23 +9,23 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/initialize.hpp"
-#include "ldaplusplus/ApproximatedSupervisedEStep.hpp"
-#include "ldaplusplus/CorrespondenceSupervisedEStep.hpp"
-#include "ldaplusplus/CorrespondenceSupervisedMStep.hpp"
-#include "ldaplusplus/FastUnsupervisedEStep.hpp"
-#include "ldaplusplus/MultinomialSupervisedEStep.hpp"
-#include "ldaplusplus/MultinomialSupervisedMStep.hpp"
-#include "ldaplusplus/IEStep.hpp"
-#include "ldaplusplus/IMStep.hpp"
+#include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
+#include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
+#include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
+#include "ldaplusplus/em/IEStep.hpp"
+#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
+#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
+#include "ldaplusplus/em/SemiSupervisedEStep.hpp"
+#include "ldaplusplus/em/SemiSupervisedMStep.hpp"
+#include "ldaplusplus/em/SupervisedEStep.hpp"
+#include "ldaplusplus/em/SupervisedMStep.hpp"
+#include "ldaplusplus/em/UnsupervisedEStep.hpp"
+#include "ldaplusplus/em/UnsupervisedMStep.hpp"
 #include "ldaplusplus/LDA.hpp"
-#include "ldaplusplus/OnlineSupervisedMStep.hpp"
-#include "ldaplusplus/SecondOrderSupervisedMStep.hpp"
-#include "ldaplusplus/SemiSupervisedEStep.hpp"
-#include "ldaplusplus/SemiSupervisedMStep.hpp"
-#include "ldaplusplus/SupervisedEStep.hpp"
-#include "ldaplusplus/SupervisedMStep.hpp"
-#include "ldaplusplus/UnsupervisedEStep.hpp"
-#include "ldaplusplus/UnsupervisedMStep.hpp"
 
 namespace ldaplusplus {
 
@@ -85,8 +85,8 @@ class LDABuilder : public ILDABuilder<Scalar>
         LDABuilder()
             : iterations_(20),
               workers_(std::thread::hardware_concurrency()),
-              e_step_(std::make_shared<UnsupervisedEStep<Scalar> >()),
-              m_step_(std::make_shared<UnsupervisedMStep<Scalar> >()),
+              e_step_(std::make_shared<em::UnsupervisedEStep<Scalar> >()),
+              m_step_(std::make_shared<em::UnsupervisedMStep<Scalar> >()),
               model_parameters_(
                 std::make_shared<SupervisedModelParameters<Scalar> >()
               )
@@ -108,40 +108,40 @@ class LDABuilder : public ILDABuilder<Scalar>
         /** Get the classic unsupervised LDA expectation step
          * (UnsupervisedEStep) */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_classic_e_step(Args... args) {
-            return std::make_shared<UnsupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_classic_e_step(Args... args) {
+            return std::make_shared<em::UnsupervisedEStep<Scalar> >(args...);
         }
         /** Get the classic unsupervised LDA expectation step that doesn't
          * report log likelihood (FastUnsupervisedEStep) */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_fast_classic_e_step(Args... args) {
-            return std::make_shared<FastUnsupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_fast_classic_e_step(Args... args) {
+            return std::make_shared<em::FastUnsupervisedEStep<Scalar> >(args...);
         }
         /** Get the supervised LDA (sLDA) expectation step (SupervisedEStep) */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_supervised_e_step(Args... args) {
-            return std::make_shared<SupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_supervised_e_step(Args... args) {
+            return std::make_shared<em::SupervisedEStep<Scalar> >(args...);
         }
         /** Get the fast approximate supervised LDA (fsLDA) expectation step
          * (ApproximatedSupervisedEStep) */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
-            return std::make_shared<ApproximatedSupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
+            return std::make_shared<em::ApproximatedSupervisedEStep<Scalar> >(args...);
         }
         /** Get the SemiSupervisedEStep */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
-            return std::make_shared<SemiSupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
+            return std::make_shared<em::SemiSupervisedEStep<Scalar> >(args...);
         }
         /** Get the MultinomialSupervisedEStep */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
-            return std::make_shared<MultinomialSupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
+            return std::make_shared<em::MultinomialSupervisedEStep<Scalar> >(args...);
         }
         /** Get the CorrespondenceSupervisedEStep */
         template <typename ...Args>
-        std::shared_ptr<IEStep<Scalar> > get_supervised_correspondence_e_step(Args... args) {
-            return std::make_shared<CorrespondenceSupervisedEStep<Scalar> >(args...);
+        std::shared_ptr<em::IEStep<Scalar> > get_supervised_correspondence_e_step(Args... args) {
+            return std::make_shared<em::CorrespondenceSupervisedEStep<Scalar> >(args...);
         }
         /**
          * Set an expectation step.
@@ -152,7 +152,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *     auto builder = LDABuilder<double>();
          *     builder.set_e(builder.get_fast_classic_e_step());
          */
-        LDABuilder & set_e(std::shared_ptr<IEStep<Scalar> > e_step) {
+        LDABuilder & set_e(std::shared_ptr<em::IEStep<Scalar> > e_step) {
             e_step_ = e_step;
             return *this;
         }
@@ -161,7 +161,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * (UnsupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<UnsupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::UnsupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -169,7 +169,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * supervised (SupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<SupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::SupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -177,7 +177,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * supervised (SupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_second_order_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<SecondOrderSupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::SecondOrderSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -185,7 +185,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * parameters many times in a single epoch (OnlineSupervisedMStep) */
         template <typename ...Args>
         LDABuilder & set_supervised_online_m_step(Args... args) {
-            m_step_ = std::make_shared<OnlineSupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::OnlineSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -194,21 +194,21 @@ class LDABuilder : public ILDABuilder<Scalar>
          */
         template <typename ...Args>
         LDABuilder & set_semi_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<SemiSupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::SemiSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
         /** Set the maximization step to MultinomialSupervisedMStep */
         template <typename ...Args>
         LDABuilder & set_supervised_multinomial_m_step(Args... args) {
-            m_step_ = std::make_shared<MultinomialSupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::MultinomialSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
         /** Set the maximization step to CorrespondenceSupervisedMStep */
         template <typename ...Args>
         LDABuilder & set_supervised_correspondence_m_step(Args... args) {
-            m_step_ = std::make_shared<CorrespondenceSupervisedMStep<Scalar> >(args...);
+            m_step_ = std::make_shared<em::CorrespondenceSupervisedMStep<Scalar> >(args...);
 
             return *this;
         }
@@ -352,8 +352,8 @@ class LDABuilder : public ILDABuilder<Scalar>
         size_t workers_;
 
         // implementations
-        std::shared_ptr<IEStep<Scalar> > e_step_;
-        std::shared_ptr<IMStep<Scalar> > m_step_;
+        std::shared_ptr<em::IEStep<Scalar> > e_step_;
+        std::shared_ptr<em::IMStep<Scalar> > m_step_;
 
         // the model parameters
         std::shared_ptr<SupervisedModelParameters<Scalar> > model_parameters_;

@@ -6,8 +6,6 @@
 
 #include "test/utils.hpp"
 
-#include "ldaplusplus/IEStep.hpp"
-#include "ldaplusplus/IMStep.hpp"
 #include "ldaplusplus/LDABuilder.hpp"
 #include "ldaplusplus/LDA.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
