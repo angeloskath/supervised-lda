@@ -4,6 +4,9 @@
 #include "OnlineSupervisedMStep.hpp"
 #include "ProgressEvents.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
     VectorX class_weights,
@@ -123,3 +126,5 @@ void OnlineSupervisedMStep<Scalar>::m_step(
 // Instantiations
 template class OnlineSupervisedMStep<float>;
 template class OnlineSupervisedMStep<double>;
+
+}

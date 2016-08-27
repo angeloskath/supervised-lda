@@ -6,6 +6,8 @@
 
 #include "IEStep.hpp"
 
+namespace ldaplusplus {
+
 
 /**
  * FastUnsupervisedEStep doesn't compute the log likelihood but checks for
@@ -65,4 +67,5 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
         Scalar e_step_tolerance_;
 };
 
+}
 #endif  // _FAST_UNSUPERVISED_E_STEP_HPP_

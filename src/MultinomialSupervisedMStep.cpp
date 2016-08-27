@@ -2,6 +2,9 @@
 #include "ProgressEvents.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 void MultinomialSupervisedMStep<Scalar>::m_step(
     std::shared_ptr<Parameters> parameters
@@ -70,3 +73,5 @@ void MultinomialSupervisedMStep<Scalar>::doc_m_step(
 // Template instantiation
 template class MultinomialSupervisedMStep<float>;
 template class MultinomialSupervisedMStep<double>;
+
+}

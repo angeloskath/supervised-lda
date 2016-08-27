@@ -7,6 +7,9 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
+
 /**
  * MultinomialLogisticRegression is an implementation of the multinomial
  * logistic loss function (without bias unit).
@@ -91,4 +94,5 @@ class MultinomialLogisticRegression
 };
 
 
+}
 #endif // _MULTINOMIAL_LOGISTIC_REGRESSION

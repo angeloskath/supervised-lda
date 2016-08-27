@@ -5,6 +5,9 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 ApproximatedSupervisedEStep<Scalar>::ApproximatedSupervisedEStep(
     size_t e_step_iterations,
@@ -124,3 +127,5 @@ Scalar ApproximatedSupervisedEStep<Scalar>::get_weight() {
 template class ApproximatedSupervisedEStep<float>;
 template class ApproximatedSupervisedEStep<double>;
 
+
+}

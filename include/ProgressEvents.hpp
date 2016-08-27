@@ -5,6 +5,8 @@
 #include "Events.hpp"
 #include "Parameters.hpp"
 
+namespace ldaplusplus {
+
 
 template <typename Scalar>
 class LDA;
@@ -60,4 +62,5 @@ class EpochProgressEvent : public Event
 };
 
 
+}
 #endif // _PROGRESS_VISITOR_HPP_

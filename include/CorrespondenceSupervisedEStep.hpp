@@ -3,6 +3,9 @@
 
 #include "UnsupervisedEStep.hpp"
 
+namespace ldaplusplus {
+
+
 /** 
  * CorrespondenceSupervisedEStep implements the expectation step of a variant
  * of the correspondence LDA model as it was introduced in [1]. Iinstead of
@@ -116,4 +119,5 @@ class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
         Scalar mu_;
 };
 
+}
 #endif   //  _CORRESPONDENCESUPERVISEDESTEP_HPP_

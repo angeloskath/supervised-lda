@@ -8,6 +8,8 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
 
 static const std::array<double, 1024> exp_lut = {
     1.000000000000000000e+00, 1.000977995032110268e+00, 1.001956946538503423e+00,
@@ -581,4 +583,5 @@ void sum_cols_scaled(
 }
 
 
+}
 #endif // UTILS_H

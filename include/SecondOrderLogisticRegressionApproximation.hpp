@@ -7,6 +7,8 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
 
 /**
  * SecondOrderLogisticRegressionApproximation is a second order taylor
@@ -147,4 +149,5 @@ class SecondOrderLogisticRegressionApproximation
 };
 
 
+}
 #endif // _SECOND_ORDER_LOGISTIC_REGRESSION_APPROXIMATION_HPP_

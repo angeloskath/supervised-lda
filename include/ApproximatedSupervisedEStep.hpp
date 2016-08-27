@@ -3,6 +3,9 @@
 
 #include "UnsupervisedEStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * ApproximatedSupervisedEStep implements the expectation step of fsLDA, as it
  * is explained in our ACM MM '16 paper (to be linked when published).
@@ -140,4 +143,5 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
         // The epochs seen so far.
         int epochs_;
 };
+}
 #endif   // _APPROXIMATEDSUPERVISEDESTEP_HPP_

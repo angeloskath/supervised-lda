@@ -3,6 +3,9 @@
 
 #include "UnsupervisedEStep.hpp"
 
+namespace ldaplusplus {
+
+
 template<typename Scalar>
 class MultinomialSupervisedEStep: public UnsupervisedEStep<Scalar>
 {
@@ -82,4 +85,5 @@ class MultinomialSupervisedEStep: public UnsupervisedEStep<Scalar>
         Scalar eta_weight_;
 };
 
+}
 #endif   //  _MULTINOMIALSUPERVISEDESTEP_HPP_

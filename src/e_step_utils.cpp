@@ -1,6 +1,8 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
 
 namespace e_step_utils
 {
@@ -623,4 +625,6 @@ template void compute_supervised_correspondence_tau(
     const MatrixX<double> & phi,
     Ref<VectorX<double> > tau
 );
+}
+
 }

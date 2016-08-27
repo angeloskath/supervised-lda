@@ -6,6 +6,9 @@
 #include "Document.hpp"
 #include "Parameters.hpp"
 
+namespace ldaplusplus {
+
+
 template<typename Scalar>
 void initialize_topics_seeded(
     const std::shared_ptr<Parameters> parameters,
@@ -36,4 +39,5 @@ void initialize_eta_multinomial(
     size_t topics=600
 );
 
+}
 #endif  // INITIALIZE_HPP

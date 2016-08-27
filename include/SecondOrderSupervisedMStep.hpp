@@ -5,6 +5,9 @@
 
 #include "UnsupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * SecondOrderSupervisedMStep implements the M step for the categorical
  * supervised LDA.
@@ -102,4 +105,5 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
         std::vector<MatrixX> variance_z_bar_;
         VectorXi y_;
 };
+}
 #endif  // _SECOND_ORDER_SUPERVISED_M_STEP_HPP_

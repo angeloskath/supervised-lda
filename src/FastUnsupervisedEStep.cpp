@@ -3,6 +3,8 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
 
 template <typename Scalar>
 FastUnsupervisedEStep<Scalar>::FastUnsupervisedEStep(
@@ -89,3 +91,5 @@ bool FastUnsupervisedEStep<Scalar>::converged(
 // Instantiations
 template class FastUnsupervisedEStep<float>;
 template class FastUnsupervisedEStep<double>;
+
+}

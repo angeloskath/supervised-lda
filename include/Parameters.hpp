@@ -8,6 +8,8 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
 
 /**
  * All the parameter related objects will be extending this empty struct.
@@ -98,4 +100,5 @@ struct SupervisedCorrespondenceVariationalParameters : public VariationalParamet
 };
 
 
+}
 #endif  // _PARAMETERS_HPP_

@@ -3,6 +3,8 @@
 #include "SecondOrderLogisticRegressionApproximation.hpp"
 #include "SecondOrderSupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
 
 template <typename Scalar>
 void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
@@ -108,3 +110,5 @@ void SecondOrderSupervisedMStep<Scalar>::m_step(
 // Template instantiation
 template class SecondOrderSupervisedMStep<float>;
 template class SecondOrderSupervisedMStep<double>;
+
+}

@@ -9,6 +9,9 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
+
 /**
  * Interface that defines an M-step iteration for any LDA inference.
  *
@@ -59,4 +62,5 @@ class IMStep : public EventDispatcherComposition
         )=0;
 };
 
+}
 #endif  // _IMSTEP_HPP_

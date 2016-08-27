@@ -3,6 +3,9 @@
 
 #include "UnsupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * Implement the M step for the categorical supervised LDA.
  *
@@ -104,4 +107,5 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
         MatrixX expected_z_bar_;
         VectorXi y_;
 };
+}
 #endif  // _SUPERVISEDMSTEP_HPP

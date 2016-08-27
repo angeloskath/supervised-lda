@@ -5,6 +5,9 @@
 
 #include "IEStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * UnsupervisedEStep implements the classic LDA expectation step.
  *
@@ -96,5 +99,6 @@ class UnsupervisedEStep : public IEStep<Scalar>
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
 };
+}
 #endif //  _UNSUPERVISEDESTEP_HPP_
 

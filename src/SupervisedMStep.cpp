@@ -3,6 +3,9 @@
 #include "ProgressEvents.hpp"
 #include "SupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 void SupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<Document> doc,
@@ -85,3 +88,5 @@ void SupervisedMStep<Scalar>::m_step(
 template class SupervisedMStep<float>;
 template class SupervisedMStep<double>;
 
+
+}

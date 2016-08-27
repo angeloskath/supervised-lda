@@ -3,6 +3,9 @@
 
 #include "IMStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * OnlineSupervisedMStep is an online implementation of the classical
  * categorical supervised LDA.
@@ -127,4 +130,5 @@ class OnlineSupervisedMStep : public IMStep<Scalar>
         size_t docs_seen_so_far_;
 };
 
+}
 #endif  // _ONLINE_SUPERVISED_M_STEP_HPP_

@@ -2,6 +2,9 @@
 
 #include "initialize.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename T>
 using MatrixX = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 template <typename T>
@@ -142,3 +145,5 @@ template void initialize_eta_multinomial<double>(
     const std::shared_ptr<Corpus>,
     size_t topics=600
 );
+
+}

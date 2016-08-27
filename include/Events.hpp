@@ -8,6 +8,8 @@
 #include <thread>
 #include <unordered_set>
 
+namespace ldaplusplus {
+
 
 /**
  * A base event object that will be dispatched and received.
@@ -242,4 +244,5 @@ class SameThreadEventDispatcher : public ThreadSafeEventDispatcher
         std::thread::id thread_id_;
 };
 
+}
 #endif  // _EVENTS_HPP_

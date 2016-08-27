@@ -3,6 +3,9 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 SupervisedEStep<Scalar>::SupervisedEStep(
     size_t e_step_iterations,
@@ -84,3 +87,5 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
 template class SupervisedEStep<float>;
 template class SupervisedEStep<double>;
 
+
+}

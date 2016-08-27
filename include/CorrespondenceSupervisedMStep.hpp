@@ -3,6 +3,9 @@
 
 #include "IMStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * CorrespondenceSupervisedMStep implements the maximization step of a variant
  * of the correspondence LDA model.
@@ -68,4 +71,5 @@ class CorrespondenceSupervisedMStep : public IMStep<Scalar>
 
         Scalar log_py_;
 };
+}
 #endif  // _CORRESPONDENCE_SUPERVISED_M_STEP_HPP_

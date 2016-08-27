@@ -3,6 +3,9 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 CorrespondenceSupervisedEStep<Scalar>::CorrespondenceSupervisedEStep(
     size_t e_step_iterations,
@@ -112,3 +115,5 @@ bool CorrespondenceSupervisedEStep<Scalar>::converged(
 // Template instantiation
 template class CorrespondenceSupervisedEStep<float>;
 template class CorrespondenceSupervisedEStep<double>;
+
+}

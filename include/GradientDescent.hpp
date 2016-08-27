@@ -9,6 +9,8 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
 
 /**
  * LineSearch is an interface that is meant to be used to update the parameter
@@ -204,4 +206,5 @@ class GradientDescent
 };
 
 
+}
 #endif // _GRADIENT_DESCENT_HPP_

@@ -7,6 +7,8 @@
 #include "LDA.hpp"
 #include "ProgressEvents.hpp"
 
+namespace ldaplusplus {
+
 
 template <typename Scalar>
 LDA<Scalar>::LDA(
@@ -282,3 +284,5 @@ std::tuple<std::shared_ptr<Parameters>, size_t> LDA<Scalar>::extract_vp_from_que
 // Template instantiation
 template class LDA<float>;
 template class LDA<double>;
+
+}

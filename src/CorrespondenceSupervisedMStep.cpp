@@ -2,6 +2,9 @@
 #include "ProgressEvents.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 void CorrespondenceSupervisedMStep<Scalar>::m_step(
     std::shared_ptr<Parameters> parameters
@@ -77,3 +80,5 @@ void CorrespondenceSupervisedMStep<Scalar>::doc_m_step(
 // Template instantiation
 template class CorrespondenceSupervisedMStep<float>;
 template class CorrespondenceSupervisedMStep<double>;
+
+}

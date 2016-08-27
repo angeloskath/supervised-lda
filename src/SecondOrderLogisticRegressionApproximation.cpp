@@ -2,6 +2,9 @@
 
 #include "SecondOrderLogisticRegressionApproximation.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 SecondOrderLogisticRegressionApproximation<Scalar>::SecondOrderLogisticRegressionApproximation(
     const MatrixX &X,
@@ -93,3 +96,5 @@ void SecondOrderLogisticRegressionApproximation<Scalar>::gradient(const MatrixX 
 // template instatiation
 template class SecondOrderLogisticRegressionApproximation<float>;
 template class SecondOrderLogisticRegressionApproximation<double>;
+
+}

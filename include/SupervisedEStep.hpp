@@ -3,6 +3,9 @@
 
 #include "UnsupervisedEStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * SupervisedEStep implements the categorical supervised LDA expectation step.
  *
@@ -90,5 +93,6 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
         // phi and gamma in E-step.
         Scalar e_step_tolerance_;
 };
+}
 #endif  // _SUPERVISEDESTEP_HPP_
 

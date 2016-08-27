@@ -1,5 +1,8 @@
 #include "UnsupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 void UnsupervisedMStep<Scalar>::m_step(
     std::shared_ptr<Parameters> parameters
@@ -36,3 +39,5 @@ void UnsupervisedMStep<Scalar>::doc_m_step(
 template class UnsupervisedMStep<float>;
 template class UnsupervisedMStep<double>;
 
+
+}

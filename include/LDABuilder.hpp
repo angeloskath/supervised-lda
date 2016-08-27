@@ -27,6 +27,8 @@
 #include "UnsupervisedEStep.hpp"
 #include "UnsupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
 
 /**
  * An ILDABuilder is an interface for any class that can be cast into an LDA
@@ -358,4 +360,5 @@ class LDABuilder : public ILDABuilder<Scalar>
 };
 
 
+}
 #endif  //_LDA_BUILDER_HPP_

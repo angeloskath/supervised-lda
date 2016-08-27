@@ -9,6 +9,9 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
+
 /**
   * Interface that defines an E-step iteration for any LDA inference.
   *
@@ -48,4 +51,5 @@ class IEStep : public EventDispatcherComposition
          */
         virtual void e_step()=0;
 };
+}
 #endif //  _IESTEP_HPP_

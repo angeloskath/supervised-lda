@@ -3,6 +3,8 @@
 
 #include <Eigen/Core>
 
+namespace ldaplusplus {
+
 
 namespace e_step_utils
 {
@@ -219,4 +221,5 @@ namespace e_step_utils
     );
 }
 
+}
 #endif  // _E_STEP_UTILS_HPP_

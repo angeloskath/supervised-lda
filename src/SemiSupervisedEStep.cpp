@@ -1,5 +1,8 @@
 #include "SemiSupervisedEStep.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 SemiSupervisedEStep<Scalar>::SemiSupervisedEStep(
     std::shared_ptr<IEStep<Scalar> > supervised_step,
@@ -46,3 +49,5 @@ void SemiSupervisedEStep<Scalar>::e_step() {
 // template instantiation
 template class SemiSupervisedEStep<float>;
 template class SemiSupervisedEStep<double>;
+
+}

@@ -3,6 +3,9 @@
 
 #include "IMStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * Implement the M step for the traditional unsupervised LDA.
  *
@@ -73,4 +76,5 @@ class UnsupervisedMStep : public IMStep<Scalar>
     private:
         MatrixX b_;
 };
+}
 #endif  // _UNSUPERVISEDMSTEP_HPP_ 

@@ -3,6 +3,9 @@
 
 #include "IMStep.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 class MultinomialSupervisedMStep : public IMStep<Scalar>
 {
@@ -39,4 +42,5 @@ class MultinomialSupervisedMStep : public IMStep<Scalar>
 
         Scalar log_py_;
 };
+}
 #endif  // _MULTINOMIAL_SUPERVISED_M_STEP_HPP_

@@ -4,6 +4,8 @@
 
 #include "SupervisedMStep.hpp"
 
+namespace ldaplusplus {
+
 
 /**
  * SemiSupervisedMStep passes the documents to either
@@ -53,4 +55,5 @@ class SemiSupervisedMStep : public SupervisedMStep<Scalar>
         ) override;
 };
 
+}
 #endif  // _SEMISUPERVISEDMSTEP_HPP_

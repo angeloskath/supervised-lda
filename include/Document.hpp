@@ -10,6 +10,9 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
+
 // Forward declaration for the compiler
 class Corpus;
 
@@ -221,4 +224,5 @@ class EigenClassificationCorpus : public ClassificationCorpus
 };
 
 
+}
 #endif  // _DOCUMENT_HPP_

@@ -2,6 +2,9 @@
 
 #include "MultinomialLogisticRegression.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
     const MatrixX &X,
@@ -76,3 +79,5 @@ void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, Ref<Mat
 // template instatiation
 template class MultinomialLogisticRegression<float>;
 template class MultinomialLogisticRegression<double>;
+
+}

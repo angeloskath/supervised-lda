@@ -5,6 +5,9 @@
 #include "Document.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 // 
 // EigenDocument
 //
@@ -124,4 +127,6 @@ void EigenClassificationCorpus::shuffle() {
 
 float EigenClassificationCorpus::get_prior(int y) const {
     return priors_[y];
+}
+
 }

@@ -21,6 +21,7 @@
 #include "Parameters.hpp"
 #include "ProgressEvents.hpp"
 
+using namespace ldaplusplus;
 
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
     double accuracy = 0.0;

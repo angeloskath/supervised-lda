@@ -3,6 +3,9 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 MultinomialSupervisedEStep<Scalar>::MultinomialSupervisedEStep(
     size_t e_step_iterations,
@@ -101,3 +104,5 @@ bool MultinomialSupervisedEStep<Scalar>::converged(
 template class MultinomialSupervisedEStep<float>;
 template class MultinomialSupervisedEStep<double>;
 
+
+}

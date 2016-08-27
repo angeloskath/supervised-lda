@@ -19,6 +19,8 @@
 
 using namespace Eigen;
 
+namespace ldaplusplus {
+
 
 /**
  * LDA contains the logic of using an expectation step, a maximization step and
@@ -258,4 +260,5 @@ class LDA
 };
 
 
+}
 #endif  // _LDA_HPP_

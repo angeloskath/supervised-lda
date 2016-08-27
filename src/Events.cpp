@@ -1,6 +1,8 @@
 
 #include "Events.hpp"
 
+namespace ldaplusplus {
+
 
 Event::Event(std::string id) : id_(id) {}
 
@@ -118,4 +120,6 @@ void SameThreadEventDispatcher::dispatch(std::shared_ptr<Event> event) {
     if (std::this_thread::get_id() == thread_id_) {
         ThreadSafeEventDispatcher::process_events();
     }
+}
+
 }

@@ -6,6 +6,9 @@
 
 #include "IEStep.hpp"
 
+namespace ldaplusplus {
+
+
 /**
  * SemiSupervisedEStep passes a document to either a supervised step or an
  * unsupervised step based on whether there exists class information for a
@@ -55,4 +58,5 @@ class SemiSupervisedEStep : public IEStep<Scalar>
         std::shared_ptr<IEventListener> event_forwarder_;
 };
 
+}
 #endif  // _SEMISUPERVISEDESTEP_HPP_

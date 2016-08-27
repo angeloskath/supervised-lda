@@ -3,6 +3,9 @@
 #include "e_step_utils.hpp"
 #include "utils.hpp"
 
+namespace ldaplusplus {
+
+
 template <typename Scalar>
 UnsupervisedEStep<Scalar>::UnsupervisedEStep(
     size_t e_step_iterations,
@@ -77,3 +80,5 @@ void UnsupervisedEStep<Scalar>::e_step() {
 template class UnsupervisedEStep<float>;
 template class UnsupervisedEStep<double>;
 
+
+}
