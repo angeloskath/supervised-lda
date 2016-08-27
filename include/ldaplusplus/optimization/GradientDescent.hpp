@@ -10,6 +10,7 @@
 using namespace Eigen;
 
 namespace ldaplusplus {
+namespace optimization {
 
 
 /**
@@ -206,5 +207,7 @@ class GradientDescent
 };
 
 
-}
+}  // namespace optimization
+}  // namespace ldaplusplus
+
 #endif // _GRADIENT_DESCENT_HPP_

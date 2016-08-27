@@ -1,8 +1,9 @@
 #include <utility>
 
-#include "ldaplusplus/MultinomialLogisticRegression.hpp"
+#include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
 
 namespace ldaplusplus {
+namespace optimization {
 
 
 template <typename Scalar>
@@ -80,4 +81,5 @@ void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, Ref<Mat
 template class MultinomialLogisticRegression<float>;
 template class MultinomialLogisticRegression<double>;
 
-}
+}  // namespace optimization
+}  // namespace ldaplusplus

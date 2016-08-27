@@ -1,10 +1,13 @@
-#include "ldaplusplus/GradientDescent.hpp"
+#include "ldaplusplus/optimization/GradientDescent.hpp"
+#include "ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
-#include "ldaplusplus/SecondOrderLogisticRegressionApproximation.hpp"
 #include "ldaplusplus/SecondOrderSupervisedMStep.hpp"
 
 namespace ldaplusplus {
 
+using optimization::ArmijoLineSearch;
+using optimization::GradientDescent;
+using optimization::SecondOrderLogisticRegressionApproximation;
 
 template <typename Scalar>
 void SecondOrderSupervisedMStep<Scalar>::doc_m_step(

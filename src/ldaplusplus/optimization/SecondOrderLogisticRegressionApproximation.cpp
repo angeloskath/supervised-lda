@@ -1,8 +1,9 @@
 #include <utility>
 
-#include "ldaplusplus/SecondOrderLogisticRegressionApproximation.hpp"
+#include "ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.hpp"
 
 namespace ldaplusplus {
+namespace optimization {
 
 
 template <typename Scalar>
@@ -97,4 +98,5 @@ void SecondOrderLogisticRegressionApproximation<Scalar>::gradient(const MatrixX 
 template class SecondOrderLogisticRegressionApproximation<float>;
 template class SecondOrderLogisticRegressionApproximation<double>;
 
-}
+}  // namespace optimization
+}  // namespace ldaplusplus

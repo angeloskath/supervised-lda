@@ -8,6 +8,7 @@
 using namespace Eigen;
 
 namespace ldaplusplus {
+namespace optimization {
 
 
 /**
@@ -94,5 +95,6 @@ class MultinomialLogisticRegression
 };
 
 
-}
+}  // namespace optimization
+}  // namespace ldaplusplus
 #endif // _MULTINOMIAL_LOGISTIC_REGRESSION

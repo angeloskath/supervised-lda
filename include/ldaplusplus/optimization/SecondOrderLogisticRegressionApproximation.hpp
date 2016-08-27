@@ -8,6 +8,7 @@
 using namespace Eigen;
 
 namespace ldaplusplus {
+namespace optimization {
 
 
 /**
@@ -149,5 +150,7 @@ class SecondOrderLogisticRegressionApproximation
 };
 
 
-}
+}  // namespace optimization
+}  // namespace ldaplusplus
+
 #endif // _SECOND_ORDER_LOGISTIC_REGRESSION_APPROXIMATION_HPP_

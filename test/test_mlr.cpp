@@ -7,11 +7,11 @@
 
 #include "test/utils.hpp"
 
-#include "ldaplusplus/MultinomialLogisticRegression.hpp"
-#include "ldaplusplus/GradientDescent.hpp"
+#include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
+#include "ldaplusplus/optimization/GradientDescent.hpp"
 
 using namespace Eigen;
-using namespace ldaplusplus;
+using namespace ldaplusplus::optimization;
 
 
 template <typename T>

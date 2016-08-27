@@ -1,7 +1,7 @@
 #include <utility>
 
-#include "ldaplusplus/MultinomialLogisticRegression.hpp"
 #include "ldaplusplus/OnlineSupervisedMStep.hpp"
+#include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
 
 namespace ldaplusplus {
@@ -108,7 +108,7 @@ void OnlineSupervisedMStep<Scalar>::m_step(
     );
 
     // update the eta
-    MultinomialLogisticRegression<Scalar> mlr(
+    optimization::MultinomialLogisticRegression<Scalar> mlr(
         expected_z_bar_,
         y_,
         regularization_penalty_

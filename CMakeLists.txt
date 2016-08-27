@@ -49,11 +49,11 @@ set(SOURCES
     src/ldaplusplus/initialize.cpp
     src/ldaplusplus/LDABuilder.cpp
     src/ldaplusplus/LDA.cpp
-    src/ldaplusplus/MultinomialLogisticRegression.cpp
     src/ldaplusplus/MultinomialSupervisedEStep.cpp
     src/ldaplusplus/MultinomialSupervisedMStep.cpp
     src/ldaplusplus/OnlineSupervisedMStep.cpp
-    src/ldaplusplus/SecondOrderLogisticRegressionApproximation.cpp
+    src/ldaplusplus/optimization/MultinomialLogisticRegression.cpp
+    src/ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.cpp
     src/ldaplusplus/SecondOrderSupervisedMStep.cpp
     src/ldaplusplus/SemiSupervisedEStep.cpp
     src/ldaplusplus/SemiSupervisedMStep.cpp

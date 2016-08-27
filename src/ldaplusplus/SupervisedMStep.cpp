@@ -1,9 +1,13 @@
-#include "ldaplusplus/GradientDescent.hpp"
-#include "ldaplusplus/MultinomialLogisticRegression.hpp"
+#include "ldaplusplus/optimization/GradientDescent.hpp"
+#include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
 #include "ldaplusplus/ProgressEvents.hpp"
 #include "ldaplusplus/SupervisedMStep.hpp"
 
 namespace ldaplusplus {
+
+using optimization::ArmijoLineSearch;
+using optimization::GradientDescent;
+using optimization::MultinomialLogisticRegression;
 
 
 template <typename Scalar>
