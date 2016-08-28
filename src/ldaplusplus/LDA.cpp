@@ -47,17 +47,17 @@ void LDA<Scalar>::set_up_event_dispatcher() {
 
 
 template <typename Scalar>
-std::shared_ptr<Corpus> LDA<Scalar>::get_corpus(
+std::shared_ptr<corpus::Corpus> LDA<Scalar>::get_corpus(
     const MatrixXi &X,
     const VectorXi &y
 ) {
-    return std::make_shared<EigenClassificationCorpus>(X, y);
+    return std::make_shared<corpus::EigenClassificationCorpus>(X, y);
 }
 
 
 template <typename Scalar>
-std::shared_ptr<Corpus> LDA<Scalar>::get_corpus(const MatrixXi &X) {
-    return std::make_shared<EigenCorpus>(X);
+std::shared_ptr<corpus::Corpus> LDA<Scalar>::get_corpus(const MatrixXi &X) {
+    return std::make_shared<corpus::EigenCorpus>(X);
 }
 
 
@@ -78,7 +78,7 @@ void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
 
 
 template <typename Scalar>
-void LDA<Scalar>::partial_fit(std::shared_ptr<Corpus> corpus) {
+void LDA<Scalar>::partial_fit(std::shared_ptr<corpus::Corpus> corpus) {
     // Shuffle the documents for a randomized pass through
     corpus->shuffle();
 
@@ -239,7 +239,7 @@ void LDA<Scalar>::destroy_worker_pool() {
 
 template <typename Scalar>
 void LDA<Scalar>::doc_e_step_worker() {
-    std::shared_ptr<Corpus> corpus;
+    std::shared_ptr<corpus::Corpus> corpus;
     size_t index;
 
     while (true) {

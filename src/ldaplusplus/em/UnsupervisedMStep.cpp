@@ -18,7 +18,7 @@ void UnsupervisedMStep<Scalar>::m_step(
 
 template <typename Scalar>
 void UnsupervisedMStep<Scalar>::doc_m_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> v_parameters,
     std::shared_ptr<Parameters> m_parameters
 ) {

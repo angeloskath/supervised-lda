@@ -47,13 +47,13 @@ OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
 
 template <typename Scalar>
 void OnlineSupervisedMStep<Scalar>::doc_m_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> v_parameters,
     std::shared_ptr<Parameters> m_parameters
 ) {
     // Data from document doc
     const VectorXi & X = doc->get_words();
-    int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class(); 
+    int y = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class(); 
     // Variational parameters
     const MatrixX & phi = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->phi;
     const VectorX &gamma = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->gamma;

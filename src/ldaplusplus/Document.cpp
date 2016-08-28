@@ -6,6 +6,7 @@
 #include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
+namespace corpus {
 
 
 // 
@@ -129,4 +130,5 @@ float EigenClassificationCorpus::get_prior(int y) const {
     return priors_[y];
 }
 
-}
+}  // namespace corpus
+}  // namespace ldaplusplus

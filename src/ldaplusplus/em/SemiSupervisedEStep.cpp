@@ -29,10 +29,10 @@ SemiSupervisedEStep<Scalar>::~SemiSupervisedEStep() {
 
 template <typename Scalar>
 std::shared_ptr<Parameters> SemiSupervisedEStep<Scalar>::doc_e_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> parameters
 ) {
-    if (std::static_pointer_cast<ClassificationDocument>(doc)->get_class() < 0) {
+    if (std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class() < 0) {
         return unsupervised_step_->doc_e_step(doc, parameters);
     } else {
         return supervised_step_->doc_e_step(doc, parameters);

@@ -100,7 +100,7 @@ class LDA
          * @param corpus The implementation of Corpus that contains the
          *               observed variables.
          */
-        void partial_fit(std::shared_ptr<Corpus> corpus);
+        void partial_fit(std::shared_ptr<corpus::Corpus> corpus);
 
         /**
          * Run the expectation step and return the topic mixtures for the
@@ -171,7 +171,7 @@ class LDA
         /**
          * Generate a Corpus from a pair of X, y matrices
          */
-        std::shared_ptr<Corpus> get_corpus(
+        std::shared_ptr<corpus::Corpus> get_corpus(
             const MatrixXi &X,
             const VectorXi &y
         );
@@ -179,7 +179,7 @@ class LDA
         /**
          * Generate a Corpus from just the word count matrix.
          */
-        std::shared_ptr<Corpus> get_corpus(const MatrixXi &X);
+        std::shared_ptr<corpus::Corpus> get_corpus(const MatrixXi &X);
 
         /**
          * Create a worker thread pool.
@@ -249,7 +249,7 @@ class LDA
         // The thread related member variables
         std::vector<std::thread> workers_;
         std::mutex queue_in_mutex_;
-        std::list<std::tuple<std::shared_ptr<Corpus>, size_t> > queue_in_;
+        std::list<std::tuple<std::shared_ptr<corpus::Corpus>, size_t> > queue_in_;
         std::mutex queue_out_mutex_;
         std::condition_variable queue_out_cv_;
         std::list<std::tuple<std::shared_ptr<Parameters>, size_t> > queue_out_;

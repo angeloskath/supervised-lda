@@ -19,7 +19,7 @@ FastUnsupervisedEStep<Scalar>::FastUnsupervisedEStep(
 
 template <typename Scalar>
 std::shared_ptr<Parameters> FastUnsupervisedEStep<Scalar>::doc_e_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> parameters
 ) {
     // Words form Document doc

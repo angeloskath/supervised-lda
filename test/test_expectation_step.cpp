@@ -97,8 +97,8 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
     VectorXi X = Xtmp.template cast<int>();
     int y = 0;
 
-    auto doc = std::make_shared<ClassificationDecorator>(
-        std::make_shared<EigenDocument>(X),
+    auto doc = std::make_shared<corpus::ClassificationDecorator>(
+        std::make_shared<corpus::EigenDocument>(X),
         y
     );
 
@@ -155,8 +155,8 @@ TYPED_TEST(TestExpectationStep, FastDocEStep) {
     VectorXi X = Xtmp.template cast<int>();
     int y = 0;
 
-    auto doc = std::make_shared<ClassificationDecorator>(
-        std::make_shared<EigenDocument>(X),
+    auto doc = std::make_shared<corpus::ClassificationDecorator>(
+        std::make_shared<corpus::EigenDocument>(X),
         y
     );
 

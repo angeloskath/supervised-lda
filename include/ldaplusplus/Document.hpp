@@ -11,6 +11,7 @@
 using namespace Eigen;
 
 namespace ldaplusplus {
+namespace corpus {
 
 
 // Forward declaration for the compiler
@@ -223,6 +224,7 @@ class EigenClassificationCorpus : public ClassificationCorpus
         VectorXf priors_;
 };
 
+}  // namespace corpus
+}  // namespace ldaplusplus
 
-}
 #endif  // _DOCUMENT_HPP_

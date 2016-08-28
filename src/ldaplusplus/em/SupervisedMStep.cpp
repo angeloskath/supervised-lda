@@ -13,7 +13,7 @@ using optimization::MultinomialLogisticRegression;
 
 template <typename Scalar>
 void SupervisedMStep<Scalar>::doc_m_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> v_parameters,
     std::shared_ptr<Parameters> m_parameters
 ) {
@@ -39,7 +39,7 @@ void SupervisedMStep<Scalar>::doc_m_step(
         expected_z_bar_.conservativeResize(num_topics, docs_+1);
     }
 
-    y_(docs_) = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
+    y_(docs_) = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
     expected_z_bar_.col(docs_) = gamma - alpha;
     expected_z_bar_.col(docs_).array() /= expected_z_bar_.col(docs_).sum();

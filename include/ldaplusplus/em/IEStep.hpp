@@ -41,7 +41,7 @@ class IEStep : public events::EventDispatcherComposition
           *                   model, after e-step is completed
           */
         virtual std::shared_ptr<Parameters> doc_e_step(
-            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<corpus::Document> doc,
             const std::shared_ptr<Parameters> parameters
         )=0;
 

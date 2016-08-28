@@ -57,7 +57,7 @@ class IMStep : public events::EventDispatcherComposition
          *                     online methods
          */
         virtual void doc_m_step(
-            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<corpus::Document> doc,
             const std::shared_ptr<Parameters> v_parameters,
             std::shared_ptr<Parameters> m_parameters
         )=0;

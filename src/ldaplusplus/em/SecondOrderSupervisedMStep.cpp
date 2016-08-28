@@ -12,7 +12,7 @@ using optimization::SecondOrderLogisticRegressionApproximation;
 
 template <typename Scalar>
 void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> v_parameters,
     std::shared_ptr<Parameters> m_parameters
 ) {
@@ -48,7 +48,7 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
     }
 
     // get the class
-    y_(docs_) = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
+    y_(docs_) = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
     // get the expected_z_bar
     expected_z_bar_.col(docs_) = gamma - alpha;

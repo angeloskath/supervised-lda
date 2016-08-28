@@ -234,7 +234,7 @@ class LDABuilder : public ILDABuilder<Scalar>
             const MatrixXi &X,
             Args... args
         ) {
-            auto corpus = std::make_shared<EigenCorpus>(X);
+            auto corpus = std::make_shared<corpus::EigenCorpus>(X);
 
             if (type == "seeded") {
                 initialize_topics_seeded<Scalar>(model_parameters_, corpus, args...);
@@ -271,7 +271,7 @@ class LDABuilder : public ILDABuilder<Scalar>
             const VectorXi &y,
             Args... args
         ) {
-            auto corpus = std::make_shared<EigenClassificationCorpus>(X, y);
+            auto corpus = std::make_shared<corpus::EigenClassificationCorpus>(X, y);
 
             if (type == "zeros") {
                 initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);

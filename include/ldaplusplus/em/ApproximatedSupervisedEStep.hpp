@@ -96,7 +96,7 @@ class ApproximatedSupervisedEStep : public UnsupervisedEStep<Scalar>
          *                   model, after one expecation step is completed.
          */
         std::shared_ptr<Parameters> doc_e_step(
-            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<corpus::Document> doc,
             const std::shared_ptr<Parameters> parameters
         ) override;
 

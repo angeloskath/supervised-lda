@@ -11,8 +11,6 @@
 #include <Eigen/Core>
 
 namespace ldaplusplus {
-
-
 namespace numpy_format {
     template <typename Scalar>
     const char * dtype_for_scalar() {

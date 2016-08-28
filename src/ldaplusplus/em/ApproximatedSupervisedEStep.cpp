@@ -28,7 +28,7 @@ ApproximatedSupervisedEStep<Scalar>::ApproximatedSupervisedEStep(
 
 template <typename Scalar>
 std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
-    const std::shared_ptr<Document> doc,
+    const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<Parameters> parameters
 ) {
     // Words form Document doc
@@ -38,7 +38,7 @@ std::shared_ptr<Parameters> ApproximatedSupervisedEStep<Scalar>::doc_e_step(
     VectorX X_ratio = X.cast<Scalar>() / num_words;
 
     // Get the document's class
-    int y = std::static_pointer_cast<ClassificationDocument>(doc)->get_class();
+    int y = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
     // Cast parameters to model parameters in order to save all necessary
     // matrixes

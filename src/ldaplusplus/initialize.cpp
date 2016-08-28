@@ -13,7 +13,7 @@ using VectorX = Eigen::Matrix<T, Eigen::Dynamic, 1>;
 template<typename Scalar>
 void initialize_topics_seeded(
     const std::shared_ptr<Parameters> parameters,
-    const std::shared_ptr<Corpus> corpus,
+    const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics,
     int random_state
 ) {
@@ -49,7 +49,7 @@ void initialize_topics_seeded(
 template <typename Scalar>
 void initialize_topics_random(
     const std::shared_ptr<Parameters> parameters,
-    const std::shared_ptr<Corpus> corpus,
+    const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics,
     int random_state
 ) {
@@ -59,7 +59,7 @@ void initialize_topics_random(
 template <typename Scalar>
 void initialize_eta_zeros(
     const std::shared_ptr<Parameters> parameters,
-    const std::shared_ptr<Corpus> corpus,
+    const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics
 ) {
     auto model_parameters = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
@@ -69,7 +69,7 @@ void initialize_eta_zeros(
     for (size_t i=0; i < corpus->size(); i++) {
         max = std::max(
             max,
-            std::static_pointer_cast<ClassificationDocument>(
+            std::static_pointer_cast<corpus::ClassificationDocument>(
                 corpus->at(i)
             )->get_class()
         );
@@ -81,7 +81,7 @@ void initialize_eta_zeros(
 template <typename Scalar>
 void initialize_eta_multinomial(
     const std::shared_ptr<Parameters> parameters,
-    const std::shared_ptr<Corpus> corpus,
+    const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics
 ) {
     auto model_parameters = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
@@ -91,7 +91,7 @@ void initialize_eta_multinomial(
     for (size_t i=0; i < corpus->size(); i++) {
         max = std::max(
             max,
-            std::static_pointer_cast<ClassificationDocument>(
+            std::static_pointer_cast<corpus::ClassificationDocument>(
                 corpus->at(i)
             )->get_class()
         );
@@ -103,46 +103,46 @@ void initialize_eta_multinomial(
 // Template instantiation
 template void initialize_topics_seeded<float>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t,
     int 
 );
 template void initialize_topics_seeded<double>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t,
     int
 );
 template void initialize_topics_random<float>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t,
     int
 );
 template void initialize_topics_random<double>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t,
     int
 );
 template void initialize_eta_zeros<float>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t
 );
 template void initialize_eta_zeros<double>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t
 );
 template void initialize_eta_multinomial<float>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t topics=600
 );
 template void initialize_eta_multinomial<double>(
     const std::shared_ptr<Parameters>,
-    const std::shared_ptr<Corpus>,
+    const std::shared_ptr<corpus::Corpus>,
     size_t topics=600
 );
 

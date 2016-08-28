@@ -40,7 +40,7 @@ TYPED_TEST(TestOnlineMaximizationStep, Maximization) {
     }
 
     // Create the corpus and the model
-    auto corpus = std::make_shared<EigenClassificationCorpus>(X, y);
+    auto corpus = std::make_shared<corpus::EigenClassificationCorpus>(X, y);
     MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(10, 100);
     beta.array() -= beta.minCoeff();
     beta.array().rowwise() /= beta.array().colwise().sum();

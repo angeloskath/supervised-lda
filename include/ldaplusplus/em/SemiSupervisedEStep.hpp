@@ -43,7 +43,7 @@ class SemiSupervisedEStep : public IEStep<Scalar>
          * supervised.
          */
         std::shared_ptr<Parameters> doc_e_step(
-            const std::shared_ptr<Document> doc,
+            const std::shared_ptr<corpus::Document> doc,
             const std::shared_ptr<Parameters> parameters
         ) override;
 
