@@ -1,7 +1,6 @@
 #include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
-#include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
 

@@ -16,13 +16,13 @@ Scalar compute_unsupervised_likelihood(
     const MatrixX<Scalar> &phi,
     const VectorX<Scalar> &gamma
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-    auto cwise_lgamma = CwiseLgamma<Scalar>();
+    auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
+    auto cwise_lgamma = math_utils::CwiseLgamma<Scalar>();
 
     Scalar likelihood = 0;
 
     // \Psi(\gamma) - \Psi(\sum_j \gamma)
-    VectorX<Scalar> t1 = gamma.unaryExpr(cwise_digamma).array() - digamma(gamma.sum());
+    VectorX<Scalar> t1 = gamma.unaryExpr(cwise_digamma).array() - math_utils::digamma(gamma.sum());
 
     // E_q[log p(\theta | \alpha)]
     likelihood += ((alpha.array() - 1.0).matrix().transpose() * t1).value();
@@ -173,7 +173,7 @@ void compute_h(
     const MatrixX<Scalar> &phi,
     Ref<VectorX<Scalar> > h
 ) {
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     MatrixX<Scalar> exp_eta_scaled(eta.rows(), eta.cols());
     VectorX<Scalar> products = VectorX<Scalar>::Constant(eta.cols(), 1.0);
@@ -219,8 +219,8 @@ void compute_supervised_phi_gamma(
     Ref<VectorX<Scalar> > gamma,
     Ref<VectorX<Scalar> > h
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     MatrixX<Scalar> exp_eta_scaled(eta.rows(), eta.cols());
     VectorX<Scalar> products = VectorX<Scalar>::Constant(eta.cols(), 1.0);
@@ -284,7 +284,7 @@ void compute_gamma(
     // gamma = alpha.array() + (phi.array().rowwise() * X.cast<Scalar>().transpose().array()).rowwise().sum();
 
     gamma = alpha;
-    sum_cols_scaled(phi, X, gamma);
+    math_utils::sum_cols_scaled(phi, X, gamma);
 }
 
 template <typename Scalar>
@@ -293,13 +293,13 @@ void compute_unsupervised_phi(
     const VectorX<Scalar> & gamma,
     Ref<MatrixX<Scalar> > phi
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     auto exp_psi_gamma = gamma.unaryExpr(cwise_digamma).unaryExpr(cwise_fast_exp).array();
     phi = beta.array().colwise() * exp_psi_gamma;
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
-    normalize_cols(phi);
+    math_utils::normalize_cols(phi);
 }
 
 template <typename Scalar>
@@ -313,12 +313,12 @@ void compute_supervised_approximate_phi(
     Scalar C,
     Ref<MatrixX<Scalar> > phi
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     auto psi_gamma = gamma.unaryExpr(cwise_digamma).array();
     VectorX<Scalar> z_bar = VectorX<Scalar>::Zero(phi.rows());
-    sum_cols_scaled(phi, X_ratio, z_bar);
+    math_utils::sum_cols_scaled(phi, X_ratio, z_bar);
 
     VectorX<Scalar> softmax_eta_z = (eta.transpose() * z_bar).unaryExpr(cwise_fast_exp);
     softmax_eta_z = softmax_eta_z / softmax_eta_z.sum();
@@ -332,7 +332,7 @@ void compute_supervised_approximate_phi(
         psi_gamma + C*(eta_scaled.col(y) - eta_scaled * softmax_eta_z).array()
     ).unaryExpr(cwise_fast_exp).array();
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
-    normalize_cols(phi);
+    math_utils::normalize_cols(phi);
 }
 
 template <typename Scalar>
@@ -345,17 +345,17 @@ void compute_supervised_multinomial_phi(
     Scalar eta_weight,
     Ref<MatrixX<Scalar> > phi
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     auto t1 = gamma.unaryExpr(cwise_digamma).array();
-    auto t2 = digamma(gamma.sum()) + 1;
+    auto t2 = math_utils::digamma(gamma.sum()) + 1;
 
     phi = beta.array().colwise() * (
         (eta_weight*eta.col(y).array().log() + t1 - t2).unaryExpr(cwise_fast_exp).array()
     );
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
-    normalize_cols(phi);
+    math_utils::normalize_cols(phi);
 }
 
 template <typename Scalar>
@@ -368,15 +368,15 @@ void compute_supervised_correspondence_phi(
     const VectorX<Scalar> & tau,
     Ref<MatrixX<Scalar> > phi
 ) {
-    auto cwise_digamma = CwiseDigamma<Scalar>();
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     auto t1 = gamma.unaryExpr(cwise_digamma).array();
 
     phi = (beta.array().colwise() * t1.unaryExpr(cwise_fast_exp)).array() *
         (eta.col(y).array().log().matrix() * tau.transpose()).unaryExpr(cwise_fast_exp).array();
     //phi = phi.array().rowwise() / phi.colwise().sum().array();
-    normalize_cols(phi);
+    math_utils::normalize_cols(phi);
 }
 
 template <typename Scalar>
@@ -387,13 +387,13 @@ void compute_supervised_correspondence_tau(
     const MatrixX<Scalar> & phi,
     Ref<VectorX<Scalar> > tau
 ) {
-    auto cwise_fast_exp = CwiseFastExp<Scalar>();
+    auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
     tau = (
         phi.transpose() * eta.col(y).array().log().matrix()
     ).unaryExpr(cwise_fast_exp);
     // tau = tau.array() / tau.sum();
-    normalize_cols(tau);
+    math_utils::normalize_cols(tau);
 }
 
 // Template instantiations

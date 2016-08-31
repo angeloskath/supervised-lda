@@ -15,8 +15,8 @@ void MultinomialSupervisedMStep<Scalar>::m_step(
     auto model = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters);
     model->beta = b_;
     model->eta = h_.array() + mu_ - 1;
-    normalize_rows(model->beta);
-    normalize_rows(model->eta);
+    math_utils::normalize_rows(model->beta);
+    math_utils::normalize_rows(model->eta);
 
     // Report the log_py
     this->get_event_dispatcher()->template dispatch<events::MaximizationProgressEvent<Scalar> >(

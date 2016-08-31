@@ -5,10 +5,10 @@
 
 #include <Eigen/Core>
 
-
 using namespace Eigen;
 
 namespace ldaplusplus {
+namespace math_utils {
 
 
 static const std::array<double, 1024> exp_lut = {
@@ -582,6 +582,7 @@ void sum_cols_scaled(
     }
 }
 
+}  // namespace math_utils
+}  // namespace ldaplusplus
 
-}
 #endif // UTILS_H

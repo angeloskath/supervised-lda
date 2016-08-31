@@ -1,7 +1,6 @@
 #include "ldaplusplus/em/FastSupervisedEStep.hpp"
 #include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
-#include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
 
