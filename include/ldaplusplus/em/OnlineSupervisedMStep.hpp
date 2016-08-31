@@ -84,7 +84,7 @@ class OnlineSupervisedMStep : public IMStep<Scalar>
          * @inheritdoc
          */
         virtual void m_step(
-            std::shared_ptr<Parameters> parameters
+            std::shared_ptr<parameters::Parameters> parameters
         ) override;
 
         /**
@@ -100,8 +100,8 @@ class OnlineSupervisedMStep : public IMStep<Scalar>
          */
         virtual void doc_m_step(
             const std::shared_ptr<corpus::Document> doc,
-            const std::shared_ptr<Parameters> v_parameters,
-            std::shared_ptr<Parameters> m_parameters
+            const std::shared_ptr<parameters::Parameters> v_parameters,
+            std::shared_ptr<parameters::Parameters> m_parameters
         ) override;
 
     private:

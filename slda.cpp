@@ -36,12 +36,12 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
 void save_lda(
     std::string model_path,
-    std::shared_ptr<Parameters> parameters
+    std::shared_ptr<parameters::Parameters> parameters
 ) {
     // cast the model parameters to the model parameters type this script deals
     // with, namely SupervisedModelParameters
     auto model_parameters =
-        std::static_pointer_cast<SupervisedModelParameters<double> >(
+        std::static_pointer_cast<parameters::SupervisedModelParameters<double> >(
             parameters
         );
 
@@ -57,9 +57,9 @@ void save_lda(
 }
 
 
-std::shared_ptr<SupervisedModelParameters<double> > load_lda(std::string model_path) {
+std::shared_ptr<parameters::SupervisedModelParameters<double> > load_lda(std::string model_path) {
     // we will be needing those
-    auto model_parameters = std::make_shared<SupervisedModelParameters<double> >();
+    auto model_parameters = std::make_shared<parameters::SupervisedModelParameters<double> >();
     numpy_format::NumpyInput<double> ni;
 
     // open the file
@@ -159,7 +159,7 @@ class SnapshotEvery : public events::IEventListener
             }
         }
 
-        void snapsot(std::shared_ptr<Parameters> parameters) {
+        void snapsot(std::shared_ptr<parameters::Parameters> parameters) {
             std::stringstream actual_path;
             actual_path << path_ << "_";
             actual_path.fill('0');

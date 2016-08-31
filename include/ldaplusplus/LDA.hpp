@@ -57,7 +57,7 @@ class LDA
          *                         computing the expectation step
          */
         LDA(
-            std::shared_ptr<Parameters> model_parameters,
+            std::shared_ptr<parameters::Parameters> model_parameters,
             std::shared_ptr<em::IEStep<Scalar> > e_step,
             std::shared_ptr<em::IMStep<Scalar> > m_step,
             size_t iterations = 20,
@@ -163,7 +163,7 @@ class LDA
         /**
          * Get a constant reference to the model's parameters.
          */
-        const std::shared_ptr<Parameters> model_parameters() {
+        const std::shared_ptr<parameters::Parameters> model_parameters() {
             return model_parameters_;
         }
 
@@ -205,7 +205,7 @@ class LDA
          * Extract the variational parameters and the document index from the
          * worker queue.
          */
-        std::tuple<std::shared_ptr<Parameters>, size_t> extract_vp_from_queue();
+        std::tuple<std::shared_ptr<parameters::Parameters>, size_t> extract_vp_from_queue();
 
         /**
          * A doc_e_step worker thread.
@@ -237,7 +237,7 @@ class LDA
         void set_up_event_dispatcher();
 
         // The model parameters
-        std::shared_ptr<Parameters> model_parameters_;
+        std::shared_ptr<parameters::Parameters> model_parameters_;
 
         // The LDA implementation
         std::shared_ptr<em::IEStep<Scalar> > e_step_;
@@ -252,7 +252,7 @@ class LDA
         std::list<std::tuple<std::shared_ptr<corpus::Corpus>, size_t> > queue_in_;
         std::mutex queue_out_mutex_;
         std::condition_variable queue_out_cv_;
-        std::list<std::tuple<std::shared_ptr<Parameters>, size_t> > queue_out_;
+        std::list<std::tuple<std::shared_ptr<parameters::Parameters>, size_t> > queue_out_;
 
         // An event dispatcher that we will use to communicate with the
         // external components

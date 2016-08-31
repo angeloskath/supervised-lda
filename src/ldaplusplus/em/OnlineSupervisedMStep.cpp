@@ -48,17 +48,17 @@ OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
 template <typename Scalar>
 void OnlineSupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<corpus::Document> doc,
-    const std::shared_ptr<Parameters> v_parameters,
-    std::shared_ptr<Parameters> m_parameters
+    const std::shared_ptr<parameters::Parameters> v_parameters,
+    std::shared_ptr<parameters::Parameters> m_parameters
 ) {
     // Data from document doc
     const VectorXi & X = doc->get_words();
     int y = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class(); 
     // Variational parameters
-    const MatrixX & phi = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->phi;
-    const VectorX &gamma = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->gamma;
+    const MatrixX & phi = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->phi;
+    const VectorX &gamma = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->gamma;
     // Supervised model parameters
-    const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(m_parameters)->alpha;
+    const VectorX &alpha = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(m_parameters)->alpha;
 
     // Initialize our variables
     if (b_.rows() == 0) {
@@ -88,7 +88,7 @@ void OnlineSupervisedMStep<Scalar>::doc_m_step(
 
 template <typename Scalar>
 void OnlineSupervisedMStep<Scalar>::m_step(
-    std::shared_ptr<Parameters> parameters
+    std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Check whether we should actually perform the m_step
     if (docs_seen_so_far_ < minibatch_size_)
@@ -97,7 +97,7 @@ void OnlineSupervisedMStep<Scalar>::m_step(
     docs_seen_so_far_ = 0;
 
     // Extract the parameters from the struct
-    auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
+    auto model = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters);
     MatrixX & beta = model->beta;
     MatrixX & eta = model->eta;
 

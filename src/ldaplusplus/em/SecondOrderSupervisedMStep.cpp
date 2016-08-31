@@ -13,8 +13,8 @@ using optimization::SecondOrderLogisticRegressionApproximation;
 template <typename Scalar>
 void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<corpus::Document> doc,
-    const std::shared_ptr<Parameters> v_parameters,
-    std::shared_ptr<Parameters> m_parameters
+    const std::shared_ptr<parameters::Parameters> v_parameters,
+    std::shared_ptr<parameters::Parameters> m_parameters
 ) {
     UnsupervisedMStep<Scalar>::doc_m_step(
         doc,
@@ -27,10 +27,10 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
     int N = X.sum();
 
     // Cast Parameters to VariationalParameters in order to have access to gamma and phi
-    const VectorX &gamma = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->gamma;
-    const MatrixX &phi = std::static_pointer_cast<VariationalParameters<Scalar> >(v_parameters)->phi;
+    const VectorX &gamma = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->gamma;
+    const MatrixX &phi = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->phi;
     // Cast Parameters to SupervisedModelParameters in order to have access to alpha
-    const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(m_parameters)->alpha;
+    const VectorX &alpha = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(m_parameters)->alpha;
     int num_topics = alpha.rows();
 
     // Resize properly expected_z_bar_ and y_ every time the current function
@@ -65,13 +65,13 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
 
 template <typename Scalar>
 void SecondOrderSupervisedMStep<Scalar>::m_step(
-    std::shared_ptr<Parameters> parameters
+    std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Maximize w.r.t \beta during
     UnsupervisedMStep<Scalar>::m_step(
         parameters
     );
-    MatrixX &eta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->eta;
+    MatrixX &eta = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters)->eta;
 
     // resize the member variables to fit the documents we 've seen so far in
     // the doc_m_steps

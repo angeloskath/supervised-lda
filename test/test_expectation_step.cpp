@@ -110,7 +110,7 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
     beta.array() -= beta.minCoeff() - 0.001;
     beta.array().rowwise() /= beta.colwise().sum().array();
 
-    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+    auto model = std::make_shared<parameters::SupervisedModelParameters<TypeParam> >(
         alpha,
         beta,
         eta
@@ -125,7 +125,7 @@ TYPED_TEST(TestExpectationStep, DocEStep) {
             convergence_tolerance,
             fixed_point_iterations
         );
-        auto vp = std::static_pointer_cast<VariationalParameters<TypeParam> >(
+        auto vp = std::static_pointer_cast<parameters::VariationalParameters<TypeParam> >(
             e_step.doc_e_step(
                 doc,
                 model
@@ -168,7 +168,7 @@ TYPED_TEST(TestExpectationStep, FastDocEStep) {
     beta.array() -= beta.minCoeff() - 0.001;
     beta.array().rowwise() /= beta.colwise().sum().array();
 
-    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+    auto model = std::make_shared<parameters::SupervisedModelParameters<TypeParam> >(
         alpha,
         beta,
         eta
@@ -185,7 +185,7 @@ TYPED_TEST(TestExpectationStep, FastDocEStep) {
             convergence_tolerance,
             fixed_point_iterations
         );
-        auto vp = std::static_pointer_cast<VariationalParameters<TypeParam> >(
+        auto vp = std::static_pointer_cast<parameters::VariationalParameters<TypeParam> >(
             e_step.doc_e_step(
                 doc,
                 model

@@ -20,9 +20,9 @@ SupervisedEStep<Scalar>::SupervisedEStep(
 }
 
 template <typename Scalar>
-std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
+std::shared_ptr<parameters::Parameters> SupervisedEStep<Scalar>::doc_e_step(
     const std::shared_ptr<corpus::Document> doc,
-    const std::shared_ptr<Parameters> parameters
+    const std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Words form Document doc
     const VectorXi &X = doc->get_words();
@@ -35,9 +35,9 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
 
     // Cast parameters to model parameters in order to save all necessary
     // matrixes
-    const VectorX &alpha = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->alpha;
-    const MatrixX &beta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->beta;
-    const MatrixX &eta = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters)->eta;
+    const VectorX &alpha = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters)->alpha;
+    const MatrixX &beta = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters)->beta;
+    const MatrixX &eta = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters)->eta;
     int num_topics = beta.rows();
 
     // The variational parameters to be computed
@@ -82,7 +82,7 @@ std::shared_ptr<Parameters> SupervisedEStep<Scalar>::doc_e_step(
     // notify that the e step has finished
     this->get_event_dispatcher()->template dispatch<events::ExpectationProgressEvent<Scalar> >(new_likelihood);
 
-    return std::make_shared<VariationalParameters<Scalar> >(gamma, phi);
+    return std::make_shared<parameters::VariationalParameters<Scalar> >(gamma, phi);
 }
 
 // Template instantiation

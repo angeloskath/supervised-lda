@@ -9,10 +9,10 @@ using em::CorrespondenceSupervisedMStep;
 
 template <typename Scalar>
 void CorrespondenceSupervisedMStep<Scalar>::m_step(
-    std::shared_ptr<Parameters> parameters
+    std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Normalize according to the statistics
-    auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
+    auto model = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters);
     model->beta = b_;
     model->eta = h_.array() + mu_ - 1;
     normalize_rows(model->beta);
@@ -32,20 +32,20 @@ void CorrespondenceSupervisedMStep<Scalar>::m_step(
 template <typename Scalar>
 void CorrespondenceSupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<corpus::Document> doc,
-    const std::shared_ptr<Parameters> v_parameters,
-    std::shared_ptr<Parameters> m_parameters
+    const std::shared_ptr<parameters::Parameters> v_parameters,
+    std::shared_ptr<parameters::Parameters> m_parameters
 ) {
     // Words and class from document
     const VectorXi &X = doc->get_words();
     int y = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
     // Cast Parameters to VariationalParameters in order to have access to phi and tau
-    auto vp = std::static_pointer_cast<SupervisedCorrespondenceVariationalParameters<Scalar> >(v_parameters);
+    auto vp = std::static_pointer_cast<parameters::SupervisedCorrespondenceVariationalParameters<Scalar> >(v_parameters);
     const MatrixX &phi = vp->phi;
     const VectorX &tau = vp->tau;
 
     // Cast model parameters to model for liberal use
-    auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(m_parameters);
+    auto model = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(m_parameters);
 
     // Allocate memory for our sufficient statistics buffers
     if (b_.rows() == 0) {

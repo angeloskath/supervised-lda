@@ -12,7 +12,7 @@ namespace ldaplusplus {
 
 template <typename Scalar>
 LDA<Scalar>::LDA(
-    std::shared_ptr<Parameters> model_parameters,
+    std::shared_ptr<parameters::Parameters> model_parameters,
     std::shared_ptr<em::IEStep<Scalar> > e_step,
     std::shared_ptr<em::IMStep<Scalar> > m_step,
     size_t iterations,
@@ -92,7 +92,7 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<corpus::Corpus> corpus) {
 
     // Extract variational parameters and calculate the doc_m_step
     for (size_t i=0; i<corpus->size(); i++) {
-        std::shared_ptr<Parameters> variational_parameters;
+        std::shared_ptr<parameters::Parameters> variational_parameters;
         size_t index;
 
         std::tie(variational_parameters, index) = extract_vp_from_queue();
@@ -128,7 +128,7 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<corpus::Corpus> corpus) {
 template <typename Scalar>
 typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
     // cast the parameters to what is needed
-    auto model = std::static_pointer_cast<ModelParameters<Scalar> >(
+    auto model = std::static_pointer_cast<parameters::ModelParameters<Scalar> >(
         model_parameters_
     );
 
@@ -148,11 +148,11 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
 
     // Extract variational parameters and calculate the doc_e_step
     for (size_t i=0; i<corpus->size(); i++) {
-        std::shared_ptr<Parameters> vp;
+        std::shared_ptr<parameters::Parameters> vp;
         size_t index;
 
         std::tie(vp, index) = extract_vp_from_queue();
-        gammas.col(index) = std::static_pointer_cast<VariationalParameters<Scalar> >(vp)->gamma;
+        gammas.col(index) = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(vp)->gamma;
 
         // tell the thread safe event dispatcher to process the events from the
         // workers
@@ -176,7 +176,7 @@ template <typename Scalar>
 typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const MatrixX &X) {
     // this function requires a supervised LDA so let's cast our models
     // parameters accordingly
-    auto model = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(
+    auto model = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(
         model_parameters_
     );
 
@@ -270,7 +270,7 @@ void LDA<Scalar>::doc_e_step_worker() {
 
 
 template <typename Scalar>
-std::tuple<std::shared_ptr<Parameters>, size_t> LDA<Scalar>::extract_vp_from_queue() {
+std::tuple<std::shared_ptr<parameters::Parameters>, size_t> LDA<Scalar>::extract_vp_from_queue() {
     std::unique_lock<std::mutex> lock(queue_out_mutex_);
     queue_out_cv_.wait(lock, [this](){ return !queue_out_.empty(); });
 

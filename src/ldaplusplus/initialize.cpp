@@ -12,13 +12,13 @@ using VectorX = Eigen::Matrix<T, Eigen::Dynamic, 1>;
 
 template<typename Scalar>
 void initialize_topics_seeded(
-    const std::shared_ptr<Parameters> parameters,
+    const std::shared_ptr<parameters::Parameters> parameters,
     const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics,
     int random_state
 ) {
     // Initialize alpha as 1/topics
-    auto model_parameters = std::static_pointer_cast<ModelParameters<Scalar> >(parameters);
+    auto model_parameters = std::static_pointer_cast<parameters::ModelParameters<Scalar> >(parameters);
     model_parameters->alpha = VectorX<Scalar>::Constant(topics, 1.0 / topics); 
     
     // Initliaze beta in a seeded way
@@ -48,7 +48,7 @@ void initialize_topics_seeded(
 
 template <typename Scalar>
 void initialize_topics_random(
-    const std::shared_ptr<Parameters> parameters,
+    const std::shared_ptr<parameters::Parameters> parameters,
     const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics,
     int random_state
@@ -58,11 +58,11 @@ void initialize_topics_random(
 
 template <typename Scalar>
 void initialize_eta_zeros(
-    const std::shared_ptr<Parameters> parameters,
+    const std::shared_ptr<parameters::Parameters> parameters,
     const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics
 ) {
-    auto model_parameters = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
+    auto model_parameters = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters);
     
     int max = -1;
     // Find the total number of different classes
@@ -80,11 +80,11 @@ void initialize_eta_zeros(
 
 template <typename Scalar>
 void initialize_eta_multinomial(
-    const std::shared_ptr<Parameters> parameters,
+    const std::shared_ptr<parameters::Parameters> parameters,
     const std::shared_ptr<corpus::Corpus> corpus,
     size_t topics
 ) {
-    auto model_parameters = std::static_pointer_cast<SupervisedModelParameters<Scalar> >(parameters);
+    auto model_parameters = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(parameters);
 
     int max = -1;
     // Find the total number of different classes
@@ -102,46 +102,46 @@ void initialize_eta_multinomial(
 
 // Template instantiation
 template void initialize_topics_seeded<float>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t,
     int 
 );
 template void initialize_topics_seeded<double>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t,
     int
 );
 template void initialize_topics_random<float>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t,
     int
 );
 template void initialize_topics_random<double>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t,
     int
 );
 template void initialize_eta_zeros<float>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t
 );
 template void initialize_eta_zeros<double>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t
 );
 template void initialize_eta_multinomial<float>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t topics=600
 );
 template void initialize_eta_multinomial<double>(
-    const std::shared_ptr<Parameters>,
+    const std::shared_ptr<parameters::Parameters>,
     const std::shared_ptr<corpus::Corpus>,
     size_t topics=600
 );

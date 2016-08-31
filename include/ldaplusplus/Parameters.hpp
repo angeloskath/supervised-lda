@@ -9,6 +9,7 @@
 using namespace Eigen;
 
 namespace ldaplusplus {
+namespace parameters {
 
 
 /**
@@ -99,6 +100,7 @@ struct SupervisedCorrespondenceVariationalParameters : public VariationalParamet
     Matrix<Scalar, Dynamic, 1> tau;
 };
 
+}  // namespace parameters
+}  // namespace ldaplusplus
 
-}
 #endif  // _PARAMETERS_HPP_

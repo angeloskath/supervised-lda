@@ -88,7 +88,7 @@ class LDABuilder : public ILDABuilder<Scalar>
               e_step_(std::make_shared<em::UnsupervisedEStep<Scalar> >()),
               m_step_(std::make_shared<em::UnsupervisedMStep<Scalar> >()),
               model_parameters_(
-                std::make_shared<SupervisedModelParameters<Scalar> >()
+                std::make_shared<parameters::SupervisedModelParameters<Scalar> >()
               )
         {}
 
@@ -293,7 +293,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * model to a local copy.
          */
         LDABuilder & initialize_topics_from_model(
-            std::shared_ptr<ModelParameters<Scalar> > model
+            std::shared_ptr<parameters::ModelParameters<Scalar> > model
         ) {
             model_parameters_->alpha = model->alpha;
             model_parameters_->beta = model->beta;
@@ -308,7 +308,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * copy.
          */
         LDABuilder & initialize_eta_from_model(
-            std::shared_ptr<SupervisedModelParameters<Scalar> > model
+            std::shared_ptr<parameters::SupervisedModelParameters<Scalar> > model
         ) {
             model_parameters_->eta = model->eta;
 
@@ -356,7 +356,7 @@ class LDABuilder : public ILDABuilder<Scalar>
         std::shared_ptr<em::IMStep<Scalar> > m_step_;
 
         // the model parameters
-        std::shared_ptr<SupervisedModelParameters<Scalar> > model_parameters_;
+        std::shared_ptr<parameters::SupervisedModelParameters<Scalar> > model_parameters_;
 };
 
 

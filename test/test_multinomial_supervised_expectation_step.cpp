@@ -4,7 +4,6 @@
 #include "test/utils.hpp"
 
 #include "ldaplusplus/Document.hpp"
-#include "ldaplusplus/Parameters.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
 
 using namespace Eigen;

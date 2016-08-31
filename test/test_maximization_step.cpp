@@ -43,7 +43,7 @@ TYPED_TEST(TestMaximizationStep, Maximization) {
     MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(10, 100);
     beta.array() -= beta.minCoeff();
     beta.array().rowwise() /= beta.array().colwise().sum();
-    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+    auto model = std::make_shared<parameters::SupervisedModelParameters<TypeParam> >(
         VectorX<TypeParam>::Constant(10, 0.1),
         beta,
         MatrixX<TypeParam>::Zero(10, 6)

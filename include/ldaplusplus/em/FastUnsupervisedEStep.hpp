@@ -46,9 +46,9 @@ class FastUnsupervisedEStep : public IEStep<Scalar>
          * @return           The variational parameters for the current
          *                   model, after expecation step is completed.
          */
-        std::shared_ptr<Parameters> doc_e_step(
+        std::shared_ptr<parameters::Parameters> doc_e_step(
             const std::shared_ptr<corpus::Document> doc,
-            const std::shared_ptr<Parameters> parameters
+            const std::shared_ptr<parameters::Parameters> parameters
         ) override;
 
         void e_step() override;

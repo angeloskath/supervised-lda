@@ -49,17 +49,17 @@ template <typename Scalar>
 class EpochProgressEvent : public Event
 {
     public:
-        EpochProgressEvent(const std::shared_ptr<Parameters> parameters) :
+        EpochProgressEvent(const std::shared_ptr<parameters::Parameters> parameters) :
             Event("EpochProgressEvent"),
             model_parameters_(parameters)
         {}
 
-        const std::shared_ptr<Parameters> model_parameters() const {
+        const std::shared_ptr<parameters::Parameters> model_parameters() const {
             return model_parameters_;
         }
 
     private:
-       std::shared_ptr<Parameters> model_parameters_;
+       std::shared_ptr<parameters::Parameters> model_parameters_;
 };
 
 }  // namespace events
