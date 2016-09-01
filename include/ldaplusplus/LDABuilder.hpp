@@ -80,69 +80,261 @@ class LDABuilder : public ILDABuilder<Scalar>
          * steps with 20 iterations and as many workers as there are cpus
          * available.
          *
-         * Before being usable the model parameters must be initialized.
+         * Before being usable the model parameters must be initialized to set
+         * the number of topics etc.
          */
-        LDABuilder()
-            : iterations_(20),
-              workers_(std::thread::hardware_concurrency()),
-              e_step_(std::make_shared<em::UnsupervisedEStep<Scalar> >()),
-              m_step_(std::make_shared<em::UnsupervisedMStep<Scalar> >()),
-              model_parameters_(
-                std::make_shared<parameters::SupervisedModelParameters<Scalar> >()
-              )
-        {}
+        LDABuilder();
 
         /** Choose a number of iterations see LDA::fit */
-        LDABuilder & set_iterations(size_t iterations) {
-            iterations_ = iterations;
+        LDABuilder & set_iterations(size_t iterations);
 
-            return *this;
-        }
-        /** Choose a number of workers for the expectation step */
-        LDABuilder & set_workers(size_t workers) {
-            workers_ = workers;
+        /** Choose a number of parallel workers for the expectation step */
+        LDABuilder & set_workers(size_t workers);
 
-            return *this;
+
+        /**
+         * Create an UnsupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * UnsupervisedEStep::UnsupervisedEStep
+         *
+         * @param e_step_iterations The maximum iterations for each document's
+         *                          expectation step
+         * @param e_step_tolerance  The minimum relative change in the ELBO
+         *                          (less than that and we stop iterating)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        ) {
+            return set_e(get_classic_e_step(
+                e_step_iterations,
+                e_step_tolerance
+            ));
         }
 
-        /** Get the classic unsupervised LDA expectation step
-         * (UnsupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_classic_e_step(Args... args) {
-            return std::make_shared<em::UnsupervisedEStep<Scalar> >(args...);
+        /**
+         * Create an FastUnsupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * FastUnsupervisedEStep::FastUnsupervisedEStep
+         *
+         * @param e_step_iterations The maximum iterations for each document's
+         *                          expectation step
+         * @param e_step_tolerance  The minimum relative change in the
+         *                          variational parameters (less than that and
+         *                          we stop iterating)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_fast_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_fast_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        ) {
+            return set_e(get_fast_classic_e_step(
+                e_step_iterations,
+                e_step_tolerance
+            ));
         }
-        /** Get the classic unsupervised LDA expectation step that doesn't
-         * report log likelihood (FastUnsupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_fast_classic_e_step(Args... args) {
-            return std::make_shared<em::FastUnsupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create a SupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * SupervisedEStep::SupervisedEStep.
+         *
+         * @param e_step_iterations      The maximum iterations for each
+         *                               document's expectation step
+         * @param e_step_tolerance       The minimum relative change in the
+         *                               ELBO (less than that and we stop
+         *                               iterating)
+         * @param fixed_point_iterations The number of fixed point iterations
+         *                               see SupervisedEStep
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            size_t fixed_point_iterations = 10
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            size_t fixed_point_iterations = 10
+        ) {
+            return set_e(get_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                fixed_point_iterations
+            ));
         }
-        /** Get the supervised LDA (sLDA) expectation step (SupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_supervised_e_step(Args... args) {
-            return std::make_shared<em::SupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create an ApproximatedSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * ApproximatedSupervisedEStep::ApproximatedSupervisedEStep.
+         *
+         * @param e_step_iterations  The maximum iterations for each
+         *                           document's expectation step
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           ELBO (less than that and we stop
+         *                           iterating)
+         * @param C                  Weight of the supervised part in the
+         *                           inference (default: 1)
+         * @param weight_type        How the weight will change between
+         *                           iterations (default: constant)
+         * @param compute_likelihood Compute the likelihood at the end of each
+         *                           expectation step (in order to be reported)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_fast_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar C = 1,
+            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
+            bool compute_likelihood = true
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_fast_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar C = 1,
+            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
+            bool compute_likelihood = true
+        ) {
+            return set_e(get_fast_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                C,
+                weight_type,
+                compute_likelihood
+            ));
         }
-        /** Get the fast approximate supervised LDA (fsLDA) expectation step
-         * (ApproximatedSupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
-            return std::make_shared<em::ApproximatedSupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create a SemiSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * SemiSupervisedEStep::SemiSupervisedEStep.
+         *
+         * @param supervised_step   The supervised step to use (when nullptr is
+         *                          provided it defaults to
+         *                          ApproximatedSupervisedEStep with default
+         *                          parameters)
+         * @param unsupervised_step The unsupervised step to use (when nullptr is
+         *                          provided it defaults to
+         *                          FastUnsupervisedEStep with default
+         *                          parameters)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_semi_supervised_e_step(
+            std::shared_ptr<em::IEStep<Scalar> > supervised_step = nullptr,
+            std::shared_ptr<em::IEStep<Scalar> > unsupervised_step = nullptr
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_semi_supervised_e_step(
+            std::shared_ptr<em::IEStep<Scalar> > supervised_step = nullptr,
+            std::shared_ptr<em::IEStep<Scalar> > unsupervised_step = nullptr
+        ) {
+            return set_e(get_semi_supervised_e_step(
+                supervised_step,
+                unsupervised_step
+            ));
         }
-        /** Get the SemiSupervisedEStep */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
-            return std::make_shared<em::SemiSupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create an MultinomialSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * MultinomialSupervisedEStep::MultinomialSupervisedEStep.
+         *
+         * @param e_step_iterations The maximum iterations for each
+         *                          document's expectation step
+         * @param e_step_tolerance  The minimum relative change in the
+         *                          ELBO (less than that and we stop
+         *                          iterating)
+         * @param mu                A uniform Dirichlet prior for the
+         *                          supervised parameters (default: 2)
+         * @param eta_weight        A weight parameter that decreases or
+         *                          increases the influence of the supervised
+         *                          part (default: 1).
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_multinomial_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2,
+            Scalar eta_weight = 1
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_multinomial_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2,
+            Scalar eta_weight = 1
+        ) {
+            return set_e(get_multinomial_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                mu,
+                eta_weight
+            ));
         }
-        /** Get the MultinomialSupervisedEStep */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
-            return std::make_shared<em::MultinomialSupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create an CorrespondenceSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * CorrespondenceSupervisedEStep::CorrespondenceSupervisedEStep.
+         *
+         * @param e_step_iterations The maximum iterations for each
+         *                          document's expectation step
+         * @param e_step_tolerance  The minimum relative change in the
+         *                          ELBO (less than that and we stop
+         *                          iterating)
+         * @param mu                A uniform Dirichlet prior for the
+         *                          supervised parameters (default: 2)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_correspondence_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_correspondence_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2
+        ) {
+            return set_e(get_correspondence_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                mu
+            ));
         }
-        /** Get the CorrespondenceSupervisedEStep */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_supervised_correspondence_e_step(Args... args) {
-            return std::make_shared<em::CorrespondenceSupervisedEStep<Scalar> >(args...);
-        }
+
         /**
          * Set an expectation step.
          *
