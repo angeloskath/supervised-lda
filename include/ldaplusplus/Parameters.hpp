@@ -6,7 +6,7 @@
 
 #include <Eigen/Core>
 
-using namespace Eigen;
+//using namespace Eigen;
 
 namespace ldaplusplus {
 namespace parameters {
@@ -30,14 +30,14 @@ struct ModelParameters : public Parameters
 {
     ModelParameters() {}
     ModelParameters(
-        Matrix<Scalar, Dynamic, 1> a,
-        Matrix<Scalar, Dynamic, Dynamic> b
+        Eigen::Matrix<Scalar, Eigen::Dynamic, 1> a,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> b
     ) : alpha(std::move(a)),
         beta(std::move(b))
     {}
 
-    Matrix<Scalar, Dynamic, 1> alpha;
-    Matrix<Scalar, Dynamic, Dynamic> beta;
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> alpha;
+    Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> beta;
 };
 
 
@@ -50,14 +50,14 @@ struct SupervisedModelParameters : public ModelParameters<Scalar>
 {
     SupervisedModelParameters() {}
     SupervisedModelParameters(
-        Matrix<Scalar, Dynamic, 1> a,
-        Matrix<Scalar, Dynamic, Dynamic> b,
-        Matrix<Scalar, Dynamic, Dynamic> e
+        Eigen::Matrix<Scalar, Eigen::Dynamic, 1> a,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> b,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> e
     ) : ModelParameters<Scalar>(a, b),
         eta(std::move(e))
     {}
 
-    Matrix<Scalar, Dynamic, Dynamic> eta;
+    Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> eta;
 };
 
 
@@ -70,14 +70,14 @@ struct VariationalParameters : public Parameters
 {
     VariationalParameters() {}
     VariationalParameters(
-        Matrix<Scalar, Dynamic, 1> g,
-        Matrix<Scalar, Dynamic, Dynamic> p
+        Eigen::Matrix<Scalar, Eigen::Dynamic, 1> g,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> p
     ) : gamma(std::move(g)),
         phi(std::move(p))
     {}
 
-    Matrix<Scalar, Dynamic, 1> gamma;
-    Matrix<Scalar, Dynamic, Dynamic> phi;
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> gamma;
+    Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> phi;
 };
 
 
@@ -90,14 +90,14 @@ struct SupervisedCorrespondenceVariationalParameters : public VariationalParamet
 {
     SupervisedCorrespondenceVariationalParameters() {}
     SupervisedCorrespondenceVariationalParameters(
-        Matrix<Scalar, Dynamic, 1> g,
-        Matrix<Scalar, Dynamic, Dynamic> p,
-        Matrix<Scalar, Dynamic, 1> t
+        Eigen::Matrix<Scalar, Eigen::Dynamic, 1> g,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> p,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, 1> t
     ) : VariationalParameters<Scalar>(g, p),
         tau(std::move(t))
     {}
 
-    Matrix<Scalar, Dynamic, 1> tau;
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> tau;
 };
 
 }  // namespace parameters
