@@ -6,8 +6,6 @@
 
 #include <Eigen/Core>
 
-//using namespace Eigen;
-
 namespace ldaplusplus {
 namespace parameters {
 
