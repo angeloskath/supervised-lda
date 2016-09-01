@@ -38,29 +38,29 @@ include_directories(include)
 # http://stackoverflow.com/questions/1027247/best-way-to-specify-sourcefiles-in-cmake
 # for an explanation (yes stackoverflow the very credible software authority)
 set(SOURCES
-    src/ApproximatedSupervisedEStep.cpp
-    src/CorrespondenceSupervisedEStep.cpp
-    src/CorrespondenceSupervisedMStep.cpp
-    src/Document.cpp
-    src/e_step_utils.cpp
-    src/Events.cpp
-    src/FastSupervisedEStep.cpp
-    src/FastUnsupervisedEStep.cpp
-    src/initialize.cpp
-    src/LDABuilder.cpp
-    src/LDA.cpp
-    src/MultinomialLogisticRegression.cpp
-    src/MultinomialSupervisedEStep.cpp
-    src/MultinomialSupervisedMStep.cpp
-    src/OnlineSupervisedMStep.cpp
-    src/SecondOrderLogisticRegressionApproximation.cpp
-    src/SecondOrderSupervisedMStep.cpp
-    src/SemiSupervisedEStep.cpp
-    src/SemiSupervisedMStep.cpp
-    src/SupervisedEStep.cpp
-    src/SupervisedMStep.cpp
-    src/UnsupervisedEStep.cpp
-    src/UnsupervisedMStep.cpp
+    src/ldaplusplus/Document.cpp
+    src/ldaplusplus/em/ApproximatedSupervisedEStep.cpp
+    src/ldaplusplus/em/CorrespondenceSupervisedEStep.cpp
+    src/ldaplusplus/em/CorrespondenceSupervisedMStep.cpp
+    src/ldaplusplus/em/FastSupervisedEStep.cpp
+    src/ldaplusplus/em/FastUnsupervisedEStep.cpp
+    src/ldaplusplus/em/MultinomialSupervisedEStep.cpp
+    src/ldaplusplus/em/MultinomialSupervisedMStep.cpp
+    src/ldaplusplus/em/OnlineSupervisedMStep.cpp
+    src/ldaplusplus/em/SecondOrderSupervisedMStep.cpp
+    src/ldaplusplus/em/SemiSupervisedEStep.cpp
+    src/ldaplusplus/em/SemiSupervisedMStep.cpp
+    src/ldaplusplus/em/SupervisedEStep.cpp
+    src/ldaplusplus/em/SupervisedMStep.cpp
+    src/ldaplusplus/em/UnsupervisedEStep.cpp
+    src/ldaplusplus/em/UnsupervisedMStep.cpp
+    src/ldaplusplus/e_step_utils.cpp
+    src/ldaplusplus/events/Events.cpp
+    src/ldaplusplus/initialize.cpp
+    src/ldaplusplus/LDABuilder.cpp
+    src/ldaplusplus/LDA.cpp
+    src/ldaplusplus/optimization/MultinomialLogisticRegression.cpp
+    src/ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.cpp
 )
 
 # Generate a shared and static library from the sources

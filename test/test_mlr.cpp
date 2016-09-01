@@ -7,10 +7,12 @@
 
 #include "test/utils.hpp"
 
-#include "MultinomialLogisticRegression.hpp"
-#include "GradientDescent.hpp"
+#include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
+#include "ldaplusplus/optimization/GradientDescent.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus::optimization;
+
 
 template <typename T>
 class TestMultinomialLogisticRegression : public ParameterizedTest<T> {};

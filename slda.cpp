@@ -11,16 +11,15 @@
 
 #include <docopt/docopt.h>
 
-#include "ApproximatedSupervisedEStep.hpp"
-#include "Events.hpp"
-#include "IEStep.hpp"
-#include "IMStep.hpp"
-#include "LDABuilder.hpp"
-#include "LDA.hpp"
-#include "NumpyFormat.hpp"
-#include "Parameters.hpp"
-#include "ProgressEvents.hpp"
+#include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/events/Events.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
+#include "ldaplusplus/LDABuilder.hpp"
+#include "ldaplusplus/LDA.hpp"
+#include "ldaplusplus/NumpyFormat.hpp"
+#include "ldaplusplus/Parameters.hpp"
 
+using namespace ldaplusplus;
 
 double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
     double accuracy = 0.0;
@@ -37,12 +36,12 @@ double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
 
 void save_lda(
     std::string model_path,
-    std::shared_ptr<Parameters> parameters
+    std::shared_ptr<parameters::Parameters> parameters
 ) {
     // cast the model parameters to the model parameters type this script deals
     // with, namely SupervisedModelParameters
     auto model_parameters =
-        std::static_pointer_cast<SupervisedModelParameters<double> >(
+        std::static_pointer_cast<parameters::SupervisedModelParameters<double> >(
             parameters
         );
 
@@ -58,9 +57,9 @@ void save_lda(
 }
 
 
-std::shared_ptr<SupervisedModelParameters<double> > load_lda(std::string model_path) {
+std::shared_ptr<parameters::SupervisedModelParameters<double> > load_lda(std::string model_path) {
     // we will be needing those
-    auto model_parameters = std::make_shared<SupervisedModelParameters<double> >();
+    auto model_parameters = std::make_shared<parameters::SupervisedModelParameters<double> >();
     numpy_format::NumpyInput<double> ni;
 
     // open the file
@@ -77,7 +76,7 @@ std::shared_ptr<SupervisedModelParameters<double> > load_lda(std::string model_p
 }
 
 
-class TrainingProgress : public IEventListener
+class TrainingProgress : public events::IEventListener
 {
     public:
         TrainingProgress() {
@@ -89,9 +88,9 @@ class TrainingProgress : public IEventListener
             cnt_likelihoods_ = 0;
         }
 
-        void on_event(std::shared_ptr<Event> event) {
+        void on_event(std::shared_ptr<events::Event> event) {
             if (event->id() == "ExpectationProgressEvent") {
-                auto progress = std::static_pointer_cast<ExpectationProgressEvent<double> >(event);
+                auto progress = std::static_pointer_cast<events::ExpectationProgressEvent<double> >(event);
 
                 // output the EM count
                 if (e_iterations_ == 0) {
@@ -111,7 +110,7 @@ class TrainingProgress : public IEventListener
                 }
             }
             else if (event->id() == "MaximizationProgressEvent") {
-                auto progress = std::static_pointer_cast<MaximizationProgressEvent<double> >(event);
+                auto progress = std::static_pointer_cast<events::MaximizationProgressEvent<double> >(event);
 
                 std::cout << "log p(y | \\bar{z}, eta): " << progress->likelihood() << std::endl;
 
@@ -142,16 +141,16 @@ class TrainingProgress : public IEventListener
 };
 
 
-class SnapshotEvery : public IEventListener
+class SnapshotEvery : public events::IEventListener
 {
     public:
         SnapshotEvery(std::string path, int every=10)
             : path_(std::move(path)), every_(every), seen_so_far_(0)
         {}
 
-        void on_event(std::shared_ptr<Event> event) {
+        void on_event(std::shared_ptr<events::Event> event) {
             if (event->id() == "EpochProgressEvent") {
-                auto progress = std::static_pointer_cast<EpochProgressEvent<double> >(event);
+                auto progress = std::static_pointer_cast<events::EpochProgressEvent<double> >(event);
 
                 seen_so_far_ ++;
                 if (seen_so_far_ % every_ == 0) {
@@ -160,7 +159,7 @@ class SnapshotEvery : public IEventListener
             }
         }
 
-        void snapsot(std::shared_ptr<Parameters> parameters) {
+        void snapsot(std::shared_ptr<parameters::Parameters> parameters) {
             std::stringstream actual_path;
             actual_path << path_ << "_";
             actual_path.fill('0');
@@ -177,7 +176,7 @@ class SnapshotEvery : public IEventListener
 };
 
 
-class LdaStopwatch : public IEventListener
+class LdaStopwatch : public events::IEventListener
 {
     typedef std::chrono::high_resolution_clock clock;
     typedef std::chrono::duration<double, std::milli> ms;
@@ -187,7 +186,7 @@ class LdaStopwatch : public IEventListener
             : expectation_events(0), maximization_events(0)
         {}
 
-        void on_event(std::shared_ptr<Event> event) {
+        void on_event(std::shared_ptr<events::Event> event) {
             // count all the expectation events and log the time we got the
             // first one
             if (event->id() == "ExpectationProgressEvent") {
@@ -301,11 +300,11 @@ LDA<double> create_lda_for_training(
             std::stof(args["--e_step_tolerance"].asString())
         ));
     } else if (args["--fast_e_step"].asBool()) {
-        typename ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
+        typename em::ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
         if (args["--supervised_weight_evolution"].asString() == "exponential") {
-            weight_evolution = ApproximatedSupervisedEStep<double>::ExponentialDecay;
+            weight_evolution = em::ApproximatedSupervisedEStep<double>::ExponentialDecay;
         } else {
-            weight_evolution = ApproximatedSupervisedEStep<double>::Constant;
+            weight_evolution = em::ApproximatedSupervisedEStep<double>::Constant;
         }
         builder.set_e(builder.get_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),

@@ -8,12 +8,13 @@
 
 #include "test/utils.hpp"
 
-#include "Parameters.hpp"
-#include "ProgressEvents.hpp"
-#include "MultinomialSupervisedEStep.hpp"
-#include "MultinomialSupervisedMStep.hpp"
+#include "ldaplusplus/Parameters.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 // T will be available as TypeParam in TYPED_TEST functions
@@ -38,18 +39,18 @@ TYPED_TEST(TestMultinomialMaximizationStep, Maximization) {
     }
 
     // Create the corpus and the model
-    auto corpus = std::make_shared<EigenClassificationCorpus>(X, y);
+    auto corpus = std::make_shared<corpus::EigenClassificationCorpus>(X, y);
     MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(10, 100);
     beta.array() -= beta.minCoeff();
     beta.array().rowwise() /= beta.array().colwise().sum();
-    auto model = std::make_shared<SupervisedModelParameters<TypeParam> >(
+    auto model = std::make_shared<parameters::SupervisedModelParameters<TypeParam> >(
         VectorX<TypeParam>::Constant(10, 0.1),
         beta,
         MatrixX<TypeParam>::Constant(10, 6, 1. / 6)
     );
 
-    MultinomialSupervisedEStep<TypeParam> e_step(10, 1e-2, 2);
-    MultinomialSupervisedMStep<TypeParam> m_step(2);
+    em::MultinomialSupervisedEStep<TypeParam> e_step(10, 1e-2, 2);
+    em::MultinomialSupervisedMStep<TypeParam> m_step(2);
 
     for (size_t i=0; i<corpus->size(); i++) {
         m_step.doc_m_step(
@@ -64,9 +65,9 @@ TYPED_TEST(TestMultinomialMaximizationStep, Maximization) {
 
     std::vector<TypeParam> progress;
     m_step.get_event_dispatcher()->add_listener(
-        [&progress](std::shared_ptr<Event> event) {
+        [&progress](std::shared_ptr<events::Event> event) {
             if (event->id() == "MaximizationProgressEvent") {
-                auto prog_ev = std::static_pointer_cast<MaximizationProgressEvent<TypeParam> >(event);
+                auto prog_ev = std::static_pointer_cast<events::MaximizationProgressEvent<TypeParam> >(event);
                 progress.push_back(prog_ev->likelihood());
             }
         }

@@ -7,9 +7,10 @@
 
 #include "test/utils.hpp"
 
-#include "NumpyFormat.hpp"
+#include "ldaplusplus/NumpyFormat.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 // T will be available as TypeParam in TYPED_TEST functions

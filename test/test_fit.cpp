@@ -6,13 +6,12 @@
 
 #include "test/utils.hpp"
 
-#include "IEStep.hpp"
-#include "IMStep.hpp"
-#include "LDABuilder.hpp"
-#include "LDA.hpp"
-#include "ProgressEvents.hpp"
+#include "ldaplusplus/LDABuilder.hpp"
+#include "ldaplusplus/LDA.hpp"
+#include "ldaplusplus/events/ProgressEvents.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 // T will be available as TypeParam in TYPED_TEST functions
@@ -46,14 +45,14 @@ TYPED_TEST(TestFit, partial_fit) {
 
     TypeParam likelihood0, likelihood=0, py0, py;
     lda.get_event_dispatcher()->add_listener(
-        [&likelihood, &py](std::shared_ptr<Event> event) {
+        [&likelihood, &py](std::shared_ptr<events::Event> event) {
             //if (event->id() == "ExpectationProgressEvent") {
-            //    auto progress = std::static_pointer_cast<ExpectationProgressEvent<TypeParam> >(event);
+            //    auto progress = std::static_pointer_cast<events::ExpectationProgressEvent<TypeParam> >(event);
             //    likelihood += progress->likelihood();
             //}
 
             if (event->id() == "MaximizationProgressEvent") {
-                auto progress = std::static_pointer_cast<MaximizationProgressEvent<TypeParam> >(event);
+                auto progress = std::static_pointer_cast<events::MaximizationProgressEvent<TypeParam> >(event);
                 py = progress->likelihood();
             }
         }

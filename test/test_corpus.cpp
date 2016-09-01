@@ -4,15 +4,16 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
-#include "Document.hpp"
+#include "ldaplusplus/Document.hpp"
 
 using namespace Eigen;
+using namespace ldaplusplus;
 
 
 TEST(TestCorpus, TestDocument) {
     VectorXi X = VectorXi::Random(10).array().abs().matrix();
 
-    auto doc = std::make_shared<EigenDocument>(X);
+    auto doc = std::make_shared<corpus::EigenDocument>(X);
 
     for (int i=0; i<10; i++) {
         ASSERT_EQ(X[i], doc->get_words()[i]);
@@ -22,8 +23,8 @@ TEST(TestCorpus, TestDocument) {
 TEST(TestCorpus, TestClassificationDecorator) {
     VectorXi X = VectorXi::Random(10).array().abs().matrix();
 
-    auto doc = std::make_shared<ClassificationDecorator>(
-        std::make_shared<EigenDocument>(X),
+    auto doc = std::make_shared<corpus::ClassificationDecorator>(
+        std::make_shared<corpus::EigenDocument>(X),
         13
     );
 
@@ -36,7 +37,7 @@ TEST(TestCorpus, TestClassificationDecorator) {
 TEST(TestCorpus, TestEigenCorpus) {
     MatrixXi X = MatrixXi::Random(10, 100).array().abs().matrix();
 
-    auto corpus = std::make_shared<EigenCorpus>(X);
+    auto corpus = std::make_shared<corpus::EigenCorpus>(X);
 
     ASSERT_EQ(100, corpus->size());
 
