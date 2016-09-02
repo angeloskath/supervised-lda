@@ -24,12 +24,12 @@ void FunctionEventListener::on_event(std::shared_ptr<Event> event) {
 }
 
 
-void EventDispatcher::add_listener(std::shared_ptr<IEventListener> listener) {
+void EventDispatcher::add_listener(std::shared_ptr<EventListenerInterface> listener) {
     listeners_.push_back(listener);
 }
 
 
-void EventDispatcher::remove_listener(std::shared_ptr<IEventListener> listener) {
+void EventDispatcher::remove_listener(std::shared_ptr<EventListenerInterface> listener) {
     for (auto it = listeners_.begin(); it != listeners_.end(); it++) {
         if (*it == listener) {
             listeners_.erase(it);
@@ -47,7 +47,7 @@ void EventDispatcher::dispatch(std::shared_ptr<Event> event) {
 
 
 void ThreadSafeEventDispatcher::add_listener(
-    std::shared_ptr<IEventListener> listener
+    std::shared_ptr<EventListenerInterface> listener
 ) {
     std::lock_guard<std::mutex> l(listeners_mutex_);
 
@@ -55,7 +55,7 @@ void ThreadSafeEventDispatcher::add_listener(
 }
 
 void ThreadSafeEventDispatcher::remove_listener(
-    std::shared_ptr<IEventListener> listener
+    std::shared_ptr<EventListenerInterface> listener
 ) {
     std::lock_guard<std::mutex> l(deleted_listeners_mutex_);
 
@@ -96,7 +96,7 @@ void ThreadSafeEventDispatcher::process_events() {
     }
 
     // copy the listeners list
-    std::list<std::shared_ptr<IEventListener> > listeners;
+    std::list<std::shared_ptr<EventListenerInterface> > listeners;
     {
         std::lock_guard<std::mutex> l(listeners_mutex_);
         listeners = listeners_;

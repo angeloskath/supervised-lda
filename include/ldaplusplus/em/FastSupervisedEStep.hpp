@@ -4,7 +4,7 @@
 
 #include <Eigen/Core>
 
-#include "ldaplusplus/em/IEStep.hpp"
+#include "ldaplusplus/em/EStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -21,7 +21,7 @@ namespace em {
  * For the specific mathematics used in the maximization see SupervisedEStep.
  */
 template <typename Scalar>
-class FastSupervisedEStep : public IEStep<Scalar>
+class FastSupervisedEStep : public EStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;

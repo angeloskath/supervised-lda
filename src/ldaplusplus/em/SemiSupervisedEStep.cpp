@@ -6,8 +6,8 @@ using em::SemiSupervisedEStep;
 
 template <typename Scalar>
 SemiSupervisedEStep<Scalar>::SemiSupervisedEStep(
-    std::shared_ptr<IEStep<Scalar> > supervised_step,
-    std::shared_ptr<IEStep<Scalar> > unsupervised_step
+    std::shared_ptr<EStepInterface<Scalar> > supervised_step,
+    std::shared_ptr<EStepInterface<Scalar> > unsupervised_step
 ) : supervised_step_(supervised_step),
     unsupervised_step_(unsupervised_step)
 {
