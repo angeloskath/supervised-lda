@@ -1,7 +1,7 @@
 #ifndef _ONLINE_SUPERVISED_M_STEP_HPP_
 #define _ONLINE_SUPERVISED_M_STEP_HPP_
 
-#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/MStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -24,7 +24,7 @@ namespace em {
  * SupervisedMStep.
  */
 template <typename Scalar>
-class OnlineSupervisedMStep : public IMStep<Scalar>
+class OnlineSupervisedMStep : public MStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;

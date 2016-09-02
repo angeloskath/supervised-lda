@@ -1,14 +1,14 @@
 #ifndef _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
 #define _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
 
-#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/MStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
 
 
 template <typename Scalar>
-class MultinomialSupervisedMStep : public IMStep<Scalar>
+class MultinomialSupervisedMStep : public MStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;

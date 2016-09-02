@@ -12,7 +12,7 @@
 #include "ldaplusplus/Document.hpp"
 #include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
 #include "ldaplusplus/em/EStepInterface.hpp"
-#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/MStepInterface.hpp"
 #include "ldaplusplus/LDA.hpp"
 
 namespace ldaplusplus {
@@ -342,7 +342,7 @@ class LDABuilder : public ILDABuilder<Scalar>
         /**
          * Create an UnsupervisedMStep.
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_classic_m_step();
+        std::shared_ptr<em::MStepInterface<Scalar> > get_classic_m_step();
         /**
          * See the corresponding get_*_m_step() method.
          */
@@ -363,7 +363,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *                               gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_supervised_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_m_step(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -396,7 +396,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *                               gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_second_order_supervised_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_second_order_supervised_m_step(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -434,7 +434,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
             size_t num_classes,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -479,7 +479,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
             std::vector<Scalar> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -524,7 +524,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
             Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -563,7 +563,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *                               gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_semi_supervised_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_semi_supervised_m_step(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -591,7 +591,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *
          * @param mu A uniform Dirichlet prior for the supervised parameters
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_multinomial_supervised_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_multinomial_supervised_m_step(
             Scalar mu = 2.
         );
         /**
@@ -611,7 +611,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *
          * @param mu A uniform Dirichlet prior for the supervised parameters
          */
-        std::shared_ptr<em::IMStep<Scalar> > get_correspondence_supervised_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_correspondence_supervised_m_step(
             Scalar mu = 2.
         );
         /**
@@ -628,7 +628,7 @@ class LDABuilder : public ILDABuilder<Scalar>
          *
          * Can be used in conjuction with the get_*_m_step() methods.
          */
-        LDABuilder & set_m(std::shared_ptr<em::IMStep<Scalar> > m_step) {
+        LDABuilder & set_m(std::shared_ptr<em::MStepInterface<Scalar> > m_step) {
             m_step_ = m_step;
             return *this;
         }
@@ -765,7 +765,7 @@ class LDABuilder : public ILDABuilder<Scalar>
 
         // implementations
         std::shared_ptr<em::EStepInterface<Scalar> > e_step_;
-        std::shared_ptr<em::IMStep<Scalar> > m_step_;
+        std::shared_ptr<em::MStepInterface<Scalar> > m_step_;
 
         // the model parameters
         std::shared_ptr<parameters::SupervisedModelParameters<Scalar> > model_parameters_;

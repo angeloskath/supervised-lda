@@ -1,7 +1,7 @@
 #ifndef _CORRESPONDENCE_SUPERVISED_M_STEP_HPP_
 #define _CORRESPONDENCE_SUPERVISED_M_STEP_HPP_
 
-#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/MStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -27,7 +27,7 @@ namespace em {
  *    the multinomials
  */
 template <typename Scalar>
-class CorrespondenceSupervisedMStep : public IMStep<Scalar>
+class CorrespondenceSupervisedMStep : public MStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;

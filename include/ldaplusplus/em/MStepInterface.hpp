@@ -1,5 +1,5 @@
-#ifndef _IMSTEP_HPP_
-#define _IMSTEP_HPP_
+#ifndef _MSTEPINTERFACE_HPP_
+#define _MSTEPINTERFACE_HPP_
 
 #include <Eigen/Core>
 
@@ -21,7 +21,7 @@ namespace em {
  * \f$\phi\f$ and \f$\gamma\f$.
  */
 template <typename Scalar>
-class IMStep : public events::EventDispatcherComposition
+class MStepInterface : public events::EventDispatcherComposition
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -59,9 +59,11 @@ class IMStep : public events::EventDispatcherComposition
             const std::shared_ptr<parameters::Parameters> v_parameters,
             std::shared_ptr<parameters::Parameters> m_parameters
         )=0;
+
+        virtual ~MStepInterface(){};
 };
 
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _IMSTEP_HPP_
+#endif  // _MSTEPINTERFACE_HPP_

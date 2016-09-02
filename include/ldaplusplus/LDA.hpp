@@ -14,7 +14,7 @@
 
 #include "ldaplusplus/events/Events.hpp"
 #include "ldaplusplus/em/EStepInterface.hpp"
-#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/MStepInterface.hpp"
 #include "ldaplusplus/Parameters.hpp"
 
 namespace ldaplusplus {
@@ -57,7 +57,7 @@ class LDA
         LDA(
             std::shared_ptr<parameters::Parameters> model_parameters,
             std::shared_ptr<em::EStepInterface<Scalar> > e_step,
-            std::shared_ptr<em::IMStep<Scalar> > m_step,
+            std::shared_ptr<em::MStepInterface<Scalar> > m_step,
             size_t iterations = 20,
             size_t workers = 1
         );
@@ -239,7 +239,7 @@ class LDA
 
         // The LDA implementation
         std::shared_ptr<em::EStepInterface<Scalar> > e_step_;
-        std::shared_ptr<em::IMStep<Scalar> > m_step_;
+        std::shared_ptr<em::MStepInterface<Scalar> > m_step_;
 
         // Member variables that affect the behaviour of fit
         size_t iterations_;

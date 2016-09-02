@@ -1,7 +1,7 @@
 #ifndef _UNSUPERVISEDMSTEP_HPP_
 #define _UNSUPERVISEDMSTEP_HPP_
 
-#include "ldaplusplus/em/IMStep.hpp"
+#include "ldaplusplus/em/MStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -39,7 +39,7 @@ namespace em {
  * \f]
  */
 template <typename Scalar>
-class UnsupervisedMStep : public IMStep<Scalar>
+class UnsupervisedMStep : public MStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
