@@ -76,7 +76,7 @@ std::shared_ptr<parameters::SupervisedModelParameters<double> > load_lda(std::st
 }
 
 
-class TrainingProgress : public events::IEventListener
+class TrainingProgress : public events::EventListenerInterface
 {
     public:
         TrainingProgress() {
@@ -141,7 +141,7 @@ class TrainingProgress : public events::IEventListener
 };
 
 
-class SnapshotEvery : public events::IEventListener
+class SnapshotEvery : public events::EventListenerInterface
 {
     public:
         SnapshotEvery(std::string path, int every=10)
@@ -176,7 +176,7 @@ class SnapshotEvery : public events::IEventListener
 };
 
 
-class LdaStopwatch : public events::IEventListener
+class LdaStopwatch : public events::EventListenerInterface
 {
     typedef std::chrono::high_resolution_clock clock;
     typedef std::chrono::duration<double, std::milli> ms;

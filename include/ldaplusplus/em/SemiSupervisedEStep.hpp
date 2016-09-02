@@ -56,7 +56,7 @@ class SemiSupervisedEStep : public EStepInterface<Scalar>
         std::shared_ptr<EStepInterface<Scalar> > supervised_step_;
         std::shared_ptr<EStepInterface<Scalar> > unsupervised_step_;
 
-        std::shared_ptr<events::IEventListener> event_forwarder_;
+        std::shared_ptr<events::EventListenerInterface> event_forwarder_;
 };
 
 }  // namespace em

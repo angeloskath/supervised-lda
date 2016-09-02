@@ -37,7 +37,7 @@ class Event
 /**
  * A simple event listener interface.
  */
-class IEventListener
+class EventListenerInterface
 {
     public:
         /**
@@ -50,7 +50,7 @@ class IEventListener
 /**
  * Creates an event listener from a function with the same signature.
  */
-class FunctionEventListener : public IEventListener
+class FunctionEventListener : public EventListenerInterface
 {
     public:
         FunctionEventListener(std::function<void(std::shared_ptr<Event>)> listener);
@@ -63,9 +63,9 @@ class FunctionEventListener : public IEventListener
 
 
 /**
- * IEventDispatcher is the interface of a very simple event dispatcher.
+ * EventDispatcher is the interface of a very simple event dispatcher.
  */
-class IEventDispatcher
+class EventDispatcherInterface
 {
     public:
         /**
@@ -77,7 +77,7 @@ class IEventDispatcher
          *
          * @param listener The listener to be added
          */
-        virtual void add_listener(std::shared_ptr<IEventListener> listener) = 0;
+        virtual void add_listener(std::shared_ptr<EventListenerInterface> listener) = 0;
 
         /**
          * Remove a listener from this dispatcher so that in subsequent calls
@@ -88,7 +88,7 @@ class IEventDispatcher
          *
          * @param listener The listener to be removed
          */
-        virtual void remove_listener(std::shared_ptr<IEventListener> listener) = 0;
+        virtual void remove_listener(std::shared_ptr<EventListenerInterface> listener) = 0;
 
         /**
          * Call the on_event() function of every listener passing this event as
@@ -109,9 +109,9 @@ class IEventDispatcher
          * The created object is returned so that the listener can be removed
          * later.
          *
-         * @param listener A function implementing the IEventListener interface.
+         * @param listener A function implementing the EventListener interface.
          */
-        std::shared_ptr<IEventListener> add_listener(
+        std::shared_ptr<EventListenerInterface> add_listener(
             std::function<void(std::shared_ptr<Event>)> listener
         ) {
             auto l = std::make_shared<FunctionEventListener>(listener);
@@ -132,7 +132,7 @@ class IEventDispatcher
          *             constructor parameters for the listener
          */
         template <class ListenerType, typename... Args>
-        std::shared_ptr<IEventListener> add_listener(Args... args) {
+        std::shared_ptr<EventListenerInterface> add_listener(Args... args) {
             auto l = std::make_shared<ListenerType>(args...);
 
             add_listener(l);
@@ -156,18 +156,18 @@ class IEventDispatcher
 
 
 /**
- * EventDispatcher is a simple implementation of an IEventDispatcher. It can be
+ * EventDispatcher is a simple implementation of an EventDispatcherInterface. It can be
  * copied, passed by value, reference whatever. It is **not** thread safe.
  */
-class EventDispatcher : public IEventDispatcher
+class EventDispatcher : public EventDispatcherInterface
 {
     public:
-        void add_listener(std::shared_ptr<IEventListener> listener) override;
-        void remove_listener(std::shared_ptr<IEventListener> listener) override;
+        void add_listener(std::shared_ptr<EventListenerInterface> listener) override;
+        void remove_listener(std::shared_ptr<EventListenerInterface> listener) override;
         void dispatch(std::shared_ptr<Event> event) override;
 
     private:
-        std::list<std::shared_ptr<IEventListener> > listeners_;
+        std::list<std::shared_ptr<EventListenerInterface> > listeners_;
 };
 
 
@@ -182,16 +182,16 @@ class EventDispatcherComposition
             event_dispatcher_(std::make_shared<EventDispatcher>())
         {}
 
-        std::shared_ptr<IEventDispatcher> get_event_dispatcher() {
+        std::shared_ptr<EventDispatcherInterface> get_event_dispatcher() {
             return event_dispatcher_;
         }
 
-        void set_event_dispatcher(std::shared_ptr<IEventDispatcher> dispatcher) {
+        void set_event_dispatcher(std::shared_ptr<EventDispatcherInterface> dispatcher) {
             event_dispatcher_ = dispatcher;
         }
 
     private:
-        std::shared_ptr<IEventDispatcher> event_dispatcher_;
+        std::shared_ptr<EventDispatcherInterface> event_dispatcher_;
 };
 
 
@@ -199,11 +199,11 @@ class EventDispatcherComposition
  * A thread safe event dispatcher that dispatches the events when its process_events
  * method is called and on the thread that the process_events method is called.
  */
-class ThreadSafeEventDispatcher : public IEventDispatcher
+class ThreadSafeEventDispatcher : public EventDispatcherInterface
 {
     public:
-        virtual void add_listener(std::shared_ptr<IEventListener> listener) override;
-        virtual void remove_listener(std::shared_ptr<IEventListener> listener) override;
+        virtual void add_listener(std::shared_ptr<EventListenerInterface> listener) override;
+        virtual void remove_listener(std::shared_ptr<EventListenerInterface> listener) override;
         virtual void dispatch(std::shared_ptr<Event> event) override;
 
         /**
@@ -217,10 +217,10 @@ class ThreadSafeEventDispatcher : public IEventDispatcher
 
     private:
         std::mutex listeners_mutex_;
-        std::list<std::shared_ptr<IEventListener> > listeners_;
+        std::list<std::shared_ptr<EventListenerInterface> > listeners_;
 
         std::mutex deleted_listeners_mutex_;
-        std::unordered_set<std::shared_ptr<IEventListener> > deleted_listeners_;
+        std::unordered_set<std::shared_ptr<EventListenerInterface> > deleted_listeners_;
 
         std::mutex events_mutex_;
         std::list<std::shared_ptr<Event> > events_;

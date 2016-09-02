@@ -154,7 +154,7 @@ class LDA
         /**
          * Get the event dispatcher for this LDA instance.
          */
-        std::shared_ptr<events::IEventDispatcher> get_event_dispatcher() {
+        std::shared_ptr<events::EventDispatcherInterface> get_event_dispatcher() {
             return event_dispatcher_;
         }
 
@@ -254,7 +254,7 @@ class LDA
 
         // An event dispatcher that we will use to communicate with the
         // external components
-        std::shared_ptr<events::IEventDispatcher> event_dispatcher_;
+        std::shared_ptr<events::EventDispatcherInterface> event_dispatcher_;
 };
 
 
