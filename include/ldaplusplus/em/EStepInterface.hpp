@@ -1,5 +1,5 @@
-#ifndef _IESTEP_HPP_
-#define _IESTEP_HPP_
+#ifndef _ESTEPINTERFACE_HPP_
+#define _ESTEPINTERFACE_HPP_
 
 #include <Eigen/Core>
 
@@ -21,7 +21,7 @@ namespace em {
   * distribution over words for all topics, usually \f$\beta\f$ in literature.
   */
 template <typename Scalar>
-class IEStep : public events::EventDispatcherComposition
+class EStepInterface : public events::EventDispatcherComposition
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -49,9 +49,11 @@ class IEStep : public events::EventDispatcherComposition
          * which epoch they are running for.
          */
         virtual void e_step()=0;
+
+        virtual ~EStepInterface(){};
 };
 
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif //  _IESTEP_HPP_
+#endif //  _ESTEPINTERFACE_HPP_

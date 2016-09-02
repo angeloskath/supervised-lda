@@ -40,7 +40,7 @@ LDABuilder<Scalar> & LDABuilder<Scalar>::set_workers(size_t workers) {
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_classic_e_step(
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_classic_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance
 ) {
@@ -51,7 +51,7 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_classic_e_step(
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_fast_classic_e_step(
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_classic_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance
 ) {
@@ -62,7 +62,7 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_fast_classic_e_step
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_supervised_e_step(
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     size_t fixed_point_iterations
@@ -75,7 +75,7 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_supervised_e_step(
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_fast_supervised_e_step(
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar C,
@@ -92,9 +92,9 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_fast_supervised_e_s
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_semi_supervised_e_step(
-    std::shared_ptr<em::IEStep<Scalar> > supervised_step,
-    std::shared_ptr<em::IEStep<Scalar> > unsupervised_step
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_semi_supervised_e_step(
+    std::shared_ptr<em::EStepInterface<Scalar> > supervised_step,
+    std::shared_ptr<em::EStepInterface<Scalar> > unsupervised_step
 ) {
     if (supervised_step == nullptr) {
         supervised_step = get_fast_supervised_e_step();
@@ -110,7 +110,7 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_semi_supervised_e_s
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_multinomial_supervised_e_step(
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_multinomial_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar mu,
@@ -125,7 +125,7 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_multinomial_supervi
 }
 
 template <typename Scalar>
-std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_correspondence_supervised_e_step(
+std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_correspondence_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar mu

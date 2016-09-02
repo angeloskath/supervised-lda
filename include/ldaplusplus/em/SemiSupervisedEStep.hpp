@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "ldaplusplus/em/IEStep.hpp"
+#include "ldaplusplus/em/EStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -20,7 +20,7 @@ namespace em {
  * SemiSupervisedEStep and not the steps passed in as constructor parameters.
  */
 template <typename Scalar>
-class SemiSupervisedEStep : public IEStep<Scalar>
+class SemiSupervisedEStep : public EStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -32,8 +32,8 @@ class SemiSupervisedEStep : public IEStep<Scalar>
          *                          step
          */
         SemiSupervisedEStep(
-            std::shared_ptr<IEStep<Scalar> > supervised_step,
-            std::shared_ptr<IEStep<Scalar> > unsupervised_step
+            std::shared_ptr<EStepInterface<Scalar> > supervised_step,
+            std::shared_ptr<EStepInterface<Scalar> > unsupervised_step
         );
         virtual ~SemiSupervisedEStep();
 
@@ -53,8 +53,8 @@ class SemiSupervisedEStep : public IEStep<Scalar>
         void e_step() override;
 
     private:
-        std::shared_ptr<IEStep<Scalar> > supervised_step_;
-        std::shared_ptr<IEStep<Scalar> > unsupervised_step_;
+        std::shared_ptr<EStepInterface<Scalar> > supervised_step_;
+        std::shared_ptr<EStepInterface<Scalar> > unsupervised_step_;
 
         std::shared_ptr<events::IEventListener> event_forwarder_;
 };

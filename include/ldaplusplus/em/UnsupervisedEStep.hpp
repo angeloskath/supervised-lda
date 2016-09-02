@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "ldaplusplus/em/IEStep.hpp"
+#include "ldaplusplus/em/EStepInterface.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -25,7 +25,7 @@ namespace em {
  *     993-1022.
  */
 template <typename Scalar>
-class UnsupervisedEStep : public IEStep<Scalar>
+class UnsupervisedEStep : public EStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
