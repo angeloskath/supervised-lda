@@ -31,7 +31,7 @@ std::shared_ptr<parameters::Parameters> ApproximatedSupervisedEStep<Scalar>::doc
     const std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Words form Document doc
-    const VectorXi &X = doc->get_words();
+    const Eigen::VectorXi &X = doc->get_words();
     int num_words = X.sum();
     int voc_size = X.rows();
     VectorX X_ratio = X.cast<Scalar>() / num_words;

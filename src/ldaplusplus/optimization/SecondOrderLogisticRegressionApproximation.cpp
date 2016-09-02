@@ -10,7 +10,7 @@ template <typename Scalar>
 SecondOrderLogisticRegressionApproximation<Scalar>::SecondOrderLogisticRegressionApproximation(
     const MatrixX &X,
     const std::vector<MatrixX> &X_var,
-    const VectorXi &y,
+    const Eigen::VectorXi &y,
     Scalar L
 ) : X_(X), X_var_(X_var), y_(y), L_(L) {
     
@@ -31,7 +31,7 @@ template <typename Scalar>
 SecondOrderLogisticRegressionApproximation<Scalar>::SecondOrderLogisticRegressionApproximation(
     const MatrixX &X,
     const std::vector<MatrixX> &X_var,
-    const VectorXi &y,
+    const Eigen::VectorXi &y,
     VectorX Cy,
     Scalar L
 ) : X_(X), X_var_(X_var), y_(y), L_(L), Cy_(std::move(Cy))
@@ -61,7 +61,7 @@ Scalar SecondOrderLogisticRegressionApproximation<Scalar>::value(const MatrixX &
 
 
 template <typename Scalar>
-void SecondOrderLogisticRegressionApproximation<Scalar>::gradient(const MatrixX &eta, Ref<MatrixX> grad) const {
+void SecondOrderLogisticRegressionApproximation<Scalar>::gradient(const MatrixX &eta, Eigen::Ref<MatrixX> grad) const {
     grad.fill(0);
     VectorX eta_Ez(eta.cols());
     VectorX eta_Vz_eta(eta.cols());

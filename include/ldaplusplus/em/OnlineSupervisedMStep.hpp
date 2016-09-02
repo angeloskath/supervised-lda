@@ -26,8 +26,8 @@ namespace em {
 template <typename Scalar>
 class OnlineSupervisedMStep : public IMStep<Scalar>
 {
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
@@ -121,7 +121,7 @@ class OnlineSupervisedMStep : public IMStep<Scalar>
         MatrixX b_;
         Scalar beta_weight_;
         MatrixX expected_z_bar_;
-        VectorXi y_;
+        Eigen::VectorXi y_;
         MatrixX eta_velocity_;
         MatrixX eta_gradient_;
         Scalar eta_momentum_;

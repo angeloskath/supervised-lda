@@ -52,7 +52,7 @@ void OnlineSupervisedMStep<Scalar>::doc_m_step(
     std::shared_ptr<parameters::Parameters> m_parameters
 ) {
     // Data from document doc
-    const VectorXi & X = doc->get_words();
+    const Eigen::VectorXi & X = doc->get_words();
     int y = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class(); 
     // Variational parameters
     const MatrixX & phi = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->phi;
@@ -65,7 +65,7 @@ void OnlineSupervisedMStep<Scalar>::doc_m_step(
         b_ = MatrixX::Zero(phi.rows(), phi.cols());
 
         expected_z_bar_ = MatrixX::Zero(phi.rows(), minibatch_size_);
-        y_ = VectorXi::Zero(minibatch_size_);
+        y_ = Eigen::VectorXi::Zero(minibatch_size_);
         eta_velocity_ = MatrixX::Zero(phi.rows(), num_classes_);
         eta_gradient_ = MatrixX::Zero(phi.rows(), num_classes_);
     }

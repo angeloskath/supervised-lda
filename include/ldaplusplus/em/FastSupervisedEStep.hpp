@@ -23,8 +23,8 @@ namespace em {
 template <typename Scalar>
 class FastSupervisedEStep : public IEStep<Scalar>
 {
-    typedef Eigen::Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Eigen::Matrix<Scalar, Dynamic, 1> VectorX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**

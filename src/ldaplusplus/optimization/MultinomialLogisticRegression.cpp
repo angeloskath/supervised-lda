@@ -9,7 +9,7 @@ namespace optimization {
 template <typename Scalar>
 MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
     const MatrixX &X,
-    const VectorXi &y,
+    const Eigen::VectorXi &y,
     Scalar L
 ) : X_(X), y_(y), L_(L) {
     
@@ -29,7 +29,7 @@ MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
 template <typename Scalar>
 MultinomialLogisticRegression<Scalar>::MultinomialLogisticRegression(
     const MatrixX &X,
-    const VectorXi &y,
+    const Eigen::VectorXi &y,
     VectorX Cy,
     Scalar L
 ) : X_(X), y_(y), L_(L), Cy_(std::move(Cy))
@@ -61,7 +61,7 @@ Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
 
 
 template <typename Scalar>
-void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, Ref<MatrixX> grad) const {
+void MultinomialLogisticRegression<Scalar>::gradient(const MatrixX &eta, Eigen::Ref<MatrixX> grad) const {
     grad.fill(0);
     VectorX t(eta.cols());
 

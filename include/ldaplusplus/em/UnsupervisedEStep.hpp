@@ -27,8 +27,8 @@ namespace em {
 template <typename Scalar>
 class UnsupervisedEStep : public IEStep<Scalar>
 {
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
@@ -86,7 +86,7 @@ class UnsupervisedEStep : public IEStep<Scalar>
          * @return      The log likelihood lower bound
          */
         Scalar compute_likelihood(
-            const VectorXi &X,
+            const Eigen::VectorXi &X,
             const VectorX &alpha,
             const MatrixX &beta,
             const MatrixX &phi,

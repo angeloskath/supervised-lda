@@ -12,7 +12,7 @@ namespace corpus {
 // 
 // EigenDocument
 //
-EigenDocument::EigenDocument(VectorXi X, std::shared_ptr<const Corpus> corpus)
+EigenDocument::EigenDocument(Eigen::VectorXi X, std::shared_ptr<const Corpus> corpus)
     : X_(std::move(X)),
       corpus_(corpus)
 {}
@@ -21,7 +21,7 @@ const std::shared_ptr<const Corpus> EigenDocument::get_corpus() const {
     return corpus_;
 }
 
-const VectorXi & EigenDocument::get_words() const {
+const Eigen::VectorXi & EigenDocument::get_words() const {
     return X_;
 }
 
@@ -40,7 +40,7 @@ const std::shared_ptr<const Corpus> ClassificationDecorator::get_corpus() const 
     return document_->get_corpus();
 }
 
-const VectorXi & ClassificationDecorator::get_words() const {
+const Eigen::VectorXi & ClassificationDecorator::get_words() const {
     return document_->get_words();
 }
 
@@ -67,7 +67,7 @@ void CorpusIndexes::shuffle() {
 // 
 // EigenCorpus
 //
-EigenCorpus::EigenCorpus(const MatrixXi &X, int random_state)
+EigenCorpus::EigenCorpus(const Eigen::MatrixXi &X, int random_state)
     : indices_(X.cols(), random_state),
       X_(X)
 {}
@@ -91,8 +91,8 @@ void EigenCorpus::shuffle() {
 // EigenClassificationCorpus
 //
 EigenClassificationCorpus::EigenClassificationCorpus(
-    const MatrixXi & X,
-    const VectorXi & y,
+    const Eigen::MatrixXi & X,
+    const Eigen::VectorXi & y,
     int random_state
 ) : indices_(X.cols(), random_state),
     X_(X),

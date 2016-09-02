@@ -22,7 +22,7 @@ std::shared_ptr<parameters::Parameters> FastUnsupervisedEStep<Scalar>::doc_e_ste
     const std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Words form Document doc
-    const VectorXi &X = doc->get_words();
+    const Eigen::VectorXi &X = doc->get_words();
     int num_words = X.sum();
 
     // Cast parameters to model parameters in order to save all necessary
