@@ -40,8 +40,8 @@ namespace em {
 template <typename Scalar>
 class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
 {
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
@@ -104,7 +104,7 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
         MatrixX phi_scaled;
         MatrixX expected_z_bar_;
         std::vector<MatrixX> variance_z_bar_;
-        VectorXi y_;
+        Eigen::VectorXi y_;
 };
 
 }  // namespace em

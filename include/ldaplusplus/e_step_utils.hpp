@@ -4,16 +4,14 @@
 #include <Eigen/Core>
 
 namespace ldaplusplus {
-
-
-namespace e_step_utils
-{
-    using namespace Eigen;
+namespace e_step_utils {
 
     template <typename Scalar>
-    using MatrixX = Matrix<Scalar, Dynamic, Dynamic>;
+    using MatrixX = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
     template <typename Scalar>
-    using VectorX = Matrix<Scalar, Dynamic, 1>;
+    using VectorX = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
+    using Eigen::VectorXi;
+    using Eigen::Ref;
 
     /**
      * Compute the value of the ELBO (using the unsupervised definition of the

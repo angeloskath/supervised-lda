@@ -21,7 +21,7 @@
 
 using namespace ldaplusplus;
 
-double accuracy_score(const VectorXi &y_true, const VectorXi &y_pred) {
+double accuracy_score(const Eigen::VectorXi &y_true, const Eigen::VectorXi &y_pred) {
     double accuracy = 0.0;
 
     for (int i=0; i<y_pred.rows(); i++) {
@@ -239,7 +239,7 @@ class LdaStopwatch : public events::IEventListener
 };
 
 
-void parse_input_data(std::string data_path, MatrixXi &X, MatrixXi &y) {
+void parse_input_data(std::string data_path, Eigen::MatrixXi &X, Eigen::MatrixXi &y) {
     // read the data in
     std::fstream data(
         data_path,
@@ -256,9 +256,9 @@ void parse_input_data(std::string data_path, MatrixXi &X, MatrixXi &y) {
     y = ni;
 }
 
-VectorXd create_class_weights(const VectorXi & y) {
+Eigen::VectorXd create_class_weights(const Eigen::VectorXi & y) {
     int C = y.maxCoeff() + 1;
-    VectorXd Cy = VectorXd::Zero(C);
+    Eigen::VectorXd Cy = Eigen::VectorXd::Zero(C);
 
     for (int d=0; d<y.rows(); d++) {
         Cy[y[d]]++;
@@ -272,8 +272,8 @@ VectorXd create_class_weights(const VectorXi & y) {
 LDA<double> create_lda_for_training(
     std::map<std::string, docopt::value> &args,  // should be const but const
                                                  // C++ map is annoying
-    const MatrixXi & X,
-    const VectorXi & y
+    const Eigen::MatrixXi & X,
+    const Eigen::VectorXi & y
 ) {
     LDABuilder<double> builder;
 
@@ -470,7 +470,7 @@ int main(int argc, char **argv) {
     );
 
     if (args["train"].asBool()) {
-        MatrixXi X, y;
+        Eigen::MatrixXi X, y;
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
 
@@ -493,7 +493,7 @@ int main(int argc, char **argv) {
         save_lda(args["MODEL"].asString(), lda.model_parameters());
     } 
     else if (args["transform"].asBool()) {
-        MatrixXi X, y;
+        Eigen::MatrixXi X, y;
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
 
@@ -512,14 +512,14 @@ int main(int argc, char **argv) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
         }
 
-        MatrixXd doc_topic_distribution;
-        VectorXi y_predicted;
+        Eigen::MatrixXd doc_topic_distribution;
+        Eigen::VectorXi y_predicted;
         std::tie(doc_topic_distribution, y_predicted) = lda.transform_predict(X);
         numpy_format::save(args["OUTPUT"].asString(), doc_topic_distribution);
         std::cout << "Accuracy score: " << accuracy_score(y, y_predicted) << std::endl;
     } 
     else if (args["evaluate"].asBool()){
-        MatrixXi X, y;
+        Eigen::MatrixXi X, y;
         // Parse data from input file
         parse_input_data(args["DATA"].asString(), X, y);
 
@@ -538,7 +538,7 @@ int main(int argc, char **argv) {
             lda.get_event_dispatcher()->add_listener<TrainingProgress>();
         }
 
-        MatrixXi y_predicted = lda.predict(X);
+        Eigen::MatrixXi y_predicted = lda.predict(X);
         std::cout << "Accuracy score: " << accuracy_score(y, y_predicted) << std::endl;
     }
     else {

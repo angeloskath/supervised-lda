@@ -23,7 +23,7 @@ void UnsupervisedMStep<Scalar>::doc_m_step(
     std::shared_ptr<parameters::Parameters> m_parameters
 ) {
     // Words form Document doc
-    const VectorXi &X = doc->get_words();
+    const Eigen::VectorXi &X = doc->get_words();
     auto t1 = X.cast<Scalar>().transpose().array();
     
     // Cast Parameters to VariationalParameters in order to have access to phi

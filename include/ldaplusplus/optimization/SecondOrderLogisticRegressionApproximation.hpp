@@ -5,8 +5,6 @@
 
 #include <Eigen/Core>
 
-using namespace Eigen;
-
 namespace ldaplusplus {
 namespace optimization {
 
@@ -35,8 +33,8 @@ namespace optimization {
 template <typename Scalar>
 class SecondOrderLogisticRegressionApproximation
 {
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
@@ -54,7 +52,7 @@ class SecondOrderLogisticRegressionApproximation
         SecondOrderLogisticRegressionApproximation(
             const MatrixX &X,
             const std::vector<MatrixX> &X_var,
-            const VectorXi &y,
+            const Eigen::VectorXi &y,
             VectorX Cy,
             Scalar L
         );
@@ -72,7 +70,7 @@ class SecondOrderLogisticRegressionApproximation
         SecondOrderLogisticRegressionApproximation(
             const MatrixX &X,
             const std::vector<MatrixX> &X_var,
-            const VectorXi &y,
+            const Eigen::VectorXi &y,
             Scalar L
         );
 
@@ -139,12 +137,12 @@ class SecondOrderLogisticRegressionApproximation
          * @param grad A matrix of dimensions equal to \f$\eta\f$ that will
          *             hold the result
          */
-        void gradient(const MatrixX &eta, Ref<MatrixX> grad) const;
+        void gradient(const MatrixX &eta, Eigen::Ref<MatrixX> grad) const;
 
     private:
         const MatrixX &X_;
         const std::vector<MatrixX> &X_var_;
-        const VectorXi &y_;
+        const Eigen::VectorXi &y_;
         Scalar L_;
         VectorX Cy_;
 };

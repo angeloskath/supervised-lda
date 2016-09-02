@@ -36,7 +36,7 @@ void CorrespondenceSupervisedMStep<Scalar>::doc_m_step(
     std::shared_ptr<parameters::Parameters> m_parameters
 ) {
     // Words and class from document
-    const VectorXi &X = doc->get_words();
+    const Eigen::VectorXi &X = doc->get_words();
     int y = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
     // Cast Parameters to VariationalParameters in order to have access to phi and tau

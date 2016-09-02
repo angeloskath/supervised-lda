@@ -23,7 +23,7 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
     );
 
     // Get the words from the doc
-    const VectorXi & X = doc->get_words();
+    const Eigen::VectorXi & X = doc->get_words();
     int N = X.sum();
 
     // Cast Parameters to VariationalParameters in order to have access to gamma and phi

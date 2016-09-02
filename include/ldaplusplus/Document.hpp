@@ -8,8 +8,6 @@
 
 #include <Eigen/Core>
 
-using namespace Eigen;
-
 namespace ldaplusplus {
 namespace corpus {
 
@@ -35,7 +33,7 @@ class Document
         /**
          * @return The bag of words dense vector
          */
-        virtual const VectorXi & get_words() const = 0;
+        virtual const Eigen::VectorXi & get_words() const = 0;
 
         /**
          * @return The corpus this documents belongs to after casting it to
@@ -102,14 +100,14 @@ class ClassificationCorpus : public Corpus
 class EigenDocument : public Document
 {
     public:
-        EigenDocument(VectorXi X) : EigenDocument(X, nullptr) {}
-        EigenDocument(VectorXi X, std::shared_ptr<const Corpus> corpus);
+        EigenDocument(Eigen::VectorXi X) : EigenDocument(X, nullptr) {}
+        EigenDocument(Eigen::VectorXi X, std::shared_ptr<const Corpus> corpus);
 
         const std::shared_ptr<const Corpus> get_corpus() const override;
-        const VectorXi & get_words() const override;
+        const Eigen::VectorXi & get_words() const override;
 
     private:
-        VectorXi X_;
+        Eigen::VectorXi X_;
         std::shared_ptr<const Corpus> corpus_;
 };
 
@@ -128,7 +126,7 @@ class ClassificationDecorator : public ClassificationDocument
         ClassificationDecorator(std::shared_ptr<Document> doc, int y);
 
         const std::shared_ptr<const Corpus> get_corpus() const override;
-        const VectorXi & get_words() const override;
+        const Eigen::VectorXi & get_words() const override;
         int get_class() const override;
 
     private:
@@ -175,7 +173,7 @@ class CorpusIndexes
 class EigenCorpus : public Corpus
 {
     public:
-        EigenCorpus(const MatrixXi & X, int random_state=0);
+        EigenCorpus(const Eigen::MatrixXi & X, int random_state=0);
 
         size_t size() const override;
         virtual const std::shared_ptr<Document> at(size_t index) const override;
@@ -189,7 +187,7 @@ class EigenCorpus : public Corpus
          * We keep X_ protected instead of private to reduce boilerplate in
          * creating a supervised version of this Corpus.
          */
-        const MatrixXi & X_;
+        const Eigen::MatrixXi & X_;
 
 };
 
@@ -202,8 +200,8 @@ class EigenClassificationCorpus : public ClassificationCorpus
 {
     public:
         EigenClassificationCorpus(
-            const MatrixXi &X,
-            const VectorXi &y,
+            const Eigen::MatrixXi &X,
+            const Eigen::VectorXi &y,
             int random_state = 0
         );
 
@@ -217,11 +215,11 @@ class EigenClassificationCorpus : public ClassificationCorpus
         CorpusIndexes indices_;
 
         // The data
-        const MatrixXi & X_;
-        const VectorXi & y_;
+        const Eigen::MatrixXi & X_;
+        const Eigen::VectorXi & y_;
 
         // The class priors
-        VectorXf priors_;
+        Eigen::VectorXf priors_;
 };
 
 }  // namespace corpus

@@ -48,21 +48,21 @@ void LDA<Scalar>::set_up_event_dispatcher() {
 
 template <typename Scalar>
 std::shared_ptr<corpus::Corpus> LDA<Scalar>::get_corpus(
-    const MatrixXi &X,
-    const VectorXi &y
+    const Eigen::MatrixXi &X,
+    const Eigen::VectorXi &y
 ) {
     return std::make_shared<corpus::EigenClassificationCorpus>(X, y);
 }
 
 
 template <typename Scalar>
-std::shared_ptr<corpus::Corpus> LDA<Scalar>::get_corpus(const MatrixXi &X) {
+std::shared_ptr<corpus::Corpus> LDA<Scalar>::get_corpus(const Eigen::MatrixXi &X) {
     return std::make_shared<corpus::EigenCorpus>(X);
 }
 
 
 template <typename Scalar>
-void LDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
+void LDA<Scalar>::fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y) {
     auto corpus = get_corpus(X, y);
 
     for (size_t i=0; i<iterations_; i++) {
@@ -72,7 +72,7 @@ void LDA<Scalar>::fit(const MatrixXi &X, const VectorXi &y) {
 
 
 template <typename Scalar>
-void LDA<Scalar>::partial_fit(const MatrixXi &X, const VectorXi &y) {
+void LDA<Scalar>::partial_fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y) {
     partial_fit(get_corpus(X, y));
 }
 
@@ -126,7 +126,7 @@ void LDA<Scalar>::partial_fit(std::shared_ptr<corpus::Corpus> corpus) {
 
 
 template <typename Scalar>
-typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
+typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const Eigen::MatrixXi& X) {
     // cast the parameters to what is needed
     auto model = std::static_pointer_cast<parameters::ModelParameters<Scalar> >(
         model_parameters_
@@ -167,7 +167,7 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::transform(const MatrixXi& X) {
 
 
 template <typename Scalar>
-typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const MatrixXi &X) {
+typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const Eigen::MatrixXi &X) {
     return decision_function(transform(X));
 }
 
@@ -191,14 +191,14 @@ typename LDA<Scalar>::MatrixX LDA<Scalar>::decision_function(const MatrixX &X) {
 
 
 template <typename Scalar>
-VectorXi LDA<Scalar>::predict(const MatrixXi &X) {
+Eigen::VectorXi LDA<Scalar>::predict(const Eigen::MatrixXi &X) {
     return predict(decision_function(X));
 }
 
 
 template <typename Scalar>
-VectorXi LDA<Scalar>::predict(const MatrixX &scores) {
-    VectorXi predictions(scores.cols());
+Eigen::VectorXi LDA<Scalar>::predict(const MatrixX &scores) {
+    Eigen::VectorXi predictions(scores.cols());
 
     for (int d=0; d<scores.cols(); d++) {
         scores.col(d).maxCoeff( &predictions[d] );
@@ -209,11 +209,11 @@ VectorXi LDA<Scalar>::predict(const MatrixX &scores) {
 
 
 template <typename Scalar>
-std::tuple<typename LDA<Scalar>::MatrixX, VectorXi> LDA<Scalar>::transform_predict(
-    const MatrixXi &X
+std::tuple<typename LDA<Scalar>::MatrixX, Eigen::VectorXi> LDA<Scalar>::transform_predict(
+    const Eigen::MatrixXi &X
 ) {
     MatrixX gammas = transform(X);
-    VectorXi predictions = predict(decision_function(gammas));
+    Eigen::VectorXi predictions = predict(decision_function(gammas));
 
     return std::make_tuple(gammas, predictions);
 }

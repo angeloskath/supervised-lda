@@ -5,8 +5,6 @@
 
 #include <Eigen/Core>
 
-using namespace Eigen;
-
 namespace ldaplusplus {
 namespace math_utils {
 
@@ -465,8 +463,8 @@ struct CwiseScalarDivideByMatrix
  */
 template <typename Scalar>
 void reshape_into(
-    const Matrix<Scalar, Dynamic, Dynamic> &src,
-    Matrix<Scalar, Dynamic, 1> &dst
+    const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> &src,
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> &dst
 ) {
     size_t srcR = src.rows();
     size_t srcC = src.cols();
@@ -483,8 +481,8 @@ void reshape_into(
  */
 template <typename Scalar>
 void reshape_into(
-    const Matrix<Scalar, Dynamic, 1> &src,
-    Matrix<Scalar, Dynamic, Dynamic> &dst
+    const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> &src,
+    Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> &dst
 ) {
     size_t dstR = dst.rows();
     size_t dstC = dst.cols();
@@ -500,8 +498,8 @@ void reshape_into(
  * by checking for 0 explicitly.
  */
 template <typename Derived>
-void normalize_rows(DenseBase<Derived> &x) {
-    typename DenseBase<Derived>::Scalar s;
+void normalize_rows(Eigen::DenseBase<Derived> &x) {
+    typename Eigen::DenseBase<Derived>::Scalar s;
     for (int i=0; i<x.rows(); i++) {
         s = x.row(i).sum();
         if (s != 0) {
@@ -516,8 +514,8 @@ void normalize_rows(DenseBase<Derived> &x) {
  * NaN by checking for 0 explicitly.
  */
 template <typename Derived>
-void normalize_cols(DenseBase<Derived> &x) {
-    typename DenseBase<Derived>::Scalar s;
+void normalize_cols(Eigen::DenseBase<Derived> &x) {
+    typename Eigen::DenseBase<Derived>::Scalar s;
     for (int i=0; i<x.cols(); i++) {
         s = x.col(i).sum();
         if (s != 0) {
@@ -531,10 +529,10 @@ void normalize_cols(DenseBase<Derived> &x) {
  * Compute the product ignoring zeros.
  */
 template <typename Derived>
-typename DenseBase<Derived>::Scalar product_of_nonzeros(
-    const DenseBase<Derived> &x
+typename Eigen::DenseBase<Derived>::Scalar product_of_nonzeros(
+    const Eigen::DenseBase<Derived> &x
 ) {
-    typename DenseBase<Derived>::Scalar p = 1;
+    typename Eigen::DenseBase<Derived>::Scalar p = 1;
 
     for (int j=0; j<x.cols(); j++) {
         for (int i=0; i<x.rows(); i++) {
@@ -551,9 +549,9 @@ typename DenseBase<Derived>::Scalar product_of_nonzeros(
  */
 template <typename Derived1, typename Derived2, typename Derived3>
 void sum_rows_scaled(
-    const MatrixBase<Derived1> & x,
-    const MatrixBase<Derived2> & y,
-    MatrixBase<Derived3> & result
+    const Eigen::MatrixBase<Derived1> & x,
+    const Eigen::MatrixBase<Derived2> & y,
+    Eigen::MatrixBase<Derived3> & result
 ) {
     for (int i=0; i<x.rows(); i++) {
         // this is done so that the multiplication can never result in NaN
@@ -569,9 +567,9 @@ void sum_rows_scaled(
  */
 template <typename Derived1, typename Derived2, typename Derived3>
 void sum_cols_scaled(
-    const MatrixBase<Derived1> & x,
-    const MatrixBase<Derived2> & y,
-    MatrixBase<Derived3> & result
+    const Eigen::MatrixBase<Derived1> & x,
+    const Eigen::MatrixBase<Derived2> & y,
+    Eigen::MatrixBase<Derived3> & result
 ) {
     for (int i=0; i<x.cols(); i++) {
         // this is done so that the multiplication can never result in NaN

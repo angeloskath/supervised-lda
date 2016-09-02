@@ -44,8 +44,8 @@ namespace em {
 template <typename Scalar>
 class SupervisedMStep : public UnsupervisedMStep<Scalar>
 {
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
@@ -106,7 +106,7 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
         // Number of documents processed so far
         int docs_;
         MatrixX expected_z_bar_;
-        VectorXi y_;
+        Eigen::VectorXi y_;
 };
 
 }  // namespace em

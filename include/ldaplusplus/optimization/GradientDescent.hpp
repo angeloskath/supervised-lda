@@ -6,9 +6,6 @@
 
 #include <Eigen/Core>
 
-
-using namespace Eigen;
-
 namespace ldaplusplus {
 namespace optimization {
 
@@ -39,7 +36,7 @@ class LineSearch
          */
         virtual Scalar search(
             const ProblemType &problem,
-            Ref<ParameterType> x0,
+            Eigen::Ref<ParameterType> x0,
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) = 0;
@@ -63,7 +60,7 @@ class ConstantLineSearch : public LineSearch<ProblemType, ParameterType>
 
         Scalar search(
             const ProblemType &problem,
-            Ref<ParameterType> x0,
+            Eigen::Ref<ParameterType> x0,
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) {
@@ -113,7 +110,7 @@ class ArmijoLineSearch : public LineSearch<ProblemType, ParameterType>
 
         Scalar search(
             const ProblemType &problem,
-            Ref<ParameterType> x0,
+            Eigen::Ref<ParameterType> x0,
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) {
@@ -184,7 +181,7 @@ class GradientDescent
          * @param x0      The initial position during our minimization (it will
          *                be overwritten with the optimal position)
          */
-        void minimize(const ProblemType &problem, Ref<ParameterType> x0) {
+        void minimize(const ProblemType &problem, Eigen::Ref<ParameterType> x0) {
             // allocate memory for the gradient
             ParameterType grad(x0.rows(), x0.cols());
 
@@ -195,7 +192,7 @@ class GradientDescent
             size_t iterations = 0;
 
             // Whether we stop or not is decided by someone else
-            while (progress_(value, grad.template lpNorm<Infinity>(), iterations++)) {
+            while (progress_(value, grad.template lpNorm<Eigen::Infinity>(), iterations++)) {
                 problem.gradient(x0, grad);
                 value = line_search_->search(problem, x0, grad, grad);
             }
