@@ -245,6 +245,112 @@ std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_correspondence_supe
     return std::make_shared<em::CorrespondenceSupervisedMStep<Scalar> >(mu);
 }
 
+template <typename Scalar>
+LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_seeded(
+    const Eigen::MatrixXi &X,
+    size_t topics,
+    size_t N,
+    int random_state
+) {
+    return initialize_topics_seeded(
+        std::make_shared<corpus::EigenCorpus>(X),
+        topics,
+        N,
+        random_state
+    );
+}
+
+template <typename Scalar>
+LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_seeded(
+    std::shared_ptr<corpus::Corpus> corpus,
+    size_t topics,
+    size_t N,
+    int random_state
+) {
+    // Initialize alpha as 1/topics
+    model_parameters_->alpha = VectorX::Constant(topics, 1.0 / topics);
+    
+    // Initliaze beta with ones to implement add one smoothing
+    model_parameters_->beta = MatrixX::Constant(
+        topics,
+        (corpus->at(0)->get_words()).rows(),
+        1.0
+    );
+    
+    std::mt19937 rng(random_state);
+    std::uniform_int_distribution<> document(0, corpus->size()-1);
+
+    // Initialize _beta
+    for (size_t k=0; k<topics; k++) {
+        // Choose randomly a bunch of documents to initialize beta
+        for (size_t r=0; r<N; r++) {
+            model_parameters_->beta.row(k) += corpus->at(document(rng))->get_words().cast<Scalar>().transpose();
+        }
+        model_parameters_->beta.row(k) = model_parameters_->beta.row(k) / model_parameters_->beta.row(k).sum();
+    }
+
+    return *this;
+}
+
+template <typename Scalar>
+LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_uniform(
+    size_t words,
+    size_t topics
+) {
+    // Initialize alpha as 1/topics
+    model_parameters_->alpha = VectorX::Constant(topics, 1.0 / topics);
+
+    // Initialize beta as 1/words
+    model_parameters_->beta = MatrixX::Constant(
+        topics,
+        words,
+        1.0 / words
+    );
+
+    return *this;
+}
+
+template <typename Scalar>
+LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_eta_zeros(
+    size_t num_classes
+) {
+    // Figure out the number of topics and throw if not initialized
+    size_t topics = model_parameters_->beta.rows();
+    if (topics <= 0) {
+        throw std::runtime_error("You need to call initialize_topics_*() "
+                                 "before initializing eta");
+    }
+
+    // Zero the supervised parameters
+    model_parameters_->eta = MatrixX::Zero(
+        topics,
+        num_classes
+    );
+
+    return *this;
+}
+
+template <typename Scalar>
+LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_eta_uniform(
+    size_t num_classes
+) {
+    // Figure out the number of topics and throw if not initialized
+    size_t topics = model_parameters_->beta.rows();
+    if (topics <= 0) {
+        throw std::runtime_error("You need to call initialize_topics_*() "
+                                 "before initializing eta");
+    }
+
+    // Zero the supervised parameters
+    model_parameters_->eta = MatrixX::Constant(
+        topics,
+        num_classes,
+        1.0 / num_classes
+    );
+
+    return *this;
+}
+
 // Just the template instantiations all the rest is defined in the headers.
 template class LDABuilder<float>;
 template class LDABuilder<double>;

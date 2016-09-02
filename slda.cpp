@@ -380,12 +380,12 @@ LDA<double> create_lda_for_training(
             initialize_eta_from_model(model);
     } else if (args["--multinomial"].asBool() || args["--correspondence"].asBool()) {
         builder.
-            initialize_topics("seeded", X, args["--topics"].asLong()).
-            initialize_eta("multinomial", X, y, args["--topics"].asLong());
+            initialize_topics_seeded(X, args["--topics"].asLong()).
+            initialize_eta_uniform(y.maxCoeff() + 1);
     } else {
         builder.
-            initialize_topics("seeded", X, args["--topics"].asLong()).
-            initialize_eta("zeros", X, y, args["--topics"].asLong());
+            initialize_topics_seeded(X, args["--topics"].asLong()).
+            initialize_eta_zeros(y.maxCoeff() + 1);
     }
 
     return builder;

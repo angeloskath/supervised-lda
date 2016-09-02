@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/initialize.hpp"
+#include "ldaplusplus/Document.hpp"
 #include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
@@ -73,6 +74,9 @@ class ILDABuilder
 template <typename Scalar>
 class LDABuilder : public ILDABuilder<Scalar>
 {
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
+
     public:
         /**
          * Create a default builder that will create a simple unsupervised LDA.
@@ -645,77 +649,62 @@ class LDABuilder : public ILDABuilder<Scalar>
         }
 
         /**
-         * Initialize the topic over words distributions, for each topic choose
-         * a distribution over the words.
+         * Initialize the topic over words distributions by seeding them from
+         * the passed in documents.
          *
-         * The available methods are 'seeded' and 'random' and the extra
-         * parameters are the number of topics as a size_t and an integer as
-         * random state.
+         * 1. For each topic t
+         * 3. For N times sample a document d
+         * 4. Add the word distribution of d to topic t
          *
-         * TODO: This should change as the set_*_m_step() methods.
+         * This initialization also initializes alpha as 1.0 / topics
          *
-         * @param type A string that defines the initialization method.
-         * @param X    The word counts for each document in column-major order
-         * @param args The extra arguments needed for the initialization
-         *             functions
+         * @param X            The word counts for each document
+         * @param topics       The number of topics
+         * @param N            The number of documents to use for seeding
+         * @param random_state The initial state of the random number generator
          */
-        template <typename ...Args>
-        LDABuilder & initialize_topics(
-            const std::string &type,
+        LDABuilder & initialize_topics_seeded(
             const Eigen::MatrixXi &X,
-            Args... args
-        ) {
-            auto corpus = std::make_shared<corpus::EigenCorpus>(X);
-
-            if (type == "seeded") {
-                initialize_topics_seeded<Scalar>(model_parameters_, corpus, args...);
-            }
-            else if (type == "random") {
-                initialize_topics_random<Scalar>(model_parameters_, corpus, args...);
-            }
-            else {
-                throw std::invalid_argument(type + " is an unknown topic initialization method");
-            }
-
-            return *this;
-        }
+            size_t topics,
+            size_t N = 30,
+            int random_state = 0
+        );
 
         /**
-         * Initialize the supervised model parameters which generate the class
-         * label (in the generative model).
+         * Initialize the topic over words distributions by seeding them from
+         * the passed in documents.
          *
-         * The initialization methods are 'zeros' and 'multinomial'. The extra
-         * parameters needed are the number of topics as a size_t.
+         * 1. For each topic t
+         * 3. For N times sample a document d
+         * 4. Add the word distribution of d to topic t
          *
-         * TODO: This should change as the set_*_m_step() methods.
+         * This initialization also initializes alpha as 1.0 / topics
          *
-         * @param type A string that defines the initialization method
-         * @param X    The word counts for each document in column-major order
-         * @param y    The index of the class that each document belongs to
-         * @param args The extra arguments needed for the initialization
-         *             functions
+         * @param corpus       The word counts for each document
+         * @param topics       The number of topics
+         * @param N            The number of documents to use for seeding
+         * @param random_state The initial state of the random number generator
          */
-        template <typename ...Args>
-        LDABuilder & initialize_eta(
-            const std::string &type,
-            const Eigen::MatrixXi &X,
-            const Eigen::VectorXi &y,
-            Args... args
-        ) {
-            auto corpus = std::make_shared<corpus::EigenClassificationCorpus>(X, y);
+        LDABuilder & initialize_topics_seeded(
+            std::shared_ptr<corpus::Corpus> corpus,
+            size_t topics,
+            size_t N = 30,
+            int random_state = 0
+        );
 
-            if (type == "zeros") {
-                initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
-            }
-            else if (type == "multinomial") {
-                initialize_eta_multinomial<Scalar>(model_parameters_, corpus, args...);
-            }
-            else {
-                throw std::invalid_argument(type + " is an unknown eta initialization method");
-            }
-
-            return *this;
-        }
+        /**
+         * Initialize the topics over words distributions as uniform
+         * distributions.
+         *
+         * This initialization also initializes alpha as 1.0 / topics
+         *
+         * @param words  The number of distinct words in the vocabulary
+         * @param topics The number of topics
+         */
+        LDABuilder & initialize_topics_uniform(
+            size_t words,
+            size_t topics
+        );
 
         /**
          * Initialize the topic distributions from another model.
@@ -731,6 +720,22 @@ class LDABuilder : public ILDABuilder<Scalar>
 
             return *this;
         }
+
+        /**
+         * Initialize the supervised model parameters which generate the class
+         * label with zeros.
+         *
+         * @param num_classes The number of classes
+         */
+        LDABuilder & initialize_eta_zeros(size_t num_classes);
+
+        /**
+         * Initialize the supervised model parameters which generate the class
+         * label with a uniform multinomial distribution.
+         *
+         * @param num_classes The number of classes
+         */
+        LDABuilder & initialize_eta_uniform(size_t num_classes);
 
         /**
          * Initialize the supervised model parameters from another model.
@@ -757,15 +762,6 @@ class LDABuilder : public ILDABuilder<Scalar>
             if (model_parameters_->beta.rows() == 0) {
                 throw std::runtime_error("You need to call initialize_topics before "
                                          "creating an LDA from the builder.");
-            }
-
-            if (
-                model_parameters_->beta.rows() != model_parameters_->eta.rows() &&
-                model_parameters_->eta.rows() > 0
-            ) {
-                throw std::runtime_error("\\eta and \\beta should be "
-                                         "initialized with the same number of "
-                                         "topics");
             }
 
             return LDA<Scalar>(

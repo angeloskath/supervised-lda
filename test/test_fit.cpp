@@ -39,8 +39,8 @@ TYPED_TEST(TestFit, partial_fit) {
     LDA<TypeParam> lda = LDABuilder<TypeParam>().
             set_supervised_e_step(10, 1e-2, 10).
             set_supervised_m_step(10, 1e-2).
-            initialize_topics("seeded", X, 10).
-            initialize_eta("zeros", X, y, 10);
+            initialize_topics_seeded(X, 10).
+            initialize_eta_zeros(y.maxCoeff() + 1);
 
     TypeParam likelihood0, likelihood=0, py0, py;
     lda.get_event_dispatcher()->add_listener(
