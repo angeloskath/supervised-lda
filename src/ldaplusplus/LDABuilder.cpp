@@ -1,4 +1,17 @@
 #include "ldaplusplus/LDABuilder.hpp"
+#include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
+#include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
+#include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
+#include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
+#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
+#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
+#include "ldaplusplus/em/SemiSupervisedEStep.hpp"
+#include "ldaplusplus/em/SemiSupervisedMStep.hpp"
+#include "ldaplusplus/em/SupervisedEStep.hpp"
+#include "ldaplusplus/em/SupervisedMStep.hpp"
+#include "ldaplusplus/em/UnsupervisedEStep.hpp"
+#include "ldaplusplus/em/UnsupervisedMStep.hpp"
 
 namespace ldaplusplus {
 

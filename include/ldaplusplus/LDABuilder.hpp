@@ -9,24 +9,10 @@
 
 #include <Eigen/Core>
 
-#include "ldaplusplus/initialize.hpp"
 #include "ldaplusplus/Document.hpp"
 #include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
-#include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
-#include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
-#include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
-#include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
-#include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
 #include "ldaplusplus/em/IEStep.hpp"
 #include "ldaplusplus/em/IMStep.hpp"
-#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
-#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
-#include "ldaplusplus/em/SemiSupervisedEStep.hpp"
-#include "ldaplusplus/em/SemiSupervisedMStep.hpp"
-#include "ldaplusplus/em/SupervisedEStep.hpp"
-#include "ldaplusplus/em/SupervisedMStep.hpp"
-#include "ldaplusplus/em/UnsupervisedEStep.hpp"
-#include "ldaplusplus/em/UnsupervisedMStep.hpp"
 #include "ldaplusplus/LDA.hpp"
 
 namespace ldaplusplus {
@@ -56,18 +42,18 @@ class ILDABuilder
  * Examples:
  *
  * LDA<double> lda = LDABuilder<double>().
- *                      initialize_topics("random", X, 100);
+ *                      initialize_topics_seeded(X, 100);
  *
  * LDA<double> lda = LDABuilder<double>().
  *                      set_iterations(20).
- *                      set_e_step("classic").
- *                      set_m_step("supervised-batch").
- *                      initialize_topics("seeded", X, 100).
- *                      initialize_eta("zeros", X, y);
+ *                      set_classic_e_step().
+ *                      set_supervised_m_step().
+ *                      initialize_topics_seeded(X, 100).
+ *                      initialize_eta_zeros(y.maxCoeff() + 1);
  *
  * LDA<double> lda = LDABuilder<double>().
- *                      set_e_step("classic").
- *                      set_m_step("supervised-batch").
+ *                      set_classic_e_step(50, 1e-2).
+ *                      set_supervised_m_step().
  *                      initialize_topics_from_model(model).
  *                      initialize_eta_from_model(model);
  */
