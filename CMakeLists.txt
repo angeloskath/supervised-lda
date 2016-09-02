@@ -56,7 +56,6 @@ set(SOURCES
     src/ldaplusplus/em/UnsupervisedMStep.cpp
     src/ldaplusplus/e_step_utils.cpp
     src/ldaplusplus/events/Events.cpp
-    src/ldaplusplus/initialize.cpp
     src/ldaplusplus/LDABuilder.cpp
     src/ldaplusplus/LDA.cpp
     src/ldaplusplus/optimization/MultinomialLogisticRegression.cpp

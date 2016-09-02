@@ -5,26 +5,14 @@
 #include <memory>
 #include <stdexcept>
 #include <thread>
+#include <vector>
 
 #include <Eigen/Core>
 
-#include "ldaplusplus/initialize.hpp"
+#include "ldaplusplus/Document.hpp"
 #include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
-#include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
-#include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
-#include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
-#include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
-#include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
 #include "ldaplusplus/em/IEStep.hpp"
 #include "ldaplusplus/em/IMStep.hpp"
-#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
-#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
-#include "ldaplusplus/em/SemiSupervisedEStep.hpp"
-#include "ldaplusplus/em/SemiSupervisedMStep.hpp"
-#include "ldaplusplus/em/SupervisedEStep.hpp"
-#include "ldaplusplus/em/SupervisedMStep.hpp"
-#include "ldaplusplus/em/UnsupervisedEStep.hpp"
-#include "ldaplusplus/em/UnsupervisedMStep.hpp"
 #include "ldaplusplus/LDA.hpp"
 
 namespace ldaplusplus {
@@ -54,24 +42,27 @@ class ILDABuilder
  * Examples:
  *
  * LDA<double> lda = LDABuilder<double>().
- *                      initialize_topics("random", X, 100);
+ *                      initialize_topics_seeded(X, 100);
  *
  * LDA<double> lda = LDABuilder<double>().
  *                      set_iterations(20).
- *                      set_e_step("classic").
- *                      set_m_step("supervised-batch").
- *                      initialize_topics("seeded", X, 100).
- *                      initialize_eta("zeros", X, y);
+ *                      set_classic_e_step().
+ *                      set_supervised_m_step().
+ *                      initialize_topics_seeded(X, 100).
+ *                      initialize_eta_zeros(y.maxCoeff() + 1);
  *
  * LDA<double> lda = LDABuilder<double>().
- *                      set_e_step("classic").
- *                      set_m_step("supervised-batch").
+ *                      set_classic_e_step(50, 1e-2).
+ *                      set_supervised_m_step().
  *                      initialize_topics_from_model(model).
  *                      initialize_eta_from_model(model);
  */
 template <typename Scalar>
 class LDABuilder : public ILDABuilder<Scalar>
 {
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
+
     public:
         /**
          * Create a default builder that will create a simple unsupervised LDA.
@@ -80,69 +71,261 @@ class LDABuilder : public ILDABuilder<Scalar>
          * steps with 20 iterations and as many workers as there are cpus
          * available.
          *
-         * Before being usable the model parameters must be initialized.
+         * Before being usable the model parameters must be initialized to set
+         * the number of topics etc.
          */
-        LDABuilder()
-            : iterations_(20),
-              workers_(std::thread::hardware_concurrency()),
-              e_step_(std::make_shared<em::UnsupervisedEStep<Scalar> >()),
-              m_step_(std::make_shared<em::UnsupervisedMStep<Scalar> >()),
-              model_parameters_(
-                std::make_shared<parameters::SupervisedModelParameters<Scalar> >()
-              )
-        {}
+        LDABuilder();
 
         /** Choose a number of iterations see LDA::fit */
-        LDABuilder & set_iterations(size_t iterations) {
-            iterations_ = iterations;
+        LDABuilder & set_iterations(size_t iterations);
 
-            return *this;
-        }
-        /** Choose a number of workers for the expectation step */
-        LDABuilder & set_workers(size_t workers) {
-            workers_ = workers;
+        /** Choose a number of parallel workers for the expectation step */
+        LDABuilder & set_workers(size_t workers);
 
-            return *this;
+
+        /**
+         * Create an UnsupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * UnsupervisedEStep::UnsupervisedEStep
+         *
+         * @param e_step_iterations The maximum iterations for each document's
+         *                          expectation step
+         * @param e_step_tolerance  The minimum relative change in the ELBO
+         *                          (less than that and we stop iterating)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        ) {
+            return set_e(get_classic_e_step(
+                e_step_iterations,
+                e_step_tolerance
+            ));
         }
 
-        /** Get the classic unsupervised LDA expectation step
-         * (UnsupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_classic_e_step(Args... args) {
-            return std::make_shared<em::UnsupervisedEStep<Scalar> >(args...);
+        /**
+         * Create an FastUnsupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * FastUnsupervisedEStep::FastUnsupervisedEStep
+         *
+         * @param e_step_iterations The maximum iterations for each document's
+         *                          expectation step
+         * @param e_step_tolerance  The minimum relative change in the
+         *                          variational parameters (less than that and
+         *                          we stop iterating)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_fast_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_fast_classic_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-4
+        ) {
+            return set_e(get_fast_classic_e_step(
+                e_step_iterations,
+                e_step_tolerance
+            ));
         }
-        /** Get the classic unsupervised LDA expectation step that doesn't
-         * report log likelihood (FastUnsupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_fast_classic_e_step(Args... args) {
-            return std::make_shared<em::FastUnsupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create a SupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * SupervisedEStep::SupervisedEStep.
+         *
+         * @param e_step_iterations      The maximum iterations for each
+         *                               document's expectation step
+         * @param e_step_tolerance       The minimum relative change in the
+         *                               ELBO (less than that and we stop
+         *                               iterating)
+         * @param fixed_point_iterations The number of fixed point iterations
+         *                               see SupervisedEStep
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            size_t fixed_point_iterations = 10
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            size_t fixed_point_iterations = 10
+        ) {
+            return set_e(get_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                fixed_point_iterations
+            ));
         }
-        /** Get the supervised LDA (sLDA) expectation step (SupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_supervised_e_step(Args... args) {
-            return std::make_shared<em::SupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create an ApproximatedSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * ApproximatedSupervisedEStep::ApproximatedSupervisedEStep.
+         *
+         * @param e_step_iterations  The maximum iterations for each
+         *                           document's expectation step
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           ELBO (less than that and we stop
+         *                           iterating)
+         * @param C                  Weight of the supervised part in the
+         *                           inference (default: 1)
+         * @param weight_type        How the weight will change between
+         *                           iterations (default: constant)
+         * @param compute_likelihood Compute the likelihood at the end of each
+         *                           expectation step (in order to be reported)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_fast_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar C = 1,
+            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
+            bool compute_likelihood = true
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_fast_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar C = 1,
+            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
+            bool compute_likelihood = true
+        ) {
+            return set_e(get_fast_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                C,
+                weight_type,
+                compute_likelihood
+            ));
         }
-        /** Get the fast approximate supervised LDA (fsLDA) expectation step
-         * (ApproximatedSupervisedEStep) */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_fast_supervised_e_step(Args... args) {
-            return std::make_shared<em::ApproximatedSupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create a SemiSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * SemiSupervisedEStep::SemiSupervisedEStep.
+         *
+         * @param supervised_step   The supervised step to use (when nullptr is
+         *                          provided it defaults to
+         *                          ApproximatedSupervisedEStep with default
+         *                          parameters)
+         * @param unsupervised_step The unsupervised step to use (when nullptr is
+         *                          provided it defaults to
+         *                          FastUnsupervisedEStep with default
+         *                          parameters)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_semi_supervised_e_step(
+            std::shared_ptr<em::IEStep<Scalar> > supervised_step = nullptr,
+            std::shared_ptr<em::IEStep<Scalar> > unsupervised_step = nullptr
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_semi_supervised_e_step(
+            std::shared_ptr<em::IEStep<Scalar> > supervised_step = nullptr,
+            std::shared_ptr<em::IEStep<Scalar> > unsupervised_step = nullptr
+        ) {
+            return set_e(get_semi_supervised_e_step(
+                supervised_step,
+                unsupervised_step
+            ));
         }
-        /** Get the SemiSupervisedEStep */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_semi_supervised_e_step(Args... args) {
-            return std::make_shared<em::SemiSupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create an MultinomialSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * MultinomialSupervisedEStep::MultinomialSupervisedEStep.
+         *
+         * @param e_step_iterations The maximum iterations for each
+         *                          document's expectation step
+         * @param e_step_tolerance  The minimum relative change in the
+         *                          ELBO (less than that and we stop
+         *                          iterating)
+         * @param mu                A uniform Dirichlet prior for the
+         *                          supervised parameters (default: 2)
+         * @param eta_weight        A weight parameter that decreases or
+         *                          increases the influence of the supervised
+         *                          part (default: 1).
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_multinomial_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2,
+            Scalar eta_weight = 1
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_multinomial_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2,
+            Scalar eta_weight = 1
+        ) {
+            return set_e(get_multinomial_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                mu,
+                eta_weight
+            ));
         }
-        /** Get the MultinomialSupervisedEStep */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_supervised_multinomial_e_step(Args... args) {
-            return std::make_shared<em::MultinomialSupervisedEStep<Scalar> >(args...);
+
+        /**
+         * Create an CorrespondenceSupervisedEStep.
+         *
+         * You can also see a description of the parameters at
+         * CorrespondenceSupervisedEStep::CorrespondenceSupervisedEStep.
+         *
+         * @param e_step_iterations The maximum iterations for each
+         *                          document's expectation step
+         * @param e_step_tolerance  The minimum relative change in the
+         *                          ELBO (less than that and we stop
+         *                          iterating)
+         * @param mu                A uniform Dirichlet prior for the
+         *                          supervised parameters (default: 2)
+         */
+        std::shared_ptr<em::IEStep<Scalar> > get_correspondence_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2
+        );
+        /**
+         * See the corresponding get_*_e_step() method.
+         */
+        LDABuilder & set_correspondence_supervised_e_step(
+            size_t e_step_iterations = 10,
+            Scalar e_step_tolerance = 1e-2,
+            Scalar mu = 2
+        ) {
+            return set_e(get_correspondence_supervised_e_step(
+                e_step_iterations,
+                e_step_tolerance,
+                mu
+            ));
         }
-        /** Get the CorrespondenceSupervisedEStep */
-        template <typename ...Args>
-        std::shared_ptr<em::IEStep<Scalar> > get_supervised_correspondence_e_step(Args... args) {
-            return std::make_shared<em::CorrespondenceSupervisedEStep<Scalar> >(args...);
-        }
+
         /**
          * Set an expectation step.
          *
@@ -157,134 +340,357 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
-        /** Set the maximization step to the classic unsupervised LDA M step
-         * (UnsupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::UnsupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to the first order approximation
-         * supervised (SupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::SupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to the second order approximation
-         * supervised (SupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_second_order_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::SecondOrderSupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to an online variant that changes the
-         * parameters many times in a single epoch (OnlineSupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_supervised_online_m_step(Args... args) {
-            m_step_ = std::make_shared<em::OnlineSupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
         /**
-         * Set the maximization step to semi supervised (SemiSupervisedMStep)
+         * Create an UnsupervisedMStep.
          */
-        template <typename ...Args>
-        LDABuilder & set_semi_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::SemiSupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to MultinomialSupervisedMStep */
-        template <typename ...Args>
-        LDABuilder & set_supervised_multinomial_m_step(Args... args) {
-            m_step_ = std::make_shared<em::MultinomialSupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to CorrespondenceSupervisedMStep */
-        template <typename ...Args>
-        LDABuilder & set_supervised_correspondence_m_step(Args... args) {
-            m_step_ = std::make_shared<em::CorrespondenceSupervisedMStep<Scalar> >(args...);
-
-            return *this;
+        std::shared_ptr<em::IMStep<Scalar> > get_classic_m_step();
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_classic_m_step() {
+            return set_m(get_classic_m_step());
         }
 
         /**
-         * Initialize the topic over words distributions, for each topic choose
-         * a distribution over the words.
+         * Create a SupervisedMStep.
          *
-         * The available methods are 'seeded' and 'random' and the extra
-         * parameters are the number of topics as a size_t and an integer as
-         * random state.
+         * You can also see a description of the parameters at
+         * SupervisedMStep::SupervisedMStep.
          *
-         * TODO: This should change as the set_*_m_step() methods.
-         *
-         * @param type A string that defines the initialization method.
-         * @param X    The word counts for each document in column-major order
-         * @param args The extra arguments needed for the initialization
-         *             functions
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
          */
-        template <typename ...Args>
-        LDABuilder & initialize_topics(
-            const std::string &type,
-            const Eigen::MatrixXi &X,
-            Args... args
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
         ) {
-            auto corpus = std::make_shared<corpus::EigenCorpus>(X);
+            return set_m(get_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
+        }
 
-            if (type == "seeded") {
-                initialize_topics_seeded<Scalar>(model_parameters_, corpus, args...);
-            }
-            else if (type == "random") {
-                initialize_topics_random<Scalar>(model_parameters_, corpus, args...);
-            }
-            else {
-                throw std::invalid_argument(type + " is an unknown topic initialization method");
-            }
+        /**
+         * Create a SecondOrderSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * SecondOrderSupervisedMStep::SecondOrderSupervisedMStep.
+         *
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_second_order_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_second_order_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) {
+            return set_m(get_second_order_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
+        }
 
+        /**
+         * Create an OnlineSupervisedMStep without specifying class weights.
+         *
+         * You can also see a description of the parameters at
+         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         *
+         * @param num_classes            The number of classes
+         * @param regularization_penalty The L2 penalty for the logistic
+         *                               regression
+         * @param minibatch_size         After that many documents call
+         *                               m_step()
+         * @param eta_momentum           The momentum for the SGD update
+         *                               of \f$\eta\f$
+         * @param eta_learning_rate      The learning rate for the SGD
+         *                               update of \f$\eta\f$
+         * @param beta_weight            The weight for the online update
+         *                                   of \f$\beta\f$
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+            size_t num_classes,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        );
+        LDABuilder & set_supervised_online_m_step(
+            size_t num_classes,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        ) {
+            return set_m(get_supervised_online_m_step(
+                num_classes,
+                regularization_penalty,
+                minibatch_size,
+                eta_momentum,
+                eta_learning_rate,
+                beta_weight
+            ));
+        }
+
+        /**
+         * Create an OnlineSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         *
+         * @param class_weights          Weights to account for class
+         *                               imbalance
+         * @param regularization_penalty The L2 penalty for the logistic
+         *                               regression
+         * @param minibatch_size         After that many documents call
+         *                               m_step()
+         * @param eta_momentum           The momentum for the SGD update
+         *                               of \f$\eta\f$
+         * @param eta_learning_rate      The learning rate for the SGD
+         *                               update of \f$\eta\f$
+         * @param beta_weight            The weight for the online update
+         *                                   of \f$\beta\f$
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+            std::vector<Scalar> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        );
+        LDABuilder & set_supervised_online_m_step(
+            std::vector<Scalar> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        ) {
+            return set_m(get_supervised_online_m_step(
+                class_weights,
+                regularization_penalty,
+                minibatch_size,
+                eta_momentum,
+                eta_learning_rate,
+                beta_weight
+            ));
+        }
+
+        /**
+         * Create an OnlineSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         *
+         * @param class_weights          Weights to account for class
+         *                               imbalance
+         * @param regularization_penalty The L2 penalty for the logistic
+         *                               regression
+         * @param minibatch_size         After that many documents call
+         *                               m_step()
+         * @param eta_momentum           The momentum for the SGD update
+         *                               of \f$\eta\f$
+         * @param eta_learning_rate      The learning rate for the SGD
+         *                               update of \f$\eta\f$
+         * @param beta_weight            The weight for the online update
+         *                                   of \f$\beta\f$
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+            Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        );
+        LDABuilder & set_supervised_online_m_step(
+            Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        ) {
+            return set_m(get_supervised_online_m_step(
+                class_weights,
+                regularization_penalty,
+                minibatch_size,
+                eta_momentum,
+                eta_learning_rate,
+                beta_weight
+            ));
+        }
+
+        /**
+         * Create a SemiSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * SemiSupervisedMStep::SemiSupervisedMStep.
+         *
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_semi_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_semi_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) {
+            return set_m(get_semi_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
+        }
+
+        /**
+         * Create a MultinomialSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * MultinomialSupervisedMStep::MultinomialSupervisedMStep.
+         *
+         * @param mu A uniform Dirichlet prior for the supervised parameters
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_multinomial_supervised_m_step(
+            Scalar mu = 2.
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_multinomial_supervised_m_step(
+            Scalar mu = 2.
+        ) {
+            return set_m(get_multinomial_supervised_m_step(mu));
+        }
+
+        /**
+         * Create a CorrespondenceSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * CorrespondenceSupervisedMStep::CorrespondenceSupervisedMStep.
+         *
+         * @param mu A uniform Dirichlet prior for the supervised parameters
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_correspondence_supervised_m_step(
+            Scalar mu = 2.
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_correspondence_supervised_m_step(
+            Scalar mu = 2.
+        ) {
+            return set_m(get_correspondence_supervised_m_step(mu));
+        }
+
+        /**
+         * Set a maximization step.
+         *
+         * Can be used in conjuction with the get_*_m_step() methods.
+         */
+        LDABuilder & set_m(std::shared_ptr<em::IMStep<Scalar> > m_step) {
+            m_step_ = m_step;
             return *this;
         }
 
         /**
-         * Initialize the supervised model parameters which generate the class
-         * label (in the generative model).
+         * Initialize the topic over words distributions by seeding them from
+         * the passed in documents.
          *
-         * The initialization methods are 'zeros' and 'multinomial'. The extra
-         * parameters needed are the number of topics as a size_t.
+         * 1. For each topic t
+         * 3. For N times sample a document d
+         * 4. Add the word distribution of d to topic t
          *
-         * TODO: This should change as the set_*_m_step() methods.
+         * This initialization also initializes alpha as 1.0 / topics
          *
-         * @param type A string that defines the initialization method
-         * @param X    The word counts for each document in column-major order
-         * @param y    The index of the class that each document belongs to
-         * @param args The extra arguments needed for the initialization
-         *             functions
+         * @param X            The word counts for each document
+         * @param topics       The number of topics
+         * @param N            The number of documents to use for seeding
+         * @param random_state The initial state of the random number generator
          */
-        template <typename ...Args>
-        LDABuilder & initialize_eta(
-            const std::string &type,
+        LDABuilder & initialize_topics_seeded(
             const Eigen::MatrixXi &X,
-            const Eigen::VectorXi &y,
-            Args... args
-        ) {
-            auto corpus = std::make_shared<corpus::EigenClassificationCorpus>(X, y);
+            size_t topics,
+            size_t N = 30,
+            int random_state = 0
+        );
 
-            if (type == "zeros") {
-                initialize_eta_zeros<Scalar>(model_parameters_, corpus, args...);
-            }
-            else if (type == "multinomial") {
-                initialize_eta_multinomial<Scalar>(model_parameters_, corpus, args...);
-            }
-            else {
-                throw std::invalid_argument(type + " is an unknown eta initialization method");
-            }
+        /**
+         * Initialize the topic over words distributions by seeding them from
+         * the passed in documents.
+         *
+         * 1. For each topic t
+         * 3. For N times sample a document d
+         * 4. Add the word distribution of d to topic t
+         *
+         * This initialization also initializes alpha as 1.0 / topics
+         *
+         * @param corpus       The word counts for each document
+         * @param topics       The number of topics
+         * @param N            The number of documents to use for seeding
+         * @param random_state The initial state of the random number generator
+         */
+        LDABuilder & initialize_topics_seeded(
+            std::shared_ptr<corpus::Corpus> corpus,
+            size_t topics,
+            size_t N = 30,
+            int random_state = 0
+        );
 
-            return *this;
-        }
+        /**
+         * Initialize the topics over words distributions as uniform
+         * distributions.
+         *
+         * This initialization also initializes alpha as 1.0 / topics
+         *
+         * @param words  The number of distinct words in the vocabulary
+         * @param topics The number of topics
+         */
+        LDABuilder & initialize_topics_uniform(
+            size_t words,
+            size_t topics
+        );
 
         /**
          * Initialize the topic distributions from another model.
@@ -300,6 +706,22 @@ class LDABuilder : public ILDABuilder<Scalar>
 
             return *this;
         }
+
+        /**
+         * Initialize the supervised model parameters which generate the class
+         * label with zeros.
+         *
+         * @param num_classes The number of classes
+         */
+        LDABuilder & initialize_eta_zeros(size_t num_classes);
+
+        /**
+         * Initialize the supervised model parameters which generate the class
+         * label with a uniform multinomial distribution.
+         *
+         * @param num_classes The number of classes
+         */
+        LDABuilder & initialize_eta_uniform(size_t num_classes);
 
         /**
          * Initialize the supervised model parameters from another model.
@@ -326,15 +748,6 @@ class LDABuilder : public ILDABuilder<Scalar>
             if (model_parameters_->beta.rows() == 0) {
                 throw std::runtime_error("You need to call initialize_topics before "
                                          "creating an LDA from the builder.");
-            }
-
-            if (
-                model_parameters_->beta.rows() != model_parameters_->eta.rows() &&
-                model_parameters_->eta.rows() > 0
-            ) {
-                throw std::runtime_error("\\eta and \\beta should be "
-                                         "initialized with the same number of "
-                                         "topics");
             }
 
             return LDA<Scalar>(

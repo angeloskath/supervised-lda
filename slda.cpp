@@ -283,7 +283,7 @@ LDA<double> create_lda_for_training(
 
     // Choose the e step
     if (args["--semi_supervised"].asBool()) {
-        builder.set_e(builder.get_semi_supervised_e_step(
+        builder.set_semi_supervised_e_step(
             builder.get_supervised_e_step(
                 args["--e_step_iterations"].asLong(),
                 std::stof(args["--e_step_tolerance"].asString()),
@@ -293,12 +293,12 @@ LDA<double> create_lda_for_training(
                 args["--e_step_iterations"].asLong(),
                 std::stof(args["--e_step_tolerance"].asString())
             )
-        ));
+        );
     } else if (args["--unsupervised_e_step"].asBool()) {
-        builder.set_e(builder.get_fast_classic_e_step(
+        builder.set_fast_classic_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString())
-        ));
+        );
     } else if (args["--fast_e_step"].asBool()) {
         typename em::ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
         if (args["--supervised_weight_evolution"].asString() == "exponential") {
@@ -306,37 +306,37 @@ LDA<double> create_lda_for_training(
         } else {
             weight_evolution = em::ApproximatedSupervisedEStep<double>::Constant;
         }
-        builder.set_e(builder.get_fast_supervised_e_step(
+        builder.set_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             std::stof(args["--supervised_weight"].asString()),
             weight_evolution,
             args["--show_likelihood"].asBool()
-        ));
+        );
     } else if (args["--multinomial"].asBool()) {
-        builder.set_e(builder.get_supervised_multinomial_e_step(
+        builder.set_multinomial_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             std::stof(args["--mu"].asString()),
             std::stof(args["--eta_weight"].asString())
-        ));
+        );
     } else if (args["--correspondence"].asBool()) {
-        builder.set_e(builder.get_supervised_correspondence_e_step(
+        builder.set_correspondence_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             std::stof(args["--mu"].asString())
-        ));
+        );
     } else {
-        builder.set_e(builder.get_supervised_e_step(
+        builder.set_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             args["--fixed_point_iterations"].asLong()
-        ));
+        );
     }
 
     // Choose the m step
     if (args["--semi_supervised"].asBool()) {
-        builder.set_semi_supervised_batch_m_step(
+        builder.set_semi_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
@@ -351,21 +351,21 @@ LDA<double> create_lda_for_training(
             std::stof(args["--beta_weight"].asString())
         );
     } else if (args["--second_order_m_step"].asBool()) {
-        builder.set_second_order_supervised_batch_m_step(
+        builder.set_second_order_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
         );
     } else if (args["--multinomial"].asBool()) {
-        builder.set_supervised_multinomial_m_step(
+        builder.set_multinomial_supervised_m_step(
             std::stof(args["--mu"].asString())
         );
     } else if (args["--correspondence"].asBool()) {
-        builder.set_supervised_correspondence_m_step(
+        builder.set_correspondence_supervised_m_step(
             std::stof(args["--mu"].asString())
         );
     } else {
-        builder.set_supervised_batch_m_step(
+        builder.set_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
@@ -380,12 +380,12 @@ LDA<double> create_lda_for_training(
             initialize_eta_from_model(model);
     } else if (args["--multinomial"].asBool() || args["--correspondence"].asBool()) {
         builder.
-            initialize_topics("seeded", X, args["--topics"].asLong()).
-            initialize_eta("multinomial", X, y, args["--topics"].asLong());
+            initialize_topics_seeded(X, args["--topics"].asLong()).
+            initialize_eta_uniform(y.maxCoeff() + 1);
     } else {
         builder.
-            initialize_topics("seeded", X, args["--topics"].asLong()).
-            initialize_eta("zeros", X, y, args["--topics"].asLong());
+            initialize_topics_seeded(X, args["--topics"].asLong()).
+            initialize_eta_zeros(y.maxCoeff() + 1);
     }
 
     return builder;
