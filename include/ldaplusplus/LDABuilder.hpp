@@ -5,6 +5,7 @@
 #include <memory>
 #include <stdexcept>
 #include <thread>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -349,59 +350,297 @@ class LDABuilder : public ILDABuilder<Scalar>
             return *this;
         }
 
-        /** Set the maximization step to the classic unsupervised LDA M step
-         * (UnsupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::UnsupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to the first order approximation
-         * supervised (SupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::SupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to the second order approximation
-         * supervised (SupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_second_order_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::SecondOrderSupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
-        /** Set the maximization step to an online variant that changes the
-         * parameters many times in a single epoch (OnlineSupervisedMStep) */
-        template <typename ...Args>
-        LDABuilder & set_supervised_online_m_step(Args... args) {
-            m_step_ = std::make_shared<em::OnlineSupervisedMStep<Scalar> >(args...);
-
-            return *this;
-        }
         /**
-         * Set the maximization step to semi supervised (SemiSupervisedMStep)
+         * Create an UnsupervisedMStep.
          */
-        template <typename ...Args>
-        LDABuilder & set_semi_supervised_batch_m_step(Args... args) {
-            m_step_ = std::make_shared<em::SemiSupervisedMStep<Scalar> >(args...);
-
-            return *this;
+        std::shared_ptr<em::IMStep<Scalar> > get_classic_m_step();
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_classic_m_step() {
+            return set_m(get_classic_m_step());
         }
-        /** Set the maximization step to MultinomialSupervisedMStep */
-        template <typename ...Args>
-        LDABuilder & set_supervised_multinomial_m_step(Args... args) {
-            m_step_ = std::make_shared<em::MultinomialSupervisedMStep<Scalar> >(args...);
 
-            return *this;
+        /**
+         * Create a SupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * SupervisedMStep::SupervisedMStep.
+         *
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) {
+            return set_m(get_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
         }
-        /** Set the maximization step to CorrespondenceSupervisedMStep */
-        template <typename ...Args>
-        LDABuilder & set_supervised_correspondence_m_step(Args... args) {
-            m_step_ = std::make_shared<em::CorrespondenceSupervisedMStep<Scalar> >(args...);
 
+        /**
+         * Create a SecondOrderSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * SecondOrderSupervisedMStep::SecondOrderSupervisedMStep.
+         *
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_second_order_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_second_order_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) {
+            return set_m(get_second_order_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
+        }
+
+        /**
+         * Create an OnlineSupervisedMStep without specifying class weights.
+         *
+         * You can also see a description of the parameters at
+         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         *
+         * @param num_classes            The number of classes
+         * @param regularization_penalty The L2 penalty for the logistic
+         *                               regression
+         * @param minibatch_size         After that many documents call
+         *                               m_step()
+         * @param eta_momentum           The momentum for the SGD update
+         *                               of \f$\eta\f$
+         * @param eta_learning_rate      The learning rate for the SGD
+         *                               update of \f$\eta\f$
+         * @param beta_weight            The weight for the online update
+         *                                   of \f$\beta\f$
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+            size_t num_classes,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        );
+        LDABuilder & set_supervised_online_m_step(
+            size_t num_classes,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        ) {
+            return set_m(get_supervised_online_m_step(
+                num_classes,
+                regularization_penalty,
+                minibatch_size,
+                eta_momentum,
+                eta_learning_rate,
+                beta_weight
+            ));
+        }
+
+        /**
+         * Create an OnlineSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         *
+         * @param class_weights          Weights to account for class
+         *                               imbalance
+         * @param regularization_penalty The L2 penalty for the logistic
+         *                               regression
+         * @param minibatch_size         After that many documents call
+         *                               m_step()
+         * @param eta_momentum           The momentum for the SGD update
+         *                               of \f$\eta\f$
+         * @param eta_learning_rate      The learning rate for the SGD
+         *                               update of \f$\eta\f$
+         * @param beta_weight            The weight for the online update
+         *                                   of \f$\beta\f$
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+            std::vector<Scalar> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        );
+        LDABuilder & set_supervised_online_m_step(
+            std::vector<Scalar> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        ) {
+            return set_m(get_supervised_online_m_step(
+                class_weights,
+                regularization_penalty,
+                minibatch_size,
+                eta_momentum,
+                eta_learning_rate,
+                beta_weight
+            ));
+        }
+
+        /**
+         * Create an OnlineSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         *
+         * @param class_weights          Weights to account for class
+         *                               imbalance
+         * @param regularization_penalty The L2 penalty for the logistic
+         *                               regression
+         * @param minibatch_size         After that many documents call
+         *                               m_step()
+         * @param eta_momentum           The momentum for the SGD update
+         *                               of \f$\eta\f$
+         * @param eta_learning_rate      The learning rate for the SGD
+         *                               update of \f$\eta\f$
+         * @param beta_weight            The weight for the online update
+         *                                   of \f$\beta\f$
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_supervised_online_m_step(
+            Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        );
+        LDABuilder & set_supervised_online_m_step(
+            Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
+            Scalar regularization_penalty = 1e-2,
+            size_t minibatch_size = 128,
+            Scalar eta_momentum = 0.9,
+            Scalar eta_learning_rate = 0.01,
+            Scalar beta_weight = 0.9
+        ) {
+            return set_m(get_supervised_online_m_step(
+                class_weights,
+                regularization_penalty,
+                minibatch_size,
+                eta_momentum,
+                eta_learning_rate,
+                beta_weight
+            ));
+        }
+
+        /**
+         * Create a SemiSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * SemiSupervisedMStep::SemiSupervisedMStep.
+         *
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_semi_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_semi_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) {
+            return set_m(get_semi_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
+        }
+
+        /**
+         * Create a MultinomialSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * MultinomialSupervisedMStep::MultinomialSupervisedMStep.
+         *
+         * @param mu A uniform Dirichlet prior for the supervised parameters
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_multinomial_supervised_m_step(
+            Scalar mu = 2.
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_multinomial_supervised_m_step(
+            Scalar mu = 2.
+        ) {
+            return set_m(get_multinomial_supervised_m_step(mu));
+        }
+
+        /**
+         * Create a CorrespondenceSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * CorrespondenceSupervisedMStep::CorrespondenceSupervisedMStep.
+         *
+         * @param mu A uniform Dirichlet prior for the supervised parameters
+         */
+        std::shared_ptr<em::IMStep<Scalar> > get_correspondence_supervised_m_step(
+            Scalar mu = 2.
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_correspondence_supervised_m_step(
+            Scalar mu = 2.
+        ) {
+            return set_m(get_correspondence_supervised_m_step(mu));
+        }
+
+        /**
+         * Set a maximization step.
+         *
+         * Can be used in conjuction with the get_*_m_step() methods.
+         */
+        LDABuilder & set_m(std::shared_ptr<em::IMStep<Scalar> > m_step) {
+            m_step_ = m_step;
             return *this;
         }
 

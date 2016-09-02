@@ -336,7 +336,7 @@ LDA<double> create_lda_for_training(
 
     // Choose the m step
     if (args["--semi_supervised"].asBool()) {
-        builder.set_semi_supervised_batch_m_step(
+        builder.set_semi_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
@@ -351,21 +351,21 @@ LDA<double> create_lda_for_training(
             std::stof(args["--beta_weight"].asString())
         );
     } else if (args["--second_order_m_step"].asBool()) {
-        builder.set_second_order_supervised_batch_m_step(
+        builder.set_second_order_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
         );
     } else if (args["--multinomial"].asBool()) {
-        builder.set_supervised_multinomial_m_step(
+        builder.set_multinomial_supervised_m_step(
             std::stof(args["--mu"].asString())
         );
     } else if (args["--correspondence"].asBool()) {
-        builder.set_supervised_correspondence_m_step(
+        builder.set_correspondence_supervised_m_step(
             std::stof(args["--mu"].asString())
         );
     } else {
-        builder.set_supervised_batch_m_step(
+        builder.set_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())

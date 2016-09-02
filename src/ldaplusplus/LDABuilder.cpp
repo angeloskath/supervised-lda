@@ -124,6 +124,127 @@ std::shared_ptr<em::IEStep<Scalar> > LDABuilder<Scalar>::get_correspondence_supe
     );
 }
 
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_classic_m_step() {
+    return std::make_shared<em::UnsupervisedMStep<Scalar> >();
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_supervised_m_step(
+    size_t m_step_iterations,
+    Scalar m_step_tolerance,
+    Scalar regularization_penalty
+) {
+    return std::make_shared<em::SupervisedMStep<Scalar> >(
+        m_step_iterations,
+        m_step_tolerance,
+        regularization_penalty
+    );
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_second_order_supervised_m_step(
+    size_t m_step_iterations,
+    Scalar m_step_tolerance,
+    Scalar regularization_penalty
+) {
+    return std::make_shared<em::SecondOrderSupervisedMStep<Scalar> >(
+        m_step_iterations,
+        m_step_tolerance,
+        regularization_penalty
+    );
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+    size_t num_classes,
+    Scalar regularization_penalty,
+    size_t minibatch_size,
+    Scalar eta_momentum,
+    Scalar eta_learning_rate,
+    Scalar beta_weight
+) {
+    return std::make_shared<em::OnlineSupervisedMStep<Scalar> >(
+        num_classes,
+        regularization_penalty,
+        minibatch_size,
+        eta_momentum,
+        eta_learning_rate,
+        beta_weight
+    );
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+    std::vector<Scalar> class_weights,
+    Scalar regularization_penalty,
+    size_t minibatch_size,
+    Scalar eta_momentum,
+    Scalar eta_learning_rate,
+    Scalar beta_weight
+) {
+    // Construct an Eigen Matrix and copy the weights
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> weights(class_weights.size());
+    for (size_t i=0; i<class_weights.size(); i++) {
+        weights[i] = class_weights[i];
+    }
+
+    return get_supervised_online_m_step(
+        weights,
+        regularization_penalty,
+        minibatch_size,
+        eta_momentum,
+        eta_learning_rate,
+        beta_weight
+    );
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
+    Scalar regularization_penalty,
+    size_t minibatch_size,
+    Scalar eta_momentum,
+    Scalar eta_learning_rate,
+    Scalar beta_weight
+) {
+    return std::make_shared<em::OnlineSupervisedMStep<Scalar> >(
+        class_weights,
+        regularization_penalty,
+        minibatch_size,
+        eta_momentum,
+        eta_learning_rate,
+        beta_weight
+    );
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_semi_supervised_m_step(
+    size_t m_step_iterations,
+    Scalar m_step_tolerance,
+    Scalar regularization_penalty
+) {
+    return std::make_shared<em::SemiSupervisedMStep<Scalar> >(
+        m_step_iterations,
+        m_step_tolerance,
+        regularization_penalty
+    );
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_multinomial_supervised_m_step(
+    Scalar mu
+) {
+    return std::make_shared<em::MultinomialSupervisedMStep<Scalar> >(mu);
+}
+
+template <typename Scalar>
+std::shared_ptr<em::IMStep<Scalar> > LDABuilder<Scalar>::get_correspondence_supervised_m_step(
+    Scalar mu
+) {
+    return std::make_shared<em::CorrespondenceSupervisedMStep<Scalar> >(mu);
+}
+
 // Just the template instantiations all the rest is defined in the headers.
 template class LDABuilder<float>;
 template class LDABuilder<double>;

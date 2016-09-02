@@ -36,10 +36,9 @@ TYPED_TEST(TestFit, partial_fit) {
         y(d) = class_generator(rng);
     }
 
-    LDABuilder<TypeParam> b;
-    LDA<TypeParam> lda = b.
-            set_e(b.get_supervised_e_step(10, 1e-2, 10)).
-            set_supervised_batch_m_step(10, 1e-2).
+    LDA<TypeParam> lda = LDABuilder<TypeParam>().
+            set_supervised_e_step(10, 1e-2, 10).
+            set_supervised_m_step(10, 1e-2).
             initialize_topics("seeded", X, 10).
             initialize_eta("zeros", X, y, 10);
 
