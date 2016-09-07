@@ -28,8 +28,8 @@ project(LDA++)
 # Set the compiler flags
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
 
-# Set other flags and variables
-set(BUILD_SHARED_LIBS ON)
+# Set options for the compilation
+option(BUILD_SHARED_LIBS "Build library as a shared object" ON)
 
 # Bring the headers into the project
 include_directories(include)
@@ -84,7 +84,8 @@ target_link_libraries(slda ldaplusplus)
 # Set the installation rules
 install(TARGETS slda ldaplusplus
         RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib)
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include/ldaplusplus
         PATTERN "test" EXCLUDE)
 

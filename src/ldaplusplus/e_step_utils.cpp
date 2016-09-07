@@ -1,11 +1,9 @@
 #include "ldaplusplus/e_step_utils.hpp"
 #include "ldaplusplus/utils.hpp"
 
+
 namespace ldaplusplus {
-
-
-namespace e_step_utils
-{
+namespace e_step_utils {
 
 
 template <typename Scalar>
@@ -313,6 +311,10 @@ void compute_supervised_approximate_phi(
     Scalar C,
     Ref<MatrixX<Scalar> > phi
 ) {
+    if (num_words == 0) {
+        return;
+    }
+
     auto cwise_digamma = math_utils::CwiseDigamma<Scalar>();
     auto cwise_fast_exp = math_utils::CwiseFastExp<Scalar>();
 
@@ -625,6 +627,6 @@ template void compute_supervised_correspondence_tau(
     const MatrixX<double> & phi,
     Ref<VectorX<double> > tau
 );
-}
 
-}
+}  // namespace e_step_utils
+}  // namespace ldaplusplus

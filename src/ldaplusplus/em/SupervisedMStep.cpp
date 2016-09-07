@@ -42,7 +42,12 @@ void SupervisedMStep<Scalar>::doc_m_step(
     y_(docs_) = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
     expected_z_bar_.col(docs_) = gamma - alpha;
-    expected_z_bar_.col(docs_).array() /= expected_z_bar_.col(docs_).sum();
+    // TODO: Maybe move the following normalization to m_step() and call
+    //       math_utils::normalize_cols()
+    auto words_in_doc = expected_z_bar_.col(docs_).sum();
+    if (words_in_doc != 0) {
+        expected_z_bar_.col(docs_).array() /= words_in_doc;
+    }
 
     docs_ += 1;
 }

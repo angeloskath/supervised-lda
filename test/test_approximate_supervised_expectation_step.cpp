@@ -4,6 +4,7 @@
 #include "test/utils.hpp"
 
 #include "ldaplusplus/e_step_utils.hpp"
+#include "ldaplusplus/utils.hpp"
 
 using namespace Eigen;
 using namespace ldaplusplus;
@@ -159,4 +160,53 @@ TYPED_TEST(TestApproximateSupervisedExpectationStep, ComputeApproximateSupervise
     // What should the following be
     //
     // EXPECT_GT(likelihood_supervised_approximation, likelihood_supervised);
+}
+
+TYPED_TEST(TestApproximateSupervisedExpectationStep, ComputeApproximatePhiWithEmptyDocument) {
+    VectorX<TypeParam> X_ratio = VectorX<TypeParam>::Zero(10);
+    int  y = 0;
+    TypeParam C = 1.0;
+
+    MatrixX<TypeParam> phi = MatrixX<TypeParam>::Random(5, 10);
+    VectorX<TypeParam> alpha = VectorX<TypeParam>::Constant(5, 0.2);
+    MatrixX<TypeParam> beta = MatrixX<TypeParam>::Random(5, 10);
+    MatrixX<TypeParam> eta = MatrixX<TypeParam>::Random(5, 3);
+    VectorX<TypeParam> gamma(beta.rows());
+
+    // Normalize beta and phi
+    beta.array() -= beta.minCoeff() - 0.001;
+    beta.array().rowwise() /= beta.colwise().sum().array();
+
+    phi.array() -= phi.minCoeff() - 0.001;
+    phi.array().rowwise() /= phi.colwise().sum().array();
+
+    // Compute gamma according to the random phi
+    e_step_utils::compute_gamma<TypeParam>(
+        VectorXi::Zero(10),
+        alpha,
+        phi,
+        gamma
+    );
+
+    // Compute phi and gamma
+    e_step_utils::compute_supervised_approximate_phi<TypeParam> (
+        X_ratio,
+        0,
+        y,
+        beta,
+        eta,
+        gamma,
+        C,
+        phi
+    );
+    e_step_utils::compute_gamma<TypeParam>(
+        VectorXi::Zero(10),
+        alpha,
+        phi,
+        gamma
+    );
+
+    auto cwise_isnan = math_utils::CwiseIsNaN<TypeParam>();
+    EXPECT_FALSE(phi.unaryExpr(cwise_isnan).any());
+    EXPECT_FALSE(gamma.unaryExpr(cwise_isnan).any());
 }

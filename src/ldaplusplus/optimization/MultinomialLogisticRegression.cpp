@@ -46,7 +46,7 @@ Scalar MultinomialLogisticRegression<Scalar>::value(const MatrixX &eta) const {
         t = eta.transpose() * X_.col(d);
         likelihood += Cy_[y_[d]] * t[y_[d]];
         likelihood -= Cy_[y_[d]] * std::log(t.array().exp().sum());
-        
+
         // This will be used in case we have overflow issues
         //Scalar a = t.maxCoeff();
         //likelihood -= a + std::log((t.array() - a).exp().sum());
