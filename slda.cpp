@@ -11,7 +11,7 @@
 
 #include <docopt/docopt.h>
 
-#include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/em/FastSupervisedEStep.hpp"
 #include "ldaplusplus/events/Events.hpp"
 #include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/LDABuilder.hpp"
@@ -301,18 +301,18 @@ LDA<double> create_lda_for_training(
             static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else if (args["--fast_e_step"].asBool()) {
-        typename em::ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
+        typename em::FastSupervisedEStep<double>::CWeightType weight_evolution;
         if (args["--supervised_weight_evolution"].asString() == "exponential") {
-            weight_evolution = em::ApproximatedSupervisedEStep<double>::ExponentialDecay;
+            weight_evolution = em::FastSupervisedEStep<double>::ExponentialDecay;
         } else {
-            weight_evolution = em::ApproximatedSupervisedEStep<double>::Constant;
+            weight_evolution = em::FastSupervisedEStep<double>::Constant;
         }
         builder.set_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             std::stof(args["--supervised_weight"].asString()),
             weight_evolution,
-            args["--show_likelihood"].asBool()
+            static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else if (args["--multinomial"].asBool()) {
         builder.set_multinomial_supervised_e_step(

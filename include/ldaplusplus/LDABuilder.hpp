@@ -10,7 +10,7 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/Document.hpp"
-#include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/em/FastSupervisedEStep.hpp"
 #include "ldaplusplus/em/EStepInterface.hpp"
 #include "ldaplusplus/em/MStepInterface.hpp"
 #include "ldaplusplus/LDA.hpp"
@@ -165,10 +165,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create an ApproximatedSupervisedEStep.
+         * Create a FastSupervisedEStep.
          *
          * You can also see a description of the parameters at
-         * ApproximatedSupervisedEStep::ApproximatedSupervisedEStep.
+         * FastSupervisedEStep::FastSupervisedEStep.
          *
          * @param e_step_iterations  The maximum iterations for each
          *                           document's expectation step
@@ -179,16 +179,20 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          *                           inference (default: 1)
          * @param weight_type        How the weight will change between
          *                           iterations (default: constant)
-         * @param compute_likelihood Compute the likelihood at the end of each
-         *                           expectation step (in order to be reported)
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         std::shared_ptr<em::EStepInterface<Scalar> > get_fast_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar C = 1,
-            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
-                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
-            bool compute_likelihood = true
+            typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::FastSupervisedEStep<Scalar>::CWeightType::Constant,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -197,16 +201,18 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar C = 1,
-            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
-                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
-            bool compute_likelihood = true
+            typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::FastSupervisedEStep<Scalar>::CWeightType::Constant,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_fast_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
                 C,
                 weight_type,
-                compute_likelihood
+                compute_likelihood,
+                random_state
             ));
         }
 
@@ -218,7 +224,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          *
          * @param supervised_step   The supervised step to use (when nullptr is
          *                          provided it defaults to
-         *                          ApproximatedSupervisedEStep with default
+         *                          FastSupervisedEStep with default
          *                          parameters)
          * @param unsupervised_step The unsupervised step to use (when nullptr is
          *                          provided it defaults to

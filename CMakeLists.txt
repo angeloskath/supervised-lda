@@ -40,7 +40,6 @@ include_directories(include)
 set(SOURCES
     src/ldaplusplus/Document.cpp
     src/ldaplusplus/em/AbstractEStep.cpp
-    src/ldaplusplus/em/ApproximatedSupervisedEStep.cpp
     src/ldaplusplus/em/CorrespondenceSupervisedEStep.cpp
     src/ldaplusplus/em/CorrespondenceSupervisedMStep.cpp
     src/ldaplusplus/em/FastSupervisedEStep.cpp

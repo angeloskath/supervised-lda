@@ -75,15 +75,17 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_superv
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar C,
-    typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type,
-    bool compute_likelihood
+    typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type,
+    Scalar compute_likelihood,
+    int random_state
 ) {
-    return std::make_shared<em::ApproximatedSupervisedEStep<Scalar> >(
+    return std::make_shared<em::FastSupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
         C,
         weight_type,
-        compute_likelihood
+        compute_likelihood,
+        random_state
     );
 }
 
