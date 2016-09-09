@@ -43,6 +43,7 @@ set(SOURCES
     src/ldaplusplus/em/CorrespondenceSupervisedEStep.cpp
     src/ldaplusplus/em/CorrespondenceSupervisedMStep.cpp
     src/ldaplusplus/em/FastSupervisedEStep.cpp
+    src/ldaplusplus/em/FastSupervisedMStep.cpp
     src/ldaplusplus/em/MultinomialSupervisedEStep.cpp
     src/ldaplusplus/em/MultinomialSupervisedMStep.cpp
     src/ldaplusplus/em/OnlineSupervisedMStep.cpp
@@ -50,7 +51,6 @@ set(SOURCES
     src/ldaplusplus/em/SemiSupervisedEStep.cpp
     src/ldaplusplus/em/SemiSupervisedMStep.cpp
     src/ldaplusplus/em/SupervisedEStep.cpp
-    src/ldaplusplus/em/SupervisedMStep.cpp
     src/ldaplusplus/em/UnsupervisedEStep.cpp
     src/ldaplusplus/em/UnsupervisedMStep.cpp
     src/ldaplusplus/e_step_utils.cpp

@@ -1,5 +1,5 @@
-#ifndef _SUPERVISEDMSTEP_HPP
-#define _SUPERVISEDMSTEP_HPP
+#ifndef _LDAPLUSPLUS_EM_FASTSUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_FASTSUPERVISEDMSTEP_HPP_
 
 #include "ldaplusplus/em/UnsupervisedMStep.hpp"
 
@@ -8,7 +8,7 @@ namespace em {
 
 
 /**
- * Implement the M step for the categorical supervised LDA.
+ * Implement the M step for the fsLDA.
  *
  * Similarly to the UnsupervisedMStep the purpose is to maximize the lower
  * bound of the log likelihood \f$\mathcal{L}\f$. The same notation as in
@@ -42,7 +42,7 @@ namespace em {
  * descent with ArmijoLineSearch.
  */
 template <typename Scalar>
-class SupervisedMStep : public UnsupervisedMStep<Scalar>
+class FastSupervisedMStep : public UnsupervisedMStep<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -55,7 +55,7 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
          *                               consecutive gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        SupervisedMStep(
+        FastSupervisedMStep(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -112,4 +112,4 @@ class SupervisedMStep : public UnsupervisedMStep<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _SUPERVISEDMSTEP_HPP
+#endif  // _LDAPLUSPLUS_EM_FASTSUPERVISEDMSTEP_HPP_

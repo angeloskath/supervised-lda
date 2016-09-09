@@ -369,7 +369,7 @@ LDA<double> create_lda_for_training(
             std::stof(args["--mu"].asString())
         );
     } else {
-        builder.set_supervised_m_step(
+        builder.set_fast_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
