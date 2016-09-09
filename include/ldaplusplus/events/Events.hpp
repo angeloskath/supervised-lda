@@ -44,6 +44,8 @@ class EventListenerInterface
          * @param event The received event
          */
         virtual void on_event(std::shared_ptr<Event> event) = 0;
+
+        virtual ~EventListenerInterface(){};
 };
 
 
@@ -152,6 +154,8 @@ class EventDispatcherInterface
 
             dispatch(event);
         }
+
+        virtual ~EventDispatcherInterface(){};
 };
 
 

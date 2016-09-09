@@ -40,6 +40,8 @@ class LineSearch
             const ParameterType &grad_x0,
             const ParameterType &direction
         ) = 0;
+
+        virtual ~LineSearch(){};
 };
 
 

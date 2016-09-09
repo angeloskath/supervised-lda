@@ -43,6 +43,8 @@ class Document
         const std::shared_ptr<const T> get_corpus() const {
             return std::static_pointer_cast<const T>(get_corpus());
         }
+
+        virtual ~Document(){};
 };
 
 
@@ -75,6 +77,8 @@ class Corpus
          * documents with probability 1.0/size() .
          */
         virtual void shuffle() = 0;
+
+        virtual ~Corpus(){};
 };
 
 

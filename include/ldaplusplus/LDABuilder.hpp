@@ -19,14 +19,16 @@ namespace ldaplusplus {
 
 
 /**
- * An ILDABuilder is an interface for any class that can be cast into an LDA
+ * An LDABuilderInterface is an interface for any class that can be cast into an LDA
  * instance.
  */
 template <typename Scalar>
-class ILDABuilder
+class LDABuilderInterface
 {
     public:
         virtual operator LDA<Scalar>() const = 0;
+
+    virtual ~LDABuilderInterface(){};
 };
 
 
@@ -58,7 +60,7 @@ class ILDABuilder
  *                      initialize_eta_from_model(model);
  */
 template <typename Scalar>
-class LDABuilder : public ILDABuilder<Scalar>
+class LDABuilder : public LDABuilderInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
