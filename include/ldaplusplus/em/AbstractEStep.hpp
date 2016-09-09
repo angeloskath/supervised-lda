@@ -10,7 +10,7 @@ namespace ldaplusplus {
 namespace em {
 
 /**
- * A base class to that provides few common functionalities for implementing an
+ * A base class that provides few common functionalities for implementing an
  * E step.
  *
  * - Implements an empty void e_step() since most work happens in doc_e_step()
@@ -42,8 +42,8 @@ class AbstractEStep : public EStepInterface<Scalar>
          * Check for convergence based on the mean relative change of the
          * variational parameter \f$\gamma\f$.
          *
-         * @gamma gamma_old The gamma of the previous iteration.
-         * @gamma gamma     The gamma of this iteration.
+         * @param gamma_old The gamma of the previous iteration.
+         * @param gamma     The gamma of this iteration.
          * @param tolerance The threshold below which we declare convergence.
          * @return Whether the change is small enough to indicate convergence.
          */

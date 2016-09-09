@@ -23,7 +23,7 @@ namespace em {
  * \f]
  *
  * We observe that with respect to the parameter \f$\beta\f$ nothing changes
- * thus SupervisedMStep extends UnsupervisedMStep to delegate part of the
+ * thus FastSupervisedMStep extends UnsupervisedMStep to delegate part of the
  * maximization to it. Decoration or another type of composition may be a more
  * appropriate form of code reuse in this case.
  *

@@ -8,8 +8,7 @@ namespace em {
 
 
 /**
- * FastOnlineSupervisedMStep is an online implementation of the classical
- * categorical supervised LDA.
+ * FastOnlineSupervisedMStep is an online implementation of the fsLDA.
  *
  * m_step() is called by doc_m_step() according to the minibatch_size
  * constructor parameter thus the model parameters are updated many times in an
@@ -21,7 +20,7 @@ namespace em {
  *
  * In the maximization with respect to \f$\eta\f$ the first order taylor
  * approximation to the expectation of the log normalizer is used as in the
- * SupervisedMStep.
+ * FastSupervisedMStep.
  */
 template <typename Scalar>
 class FastOnlineSupervisedMStep : public MStepInterface<Scalar>
