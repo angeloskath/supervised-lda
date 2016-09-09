@@ -90,54 +90,37 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * You can also see a description of the parameters at
          * UnsupervisedEStep::UnsupervisedEStep
          *
-         * @param e_step_iterations The maximum iterations for each document's
-         *                          expectation step
-         * @param e_step_tolerance  The minimum relative change in the ELBO
-         *                          (less than that and we stop iterating)
+         * @param e_step_iterations  The max number of times to alternate
+         *                           between maximizing for \f$\gamma\f$ and
+         *                           for \f$\phi\f$.
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           variational parameter \f$\gamma\f$.
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         std::shared_ptr<em::EStepInterface<Scalar> > get_classic_e_step(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
+            Scalar e_step_tolerance = 1e-2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
          */
         LDABuilder & set_classic_e_step(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
+            Scalar e_step_tolerance = 1e-2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_classic_e_step(
                 e_step_iterations,
-                e_step_tolerance
-            ));
-        }
-
-        /**
-         * Create an FastUnsupervisedEStep.
-         *
-         * You can also see a description of the parameters at
-         * FastUnsupervisedEStep::FastUnsupervisedEStep
-         *
-         * @param e_step_iterations The maximum iterations for each document's
-         *                          expectation step
-         * @param e_step_tolerance  The minimum relative change in the
-         *                          variational parameters (less than that and
-         *                          we stop iterating)
-         */
-        std::shared_ptr<em::EStepInterface<Scalar> > get_fast_classic_e_step(
-            size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
-        );
-        /**
-         * See the corresponding get_*_e_step() method.
-         */
-        LDABuilder & set_fast_classic_e_step(
-            size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
-        ) {
-            return set_e(get_fast_classic_e_step(
-                e_step_iterations,
-                e_step_tolerance
+                e_step_tolerance,
+                compute_likelihood,
+                random_state
             ));
         }
 

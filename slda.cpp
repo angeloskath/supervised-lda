@@ -289,15 +289,16 @@ LDA<double> create_lda_for_training(
                 std::stof(args["--e_step_tolerance"].asString()),
                 args["--fixed_point_iterations"].asLong()
             ),
-            builder.get_fast_classic_e_step(
+            builder.get_classic_e_step(
                 args["--e_step_iterations"].asLong(),
                 std::stof(args["--e_step_tolerance"].asString())
             )
         );
     } else if (args["--unsupervised_e_step"].asBool()) {
-        builder.set_fast_classic_e_step(
+        builder.set_classic_e_step(
             args["--e_step_iterations"].asLong(),
-            std::stof(args["--e_step_tolerance"].asString())
+            std::stof(args["--e_step_tolerance"].asString()),
+            static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else if (args["--fast_e_step"].asBool()) {
         typename em::ApproximatedSupervisedEStep<double>::CWeightType weight_evolution;
@@ -501,7 +502,7 @@ int main(int argc, char **argv) {
         auto model = load_lda(args["MODEL"].asString());
         LDABuilder<double> b;
         LDA<double> lda = b.set_workers(args["--workers"].asLong()).
-            set_e(b.get_fast_classic_e_step(
+            set_e(b.get_classic_e_step(
                 args["--e_step_iterations"].asLong(),
                 std::stof(args["--e_step_tolerance"].asString())
             )).
@@ -527,7 +528,7 @@ int main(int argc, char **argv) {
         auto model = load_lda(args["MODEL"].asString());
         LDABuilder<double> b;
         LDA<double> lda = b.set_workers(args["--workers"].asLong()).
-            set_e(b.get_fast_classic_e_step(
+            set_e(b.get_classic_e_step(
                 args["--e_step_iterations"].asLong(),
                 std::stof(args["--e_step_tolerance"].asString())
             )).

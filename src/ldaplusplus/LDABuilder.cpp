@@ -1,7 +1,6 @@
 #include "ldaplusplus/LDABuilder.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
-#include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
 #include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
@@ -42,22 +41,15 @@ LDABuilder<Scalar> & LDABuilder<Scalar>::set_workers(size_t workers) {
 template <typename Scalar>
 std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_classic_e_step(
     size_t e_step_iterations,
-    Scalar e_step_tolerance
+    Scalar e_step_tolerance,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::UnsupervisedEStep<Scalar> >(
         e_step_iterations,
-        e_step_tolerance
-    );
-}
-
-template <typename Scalar>
-std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_classic_e_step(
-    size_t e_step_iterations,
-    Scalar e_step_tolerance
-) {
-    return std::make_shared<em::FastUnsupervisedEStep<Scalar> >(
-        e_step_iterations,
-        e_step_tolerance
+        e_step_tolerance,
+        compute_likelihood,
+        random_state
     );
 }
 
@@ -100,7 +92,7 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_semi_superv
         supervised_step = get_fast_supervised_e_step();
     }
     if (unsupervised_step == nullptr) {
-        unsupervised_step = get_fast_classic_e_step();
+        unsupervised_step = get_classic_e_step();
     }
 
     return std::make_shared<em::SemiSupervisedEStep<Scalar> >(

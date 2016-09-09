@@ -2,6 +2,8 @@
 #define UTILS_H
 
 #include <cmath>
+#include <memory>
+#include <mutex>
 
 #include <Eigen/Core>
 
@@ -579,6 +581,38 @@ void sum_cols_scaled(
         result += y[i] * x.col(i);
     }
 }
+
+/**
+ * Wrap a PRNG with this class in order to be able to pass it around even
+ * to other threads and protect its internal state from being corrupted.
+ *
+ * see UniformRandomBitGenerator C++ concept
+ * http://en.cppreference.com/w/cpp/concept/UniformRandomBitGenerator
+ */
+template <typename PRNG>
+class ThreadSafePRNG
+{
+    public:
+        typedef typename PRNG::result_type result_type;
+        static result_type min() { return PRNG::min(); }
+        static result_type max() { return PRNG::max(); }
+
+        ThreadSafePRNG(int random_state) {
+            prng_mutex_ = std::make_shared<std::mutex>();
+            prng_ = std::make_shared<PRNG>(random_state);
+        }
+
+        result_type operator()() {
+            std::lock_guard<std::mutex> lock(*prng_mutex_);
+
+            return (*prng_)();
+        }
+
+    private:
+        std::shared_ptr<std::mutex> prng_mutex_;
+        std::shared_ptr<PRNG> prng_;
+};
+
 
 }  // namespace math_utils
 }  // namespace ldaplusplus

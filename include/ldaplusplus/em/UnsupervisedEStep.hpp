@@ -1,9 +1,7 @@
 #ifndef _UNSUPERVISEDESTEP_HPP_
 #define _UNSUPERVISEDESTEP_HPP_
 
-#include <cmath>
-
-#include "ldaplusplus/em/EStepInterface.hpp"
+#include "ldaplusplus/em/AbstractEStep.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -25,22 +23,29 @@ namespace em {
  *     993-1022.
  */
 template <typename Scalar>
-class UnsupervisedEStep : public EStepInterface<Scalar>
+class UnsupervisedEStep : public AbstractEStep<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
-         * @param e_step_iterations The max number of times to alternate
-         *                          between maximizing for \f$\gamma\f$ and for
-         *                          \f$\phi\f$
-         * @param e_step_tolerance  The minimum relative change in the
-         *                          lower bound of the log likelihood
+         * @param e_step_iterations  The max number of times to alternate
+         *                           between maximizing for \f$\gamma\f$ and
+         *                           for \f$\phi\f$.
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           variational parameter \f$\gamma\f$.
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         UnsupervisedEStep(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
+            Scalar e_step_tolerance = 1e-2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
 
         /**
@@ -68,37 +73,14 @@ class UnsupervisedEStep : public EStepInterface<Scalar>
             const std::shared_ptr<parameters::Parameters> parameters
         ) override;
 
-        /**
-         * Nothing needs to be done once for each corpus epoch.
-         */
-        virtual void e_step() override;
-
-    protected:
-        /**
-         * Compute a lower bound for the likelihood of the LDA model described
-         * by the given parameters to have generated the word counts X.
-         *
-         * @param X     The word counts for a single document
-         * @param alpha The Dirichlet priors
-         * @param beta  The over word topic distributions
-         * @param phi   The Multinomial parameters
-         * @param gamma The Dirichlet parameters
-         * @return      The log likelihood lower bound
-         */
-        Scalar compute_likelihood(
-            const Eigen::VectorXi &X,
-            const VectorX &alpha,
-            const MatrixX &beta,
-            const MatrixX &phi,
-            const VectorX &gamma
-        );
-
     private:
         // The maximum number of iterations in E-step.
         size_t e_step_iterations_;
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step
         Scalar e_step_tolerance_;
+        // Compute the likelihood of that many documents (pecentile)
+        Scalar compute_likelihood_;
 };
 
 }  // namespace em
