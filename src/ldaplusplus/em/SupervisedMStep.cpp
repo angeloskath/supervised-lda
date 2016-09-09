@@ -1,17 +1,17 @@
 #include "ldaplusplus/optimization/GradientDescent.hpp"
 #include "ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.hpp"
 #include "ldaplusplus/events/ProgressEvents.hpp"
-#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
+#include "ldaplusplus/em/SupervisedMStep.hpp"
 
 namespace ldaplusplus {
+namespace em {
 
-using em::SecondOrderSupervisedMStep;
 using optimization::ArmijoLineSearch;
 using optimization::GradientDescent;
 using optimization::SecondOrderLogisticRegressionApproximation;
 
 template <typename Scalar>
-void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
+void SupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<parameters::Parameters> v_parameters,
     std::shared_ptr<parameters::Parameters> m_parameters
@@ -64,7 +64,7 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
 
 
 template <typename Scalar>
-void SecondOrderSupervisedMStep<Scalar>::m_step(
+void SupervisedMStep<Scalar>::m_step(
     std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Maximize w.r.t \beta during
@@ -112,7 +112,9 @@ void SecondOrderSupervisedMStep<Scalar>::m_step(
 }
 
 // Template instantiation
-template class SecondOrderSupervisedMStep<float>;
-template class SecondOrderSupervisedMStep<double>;
+template class SupervisedMStep<float>;
+template class SupervisedMStep<double>;
 
-}
+
+}  // namespace em
+}  // namespace ldaplusplus

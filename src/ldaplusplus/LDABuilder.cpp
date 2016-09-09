@@ -5,10 +5,10 @@
 #include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
 #include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
-#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
 #include "ldaplusplus/em/SemiSupervisedEStep.hpp"
 #include "ldaplusplus/em/SemiSupervisedMStep.hpp"
 #include "ldaplusplus/em/SupervisedEStep.hpp"
+#include "ldaplusplus/em/SupervisedMStep.hpp"
 #include "ldaplusplus/em/UnsupervisedEStep.hpp"
 #include "ldaplusplus/em/UnsupervisedMStep.hpp"
 
@@ -162,12 +162,12 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_superv
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_second_order_supervised_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_m_step(
     size_t m_step_iterations,
     Scalar m_step_tolerance,
     Scalar regularization_penalty
 ) {
-    return std::make_shared<em::SecondOrderSupervisedMStep<Scalar> >(
+    return std::make_shared<em::SupervisedMStep<Scalar> >(
         m_step_iterations,
         m_step_tolerance,
         regularization_penalty

@@ -1,5 +1,5 @@
-#ifndef _SECOND_ORDER_SUPERVISED_M_STEP_HPP_
-#define _SECOND_ORDER_SUPERVISED_M_STEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_SUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_SUPERVISEDMSTEP_HPP_
 
 #include <vector>
 
@@ -10,17 +10,16 @@ namespace em {
 
 
 /**
- * SecondOrderSupervisedMStep implements the M step for the categorical
+ * SupervisedMStep implements the M step for the categorical
  * supervised LDA.
  *
- * As in SupervisedMStep we delegate the maximization with respect to
+ * As in FastSupervisedMStep we delegate the maximization with respect to
  * \f$\beta\f$ to UnsupervisedMStep and then maximize the the lower bound of
  * the log likelihood with respect to \f$\eta\f$ using gradient descent.
  *
- * The difference of SecondOrderSupervisedMStep compared to simple
- * SupervisedMStep is that this class uses the second order taylor
- * approximation (instead of the first) to approximate \f$\mathbb{E}_q[\log p(y
- * \mid z, \eta)]\f$.
+ * The difference of SupervisedMStep compared to FastSupervisedMStep is that
+ * this class uses the second order taylor approximation (instead of the first)
+ * to approximate \f$\mathbb{E}_q[\log p(y \mid z, \eta)]\f$.
  *
  * \f[
  *     \mathcal{L}_{\eta} = \sum_{d=1}^D \eta_{y_d}^T \mathbb{E}_q[\bar{z_d}] -
@@ -38,7 +37,7 @@ namespace em {
  *     2009\\. CVPR 2009. IEEE Conference on. IEEE, 2009.
  */
 template <typename Scalar>
-class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
+class SupervisedMStep : public UnsupervisedMStep<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -51,7 +50,7 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
          *                               consecutive gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        SecondOrderSupervisedMStep(
+        SupervisedMStep(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -110,4 +109,4 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _SECOND_ORDER_SUPERVISED_M_STEP_HPP_
+#endif  // _LDAPLUSPLUS_EM_SUPERVISEDMSTEP_HPP_

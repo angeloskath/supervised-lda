@@ -47,10 +47,10 @@ set(SOURCES
     src/ldaplusplus/em/MultinomialSupervisedEStep.cpp
     src/ldaplusplus/em/MultinomialSupervisedMStep.cpp
     src/ldaplusplus/em/OnlineSupervisedMStep.cpp
-    src/ldaplusplus/em/SecondOrderSupervisedMStep.cpp
     src/ldaplusplus/em/SemiSupervisedEStep.cpp
     src/ldaplusplus/em/SemiSupervisedMStep.cpp
     src/ldaplusplus/em/SupervisedEStep.cpp
+    src/ldaplusplus/em/SupervisedMStep.cpp
     src/ldaplusplus/em/UnsupervisedEStep.cpp
     src/ldaplusplus/em/UnsupervisedMStep.cpp
     src/ldaplusplus/e_step_utils.cpp

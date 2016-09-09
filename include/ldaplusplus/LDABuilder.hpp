@@ -411,7 +411,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          *                               gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_second_order_supervised_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_m_step(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -419,12 +419,12 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         /**
          * See the corresponding get_*_m_step() method.
          */
-        LDABuilder & set_second_order_supervised_m_step(
+        LDABuilder & set_supervised_m_step(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
         ) {
-            return set_m(get_second_order_supervised_m_step(
+            return set_m(get_supervised_m_step(
                 m_step_iterations,
                 m_step_tolerance,
                 regularization_penalty

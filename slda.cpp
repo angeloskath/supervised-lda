@@ -355,7 +355,7 @@ LDA<double> create_lda_for_training(
             std::stof(args["--beta_weight"].asString())
         );
     } else if (args["--second_order_m_step"].asBool()) {
-        builder.set_second_order_supervised_m_step(
+        builder.set_supervised_m_step(
             args["--m_step_iterations"].asLong(),
             std::stof(args["--m_step_tolerance"].asString()),
             std::stof(args["--regularization_penalty"].asString())
