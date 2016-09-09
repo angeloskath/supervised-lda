@@ -1,17 +1,18 @@
 #include "ldaplusplus/optimization/GradientDescent.hpp"
-#include "ldaplusplus/optimization/SecondOrderLogisticRegressionApproximation.hpp"
+#include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
 #include "ldaplusplus/events/ProgressEvents.hpp"
-#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
+#include "ldaplusplus/em/FastSupervisedMStep.hpp"
 
 namespace ldaplusplus {
+namespace em {
 
-using em::SecondOrderSupervisedMStep;
 using optimization::ArmijoLineSearch;
 using optimization::GradientDescent;
-using optimization::SecondOrderLogisticRegressionApproximation;
+using optimization::MultinomialLogisticRegression;
+
 
 template <typename Scalar>
-void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
+void FastSupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<parameters::Parameters> v_parameters,
     std::shared_ptr<parameters::Parameters> m_parameters
@@ -21,14 +22,8 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
         v_parameters,
         m_parameters
     );
-
-    // Get the words from the doc
-    const Eigen::VectorXi & X = doc->get_words();
-    int N = X.sum();
-
-    // Cast Parameters to VariationalParameters in order to have access to gamma and phi
+    // Cast Parameters to VariationalParameters in order to have access to gamma
     const VectorX &gamma = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->gamma;
-    const MatrixX &phi = std::static_pointer_cast<parameters::VariationalParameters<Scalar> >(v_parameters)->phi;
     // Cast Parameters to SupervisedModelParameters in order to have access to alpha
     const VectorX &alpha = std::static_pointer_cast<parameters::SupervisedModelParameters<Scalar> >(m_parameters)->alpha;
     int num_topics = alpha.rows();
@@ -42,29 +37,23 @@ void SecondOrderSupervisedMStep<Scalar>::doc_m_step(
         
         // Add an extra column in expected_z_bar_
         expected_z_bar_.conservativeResize(num_topics, docs_+1);
-
-        // Add an extra matrix in variance_z_bar_
-        variance_z_bar_.resize(docs_+1);
     }
 
-    // get the class
     y_(docs_) = std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class();
 
-    // get the expected_z_bar
     expected_z_bar_.col(docs_) = gamma - alpha;
-    expected_z_bar_.col(docs_).array() /= N;
-
-    // get the variance_z_bar
-    MatrixX phi_scaled = phi.array().rowwise() * X.cast<Scalar>().array().transpose();
-    variance_z_bar_[docs_] = phi_scaled * phi_scaled.transpose();
-    variance_z_bar_[docs_] *= 1.0/(N * N);
+    // TODO: Maybe move the following normalization to m_step() and call
+    //       math_utils::normalize_cols()
+    auto words_in_doc = expected_z_bar_.col(docs_).sum();
+    if (words_in_doc != 0) {
+        expected_z_bar_.col(docs_).array() /= words_in_doc;
+    }
 
     docs_ += 1;
 }
 
-
 template <typename Scalar>
-void SecondOrderSupervisedMStep<Scalar>::m_step(
+void FastSupervisedMStep<Scalar>::m_step(
     std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Maximize w.r.t \beta during
@@ -77,19 +66,13 @@ void SecondOrderSupervisedMStep<Scalar>::m_step(
     // the doc_m_steps
     y_.conservativeResize(docs_);
     expected_z_bar_.conservativeResize(expected_z_bar_.rows(), docs_);
-    variance_z_bar_.resize(docs_);
     docs_ = 0;
 
     // we need to maximize w.r.t to \eta
     Scalar initial_value = INFINITY;
-    SecondOrderLogisticRegressionApproximation<Scalar> mlr(
-        expected_z_bar_,
-        variance_z_bar_,
-        y_,
-        regularization_penalty_
-    );
-    GradientDescent<SecondOrderLogisticRegressionApproximation<Scalar>, MatrixX> minimizer(
-        std::make_shared<ArmijoLineSearch<SecondOrderLogisticRegressionApproximation<Scalar>, MatrixX> >(),
+    MultinomialLogisticRegression<Scalar> mlr(expected_z_bar_, y_, regularization_penalty_);
+    GradientDescent<MultinomialLogisticRegression<Scalar>, MatrixX> minimizer(
+        std::make_shared<ArmijoLineSearch<MultinomialLogisticRegression<Scalar>, MatrixX> >(),
         [this, &initial_value](
             Scalar value,
             Scalar gradNorm,
@@ -112,7 +95,9 @@ void SecondOrderSupervisedMStep<Scalar>::m_step(
 }
 
 // Template instantiation
-template class SecondOrderSupervisedMStep<float>;
-template class SecondOrderSupervisedMStep<double>;
+template class FastSupervisedMStep<float>;
+template class FastSupervisedMStep<double>;
 
-}
+
+}  // namespace em
+}  // namespace ldaplusplus

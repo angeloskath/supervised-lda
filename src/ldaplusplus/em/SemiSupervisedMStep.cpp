@@ -1,8 +1,7 @@
 #include "ldaplusplus/em/SemiSupervisedMStep.hpp"
 
 namespace ldaplusplus {
-
-using em::SemiSupervisedMStep;
+namespace em {
 
 
 template <typename Scalar>
@@ -14,7 +13,7 @@ void SemiSupervisedMStep<Scalar>::doc_m_step(
     if (std::static_pointer_cast<corpus::ClassificationDocument>(doc)->get_class() < 0) {
         UnsupervisedMStep<Scalar>::doc_m_step(doc, v_parameters, m_parameters);
     } else {
-        SupervisedMStep<Scalar>::doc_m_step(doc, v_parameters, m_parameters);
+        FastSupervisedMStep<Scalar>::doc_m_step(doc, v_parameters, m_parameters);
     }
 }
 
@@ -23,4 +22,6 @@ void SemiSupervisedMStep<Scalar>::doc_m_step(
 template class SemiSupervisedMStep<float>;
 template class SemiSupervisedMStep<double>;
 
-}
+
+}  // namespace em
+}  // namespace ldaplusplus

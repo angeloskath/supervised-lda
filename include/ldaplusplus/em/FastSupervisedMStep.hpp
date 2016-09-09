@@ -1,7 +1,5 @@
-#ifndef _SECOND_ORDER_SUPERVISED_M_STEP_HPP_
-#define _SECOND_ORDER_SUPERVISED_M_STEP_HPP_
-
-#include <vector>
+#ifndef _LDAPLUSPLUS_EM_FASTSUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_FASTSUPERVISEDMSTEP_HPP_
 
 #include "ldaplusplus/em/UnsupervisedMStep.hpp"
 
@@ -10,35 +8,41 @@ namespace em {
 
 
 /**
- * SecondOrderSupervisedMStep implements the M step for the categorical
- * supervised LDA.
+ * Implement the M step for the fsLDA.
  *
- * As in SupervisedMStep we delegate the maximization with respect to
- * \f$\beta\f$ to UnsupervisedMStep and then maximize the the lower bound of
- * the log likelihood with respect to \f$\eta\f$ using gradient descent.
- *
- * The difference of SecondOrderSupervisedMStep compared to simple
- * SupervisedMStep is that this class uses the second order taylor
- * approximation (instead of the first) to approximate \f$\mathbb{E}_q[\log p(y
- * \mid z, \eta)]\f$.
+ * Similarly to the UnsupervisedMStep the purpose is to maximize the lower
+ * bound of the log likelihood \f$\mathcal{L}\f$. The same notation as in
+ * UnsupervisedMStep is used.
  *
  * \f[
- *     \mathcal{L}_{\eta} = \sum_{d=1}^D \eta_{y_d}^T \mathbb{E}_q[\bar{z_d}] -
- *         \sum_{d=1}^D \log \sum_{\hat{y}=1}^C \exp(\eta_{\hat{y}}^T \mathbb{E}_q[\bar{z_d}])
- *         \left(
- *             1 + \frac{1}{2} \eta_{\hat{y}}^T \mathbb{V}_q[\bar{z_d}] \eta_{\hat{y}}
+ *     \log p(w, y \mid \alpha, \beta, \eta) \geq
+ *         \mathcal{L}(\gamma, \phi \mid \alpha, \beta, \eta) =
+ *         \mathbb{E}_q[\log p(\theta \mid \alpha)] + \mathbb{E}_q[\log p(z \mid \theta)] +
+ *         \mathbb{E}_q[\log p(w \mid z, \beta)] +
+ *         H(q) + \mathbb{E}_q[\log p(y \mid z, \eta)]
+ * \f]
+ *
+ * We observe that with respect to the parameter \f$\beta\f$ nothing changes
+ * thus FastSupervisedMStep extends UnsupervisedMStep to delegate part of the
+ * maximization to it. Decoration or another type of composition may be a more
+ * appropriate form of code reuse in this case.
+ *
+ * To maximize with respect to \f$\eta\f$ we use the following equation which
+ * amounts to simple logistic regression. The reasons for this approximation
+ * are explained in our ACM MM '16 paper (to be linked when published).
+ *
+ * \f[
+ *     \mathcal{L}_{\eta} = \sum_d^D \eta_{y_d}^T \left(\frac{1}{N} \sum_n^{N_d} \phi_{dn}\right) -
+ *         \sum_d^D \log \sum_{\hat y}^C \text{exp}\left(
+ *             \eta_{\hat y}^T \left(\frac{1}{N} \sum_n^{N_d} \phi_{dn}\right)
  *         \right)
  * \f]
  *
- * This approximation has been used in [1] but it is slower and requires huge
- * amounts of memory for even moderately large document collections.
- *
- * [1] Chong, Wang, David Blei, and Fei-Fei Li. "Simultaneous image
- *     classification and annotation." Computer Vision and Pattern Recognition,
- *     2009\\. CVPR 2009. IEEE Conference on. IEEE, 2009.
+ * This implementation maximizes the above equation using batch gradient
+ * descent with ArmijoLineSearch.
  */
 template <typename Scalar>
-class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
+class FastSupervisedMStep : public UnsupervisedMStep<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -51,7 +55,7 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
          *                               consecutive gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
-        SecondOrderSupervisedMStep(
+        FastSupervisedMStep(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
             Scalar regularization_penalty = 1e-2
@@ -75,8 +79,8 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
 
         /**
          * Delegate the collection of some sufficient statistics to
-         * UnsupervisedMStep and keep in memory \f$\mathbb{E}_q[\bar z_d]\f$
-         * and \f$\mathbb{V}_q[\bar z_d]\f$ for use in m_step().
+         * UnsupervisedMStep and keep in memory \f$\mathbb{E}_q[\bar z_d] =
+         * \frac{1}{N} \sum_n^{N_d} \phi_{dn}\f$ for use in m_step().
          *
          * @param doc          A single document
          * @param v_parameters The variational parameters used in m-step
@@ -93,7 +97,7 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
     private:
         // The maximum number of iterations in M-step
         size_t m_step_iterations_;
-        // The convergence tolerance for the maximazation of the ELBO w.r.t.
+        // The convergence tolerance for the maximization of the ELBO w.r.t.
         // eta in M-step
         Scalar m_step_tolerance_;
         // The regularization penalty for the multinomial logistic regression
@@ -101,13 +105,11 @@ class SecondOrderSupervisedMStep : public UnsupervisedMStep<Scalar>
 
         // Number of documents processed so far
         int docs_;
-        MatrixX phi_scaled;
         MatrixX expected_z_bar_;
-        std::vector<MatrixX> variance_z_bar_;
         Eigen::VectorXi y_;
 };
 
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _SECOND_ORDER_SUPERVISED_M_STEP_HPP_
+#endif  // _LDAPLUSPLUS_EM_FASTSUPERVISEDMSTEP_HPP_

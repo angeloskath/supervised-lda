@@ -1,20 +1,25 @@
+#include <cmath>
+
 #include "ldaplusplus/events/ProgressEvents.hpp"
 #include "ldaplusplus/em/UnsupervisedEStep.hpp"
 #include "ldaplusplus/e_step_utils.hpp"
 #include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
-
-using em::UnsupervisedEStep;
+namespace em {
 
 
 template <typename Scalar>
 UnsupervisedEStep<Scalar>::UnsupervisedEStep(
     size_t e_step_iterations,
-    Scalar e_step_tolerance
-) {
+    Scalar e_step_tolerance,
+    Scalar compute_likelihood,
+    int random_state
+) : AbstractEStep<Scalar>(random_state)
+{
     e_step_iterations_ = e_step_iterations;
     e_step_tolerance_ = e_step_tolerance;
+    compute_likelihood_ = compute_likelihood;
 }
 
 template <typename Scalar>
@@ -37,14 +42,14 @@ std::shared_ptr<parameters::Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
     VectorX gamma = alpha.array() + static_cast<Scalar>(num_words)/num_topics;
 
     // to check for convergence
-    Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
+    VectorX gamma_old = VectorX::Zero(num_topics);
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
-        new_likelihood = e_step_utils::compute_unsupervised_likelihood(X, alpha, beta, phi, gamma);
-        if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
+        // check for early stopping
+        if (this->converged(gamma_old, gamma, e_step_tolerance_)) {
             break;
         }
-        old_likelihood = new_likelihood;
+        gamma_old = gamma;
 
         // Update Multinomial parameter phi, according to the following
         // pseudocode
@@ -67,15 +72,22 @@ std::shared_ptr<parameters::Parameters> UnsupervisedEStep<Scalar>::doc_e_step(
         e_step_utils::compute_gamma<Scalar>(X, alpha, phi, gamma);
     }
 
-    // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<events::ExpectationProgressEvent<Scalar> >(new_likelihood);
+    // notify that the e step has finished and compute the likelihood with
+    // probability compute_likelihood_
+    std::bernoulli_distribution emit_likelihood(compute_likelihood_);
+    if (emit_likelihood(this->get_prng())) {
+        this->get_event_dispatcher()->
+            template dispatch<events::ExpectationProgressEvent<Scalar> >(
+                e_step_utils::compute_unsupervised_likelihood(
+                    X, alpha, beta, phi, gamma
+                )
+            );
+    } else {
+        this->get_event_dispatcher()->
+            template dispatch<events::ExpectationProgressEvent<Scalar> >(NAN);
+    }
 
     return std::make_shared<parameters::VariationalParameters<Scalar> >(gamma, phi);
-}
-
-template <typename Scalar>
-void UnsupervisedEStep<Scalar>::e_step() {
-    // pass
 }
 
 // Template instantiation
@@ -83,4 +95,5 @@ template class UnsupervisedEStep<float>;
 template class UnsupervisedEStep<double>;
 
 
-}
+}  // namespace em
+}  // namespace ldaplusplus

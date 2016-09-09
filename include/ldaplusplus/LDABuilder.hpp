@@ -10,7 +10,7 @@
 #include <Eigen/Core>
 
 #include "ldaplusplus/Document.hpp"
-#include "ldaplusplus/em/ApproximatedSupervisedEStep.hpp"
+#include "ldaplusplus/em/FastSupervisedEStep.hpp"
 #include "ldaplusplus/em/EStepInterface.hpp"
 #include "ldaplusplus/em/MStepInterface.hpp"
 #include "ldaplusplus/LDA.hpp"
@@ -90,54 +90,37 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * You can also see a description of the parameters at
          * UnsupervisedEStep::UnsupervisedEStep
          *
-         * @param e_step_iterations The maximum iterations for each document's
-         *                          expectation step
-         * @param e_step_tolerance  The minimum relative change in the ELBO
-         *                          (less than that and we stop iterating)
+         * @param e_step_iterations  The max number of times to alternate
+         *                           between maximizing for \f$\gamma\f$ and
+         *                           for \f$\phi\f$.
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           variational parameter \f$\gamma\f$.
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         std::shared_ptr<em::EStepInterface<Scalar> > get_classic_e_step(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
+            Scalar e_step_tolerance = 1e-2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
          */
         LDABuilder & set_classic_e_step(
             size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
+            Scalar e_step_tolerance = 1e-2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_classic_e_step(
                 e_step_iterations,
-                e_step_tolerance
-            ));
-        }
-
-        /**
-         * Create an FastUnsupervisedEStep.
-         *
-         * You can also see a description of the parameters at
-         * FastUnsupervisedEStep::FastUnsupervisedEStep
-         *
-         * @param e_step_iterations The maximum iterations for each document's
-         *                          expectation step
-         * @param e_step_tolerance  The minimum relative change in the
-         *                          variational parameters (less than that and
-         *                          we stop iterating)
-         */
-        std::shared_ptr<em::EStepInterface<Scalar> > get_fast_classic_e_step(
-            size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
-        );
-        /**
-         * See the corresponding get_*_e_step() method.
-         */
-        LDABuilder & set_fast_classic_e_step(
-            size_t e_step_iterations = 10,
-            Scalar e_step_tolerance = 1e-4
-        ) {
-            return set_e(get_fast_classic_e_step(
-                e_step_iterations,
-                e_step_tolerance
+                e_step_tolerance,
+                compute_likelihood,
+                random_state
             ));
         }
 
@@ -158,7 +141,9 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         std::shared_ptr<em::EStepInterface<Scalar> > get_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            size_t fixed_point_iterations = 10
+            size_t fixed_point_iterations = 10,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -166,20 +151,24 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         LDABuilder & set_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            size_t fixed_point_iterations = 10
+            size_t fixed_point_iterations = 10,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
-                fixed_point_iterations
+                fixed_point_iterations,
+                compute_likelihood,
+                random_state
             ));
         }
 
         /**
-         * Create an ApproximatedSupervisedEStep.
+         * Create a FastSupervisedEStep.
          *
          * You can also see a description of the parameters at
-         * ApproximatedSupervisedEStep::ApproximatedSupervisedEStep.
+         * FastSupervisedEStep::FastSupervisedEStep.
          *
          * @param e_step_iterations  The maximum iterations for each
          *                           document's expectation step
@@ -190,16 +179,20 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          *                           inference (default: 1)
          * @param weight_type        How the weight will change between
          *                           iterations (default: constant)
-         * @param compute_likelihood Compute the likelihood at the end of each
-         *                           expectation step (in order to be reported)
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         std::shared_ptr<em::EStepInterface<Scalar> > get_fast_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar C = 1,
-            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
-                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
-            bool compute_likelihood = true
+            typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::FastSupervisedEStep<Scalar>::CWeightType::Constant,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -208,16 +201,18 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar C = 1,
-            typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type =
-                em::ApproximatedSupervisedEStep<Scalar>::CWeightType::Constant,
-            bool compute_likelihood = true
+            typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type =
+                em::FastSupervisedEStep<Scalar>::CWeightType::Constant,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_fast_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
                 C,
                 weight_type,
-                compute_likelihood
+                compute_likelihood,
+                random_state
             ));
         }
 
@@ -229,7 +224,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          *
          * @param supervised_step   The supervised step to use (when nullptr is
          *                          provided it defaults to
-         *                          ApproximatedSupervisedEStep with default
+         *                          FastSupervisedEStep with default
          *                          parameters)
          * @param unsupervised_step The unsupervised step to use (when nullptr is
          *                          provided it defaults to
@@ -259,22 +254,30 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * You can also see a description of the parameters at
          * MultinomialSupervisedEStep::MultinomialSupervisedEStep.
          *
-         * @param e_step_iterations The maximum iterations for each
-         *                          document's expectation step
-         * @param e_step_tolerance  The minimum relative change in the
-         *                          ELBO (less than that and we stop
-         *                          iterating)
-         * @param mu                A uniform Dirichlet prior for the
-         *                          supervised parameters (default: 2)
-         * @param eta_weight        A weight parameter that decreases or
-         *                          increases the influence of the supervised
-         *                          part (default: 1).
+         * @param e_step_iterations  The max number of times to alternate
+         *                           between maximizing for \f$\gamma\f$ and
+         *                           for \f$\phi\f$.
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           variational parameter \f$\gamma\f$.
+         * @param mu                 The uniform Dirichlet prior of \f$\eta\f$,
+         *                           practically is a smoothing parameter 
+         *                           during the maximization of \f$\eta\f$.
+         * @param eta_weight         A weighting parameter that either
+         *                           increases or decreases the influence of
+         *                           the supervised part.
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         std::shared_ptr<em::EStepInterface<Scalar> > get_multinomial_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar mu = 2,
-            Scalar eta_weight = 1
+            Scalar eta_weight = 1,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -283,13 +286,17 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar mu = 2,
-            Scalar eta_weight = 1
+            Scalar eta_weight = 1,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_multinomial_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
                 mu,
-                eta_weight
+                eta_weight,
+                compute_likelihood,
+                random_state
             ));
         }
 
@@ -310,7 +317,9 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         std::shared_ptr<em::EStepInterface<Scalar> > get_correspondence_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            Scalar mu = 2
+            Scalar mu = 2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -318,12 +327,16 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         LDABuilder & set_correspondence_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            Scalar mu = 2
+            Scalar mu = 2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_correspondence_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
-                mu
+                mu,
+                compute_likelihood,
+                random_state
             ));
         }
 
@@ -365,6 +378,39 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          *                               gradient descent iterations
          * @param regularization_penalty The L2 penalty for logistic regression
          */
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        );
+        /**
+         * See the corresponding get_*_m_step() method.
+         */
+        LDABuilder & set_fast_supervised_m_step(
+            size_t m_step_iterations = 10,
+            Scalar m_step_tolerance = 1e-2,
+            Scalar regularization_penalty = 1e-2
+        ) {
+            return set_m(get_fast_supervised_m_step(
+                m_step_iterations,
+                m_step_tolerance,
+                regularization_penalty
+            ));
+        }
+
+        /**
+         * Create a SecondOrderSupervisedMStep.
+         *
+         * You can also see a description of the parameters at
+         * SecondOrderSupervisedMStep::SecondOrderSupervisedMStep.
+         *
+         * @param m_step_iterations      The maximum number of gradient descent
+         *                               iterations
+         * @param m_step_tolerance       The minimum relative improvement in
+         *                               the log likelihood between consecutive
+         *                               gradient descent iterations
+         * @param regularization_penalty The L2 penalty for logistic regression
+         */
         std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_m_step(
             size_t m_step_iterations = 10,
             Scalar m_step_tolerance = 1e-2,
@@ -386,43 +432,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create a SecondOrderSupervisedMStep.
+         * Create an FastOnlineSupervisedMStep without specifying class weights.
          *
          * You can also see a description of the parameters at
-         * SecondOrderSupervisedMStep::SecondOrderSupervisedMStep.
-         *
-         * @param m_step_iterations      The maximum number of gradient descent
-         *                               iterations
-         * @param m_step_tolerance       The minimum relative improvement in
-         *                               the log likelihood between consecutive
-         *                               gradient descent iterations
-         * @param regularization_penalty The L2 penalty for logistic regression
-         */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_second_order_supervised_m_step(
-            size_t m_step_iterations = 10,
-            Scalar m_step_tolerance = 1e-2,
-            Scalar regularization_penalty = 1e-2
-        );
-        /**
-         * See the corresponding get_*_m_step() method.
-         */
-        LDABuilder & set_second_order_supervised_m_step(
-            size_t m_step_iterations = 10,
-            Scalar m_step_tolerance = 1e-2,
-            Scalar regularization_penalty = 1e-2
-        ) {
-            return set_m(get_second_order_supervised_m_step(
-                m_step_iterations,
-                m_step_tolerance,
-                regularization_penalty
-            ));
-        }
-
-        /**
-         * Create an OnlineSupervisedMStep without specifying class weights.
-         *
-         * You can also see a description of the parameters at
-         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         * FastOnlineSupervisedMStep::FastOnlineSupervisedMStep.
          *
          * @param num_classes            The number of classes
          * @param regularization_penalty The L2 penalty for the logistic
@@ -434,9 +447,9 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * @param eta_learning_rate      The learning rate for the SGD
          *                               update of \f$\eta\f$
          * @param beta_weight            The weight for the online update
-         *                                   of \f$\beta\f$
+         *                               of \f$\beta\f$
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_online_m_step(
             size_t num_classes,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -444,7 +457,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         );
-        LDABuilder & set_supervised_online_m_step(
+        LDABuilder & set_fast_supervised_online_m_step(
             size_t num_classes,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -452,7 +465,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         ) {
-            return set_m(get_supervised_online_m_step(
+            return set_m(get_fast_supervised_online_m_step(
                 num_classes,
                 regularization_penalty,
                 minibatch_size,
@@ -463,10 +476,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create an OnlineSupervisedMStep.
+         * Create an FastOnlineSupervisedMStep.
          *
          * You can also see a description of the parameters at
-         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         * FastOnlineSupervisedMStep::FastOnlineSupervisedMStep.
          *
          * @param class_weights          Weights to account for class
          *                               imbalance
@@ -481,7 +494,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_online_m_step(
             std::vector<Scalar> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -489,7 +502,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         );
-        LDABuilder & set_supervised_online_m_step(
+        LDABuilder & set_fast_supervised_online_m_step(
             std::vector<Scalar> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -497,7 +510,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         ) {
-            return set_m(get_supervised_online_m_step(
+            return set_m(get_fast_supervised_online_m_step(
                 class_weights,
                 regularization_penalty,
                 minibatch_size,
@@ -508,10 +521,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create an OnlineSupervisedMStep.
+         * Create an FastOnlineSupervisedMStep.
          *
          * You can also see a description of the parameters at
-         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         * FastOnlineSupervisedMStep::FastOnlineSupervisedMStep.
          *
          * @param class_weights          Weights to account for class
          *                               imbalance
@@ -526,7 +539,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_online_m_step(
             Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -534,7 +547,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         );
-        LDABuilder & set_supervised_online_m_step(
+        LDABuilder & set_fast_supervised_online_m_step(
             Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -542,7 +555,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         ) {
-            return set_m(get_supervised_online_m_step(
+            return set_m(get_fast_supervised_online_m_step(
                 class_weights,
                 regularization_penalty,
                 minibatch_size,

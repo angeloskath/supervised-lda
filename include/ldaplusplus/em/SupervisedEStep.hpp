@@ -1,7 +1,7 @@
 #ifndef _SUPERVISEDESTEP_HPP_
 #define _SUPERVISEDESTEP_HPP_
 
-#include "ldaplusplus/em/UnsupervisedEStep.hpp"
+#include "ldaplusplus/em/AbstractEStep.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -26,7 +26,7 @@ namespace em {
  *     2009 CVPR 2009 IEEE Conference on. IEEE, 2009
  */
 template <typename Scalar>
-class SupervisedEStep : public UnsupervisedEStep<Scalar>
+class SupervisedEStep : public AbstractEStep<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
@@ -37,15 +37,22 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
          *                               between maximizing for \f$\gamma\f$
          *                               and for \f$\phi\f$.
          * @param e_step_tolerance       The minimum relative change in the
-         *                               likelihood of generating the document.
+         *                               variational parameter \f$\gamma\f$.
          * @param fixed_point_iterations The number of fixed point iterations
          *                               used in the maximization for
          *                               \f$\phi\f$.
+         * @param compute_likelihood     The percentage of documents to compute
+         *                               likelihood for (1.0 means compute for
+         *                               every document)
+         * @param random_state           An initial seed value for any random
+         *                               numbers needed
          */
         SupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            size_t fixed_point_iterations = 20
+            size_t fixed_point_iterations = 20,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
 
         /**
@@ -93,6 +100,8 @@ class SupervisedEStep : public UnsupervisedEStep<Scalar>
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
         // phi and gamma in E-step.
         Scalar e_step_tolerance_;
+        // Compute the likelihood of that many documents (pecentile)
+        Scalar compute_likelihood_;
 };
 
 }  // namespace em

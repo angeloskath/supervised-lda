@@ -3,19 +3,22 @@
 #include "ldaplusplus/e_step_utils.hpp"
 
 namespace ldaplusplus {
-
-using em::CorrespondenceSupervisedEStep;
+namespace em {
 
 
 template <typename Scalar>
 CorrespondenceSupervisedEStep<Scalar>::CorrespondenceSupervisedEStep(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    Scalar mu
-) {
+    Scalar mu,
+    Scalar compute_likelihood,
+    int random_state
+) : AbstractEStep<Scalar>(random_state)
+{
     e_step_iterations_ = e_step_iterations;
     e_step_tolerance_ = e_step_tolerance;
     mu_ = mu;
+    compute_likelihood_ = compute_likelihood;
 }
 
 template <typename Scalar>
@@ -50,7 +53,7 @@ std::shared_ptr<parameters::Parameters> CorrespondenceSupervisedEStep<Scalar>::d
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
         // check for early stopping
-        if (converged(gamma_old, gamma)) {
+        if (this->converged(gamma_old, gamma, e_step_tolerance_)) {
             break;
         }
         gamma_old = gamma;
@@ -79,21 +82,29 @@ std::shared_ptr<parameters::Parameters> CorrespondenceSupervisedEStep<Scalar>::d
         e_step_utils::compute_gamma<Scalar>(X, alpha, phi, gamma);
     }
 
-    // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<events::ExpectationProgressEvent<Scalar> >(
-        e_step_utils::compute_supervised_correspondence_likelihood<Scalar>(
-            X,
-            y,
-            alpha,
-            beta,
-            eta,
-            phi,
-            gamma,
-            tau,
-            mu_,
-            1.0 / corpus_size
-        )
-    );
+    // notify that the e step has finished and compute the likelihood with
+    // probability compute_likelihood_
+    std::bernoulli_distribution emit_likelihood(compute_likelihood_);
+    if (emit_likelihood(this->get_prng())) {
+        this->get_event_dispatcher()->
+            template dispatch<events::ExpectationProgressEvent<Scalar> >(
+                e_step_utils::compute_supervised_correspondence_likelihood<Scalar>(
+                    X,
+                    y,
+                    alpha,
+                    beta,
+                    eta,
+                    phi,
+                    gamma,
+                    tau,
+                    mu_,
+                    1.0 / corpus_size
+                )
+            );
+    } else {
+        this->get_event_dispatcher()->
+            template dispatch<events::ExpectationProgressEvent<Scalar> >(NAN);
+    }
 
     return std::make_shared<parameters::SupervisedCorrespondenceVariationalParameters<Scalar> >(
         gamma,
@@ -103,18 +114,10 @@ std::shared_ptr<parameters::Parameters> CorrespondenceSupervisedEStep<Scalar>::d
 }
 
 
-template <typename Scalar>
-bool CorrespondenceSupervisedEStep<Scalar>::converged(
-    const VectorX & gamma_old,
-    const VectorX & gamma
-) {
-    Scalar mean_change = (gamma_old - gamma).array().abs().sum() / gamma.rows();
-
-    return mean_change < e_step_tolerance_;
-}
-
 // Template instantiation
 template class CorrespondenceSupervisedEStep<float>;
 template class CorrespondenceSupervisedEStep<double>;
 
-}
+
+}  // namespace em
+}  // namespace ldaplusplus

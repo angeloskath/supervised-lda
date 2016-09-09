@@ -1,5 +1,5 @@
-#ifndef _ONLINE_SUPERVISED_M_STEP_HPP_
-#define _ONLINE_SUPERVISED_M_STEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_FASTONLINESUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_FASTONLINESUPERVISEDMSTEP_HPP_
 
 #include "ldaplusplus/em/MStepInterface.hpp"
 
@@ -8,8 +8,7 @@ namespace em {
 
 
 /**
- * OnlineSupervisedMStep is an online implementation of the classical
- * categorical supervised LDA.
+ * FastOnlineSupervisedMStep is an online implementation of the fsLDA.
  *
  * m_step() is called by doc_m_step() according to the minibatch_size
  * constructor parameter thus the model parameters are updated many times in an
@@ -21,17 +20,17 @@ namespace em {
  *
  * In the maximization with respect to \f$\eta\f$ the first order taylor
  * approximation to the expectation of the log normalizer is used as in the
- * SupervisedMStep.
+ * FastSupervisedMStep.
  */
 template <typename Scalar>
-class OnlineSupervisedMStep : public MStepInterface<Scalar>
+class FastOnlineSupervisedMStep : public MStepInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
-         * Create an OnlineSupervisedMStep that accounts for class imbalance by
+         * Create an FastOnlineSupervisedMStep that accounts for class imbalance by
          * weighting the classes.
          *
          * @param class_weights          Weights to account for class
@@ -47,7 +46,7 @@ class OnlineSupervisedMStep : public MStepInterface<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        OnlineSupervisedMStep(
+        FastOnlineSupervisedMStep(
             VectorX class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -56,7 +55,7 @@ class OnlineSupervisedMStep : public MStepInterface<Scalar>
             Scalar beta_weight = 0.9
         );
         /**
-         * Create an OnlineSupervisedMStep that uses uniform weights for the
+         * Create an FastOnlineSupervisedMStep that uses uniform weights for the
          * classes.
          *
          * @param num_classes            The number of classes
@@ -71,7 +70,7 @@ class OnlineSupervisedMStep : public MStepInterface<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        OnlineSupervisedMStep(
+        FastOnlineSupervisedMStep(
             size_t num_classes,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -134,4 +133,4 @@ class OnlineSupervisedMStep : public MStepInterface<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _ONLINE_SUPERVISED_M_STEP_HPP_
+#endif  // _LDAPLUSPLUS_EM_FASTONLINESUPERVISEDMSTEP_HPP_

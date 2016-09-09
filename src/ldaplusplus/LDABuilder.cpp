@@ -1,11 +1,10 @@
 #include "ldaplusplus/LDABuilder.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
-#include "ldaplusplus/em/FastUnsupervisedEStep.hpp"
+#include "ldaplusplus/em/FastOnlineSupervisedMStep.hpp"
+#include "ldaplusplus/em/FastSupervisedMStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
-#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
-#include "ldaplusplus/em/SecondOrderSupervisedMStep.hpp"
 #include "ldaplusplus/em/SemiSupervisedEStep.hpp"
 #include "ldaplusplus/em/SemiSupervisedMStep.hpp"
 #include "ldaplusplus/em/SupervisedEStep.hpp"
@@ -42,22 +41,15 @@ LDABuilder<Scalar> & LDABuilder<Scalar>::set_workers(size_t workers) {
 template <typename Scalar>
 std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_classic_e_step(
     size_t e_step_iterations,
-    Scalar e_step_tolerance
+    Scalar e_step_tolerance,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::UnsupervisedEStep<Scalar> >(
         e_step_iterations,
-        e_step_tolerance
-    );
-}
-
-template <typename Scalar>
-std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_classic_e_step(
-    size_t e_step_iterations,
-    Scalar e_step_tolerance
-) {
-    return std::make_shared<em::FastUnsupervisedEStep<Scalar> >(
-        e_step_iterations,
-        e_step_tolerance
+        e_step_tolerance,
+        compute_likelihood,
+        random_state
     );
 }
 
@@ -65,12 +57,16 @@ template <typename Scalar>
 std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    size_t fixed_point_iterations
+    size_t fixed_point_iterations,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::SupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
-        fixed_point_iterations
+        fixed_point_iterations,
+        compute_likelihood,
+        random_state
     );
 }
 
@@ -79,15 +75,17 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_superv
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar C,
-    typename em::ApproximatedSupervisedEStep<Scalar>::CWeightType weight_type,
-    bool compute_likelihood
+    typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type,
+    Scalar compute_likelihood,
+    int random_state
 ) {
-    return std::make_shared<em::ApproximatedSupervisedEStep<Scalar> >(
+    return std::make_shared<em::FastSupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
         C,
         weight_type,
-        compute_likelihood
+        compute_likelihood,
+        random_state
     );
 }
 
@@ -100,7 +98,7 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_semi_superv
         supervised_step = get_fast_supervised_e_step();
     }
     if (unsupervised_step == nullptr) {
-        unsupervised_step = get_fast_classic_e_step();
+        unsupervised_step = get_classic_e_step();
     }
 
     return std::make_shared<em::SemiSupervisedEStep<Scalar> >(
@@ -114,13 +112,17 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_multinomial
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar mu,
-    Scalar eta_weight
+    Scalar eta_weight,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::MultinomialSupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
         mu,
-        eta_weight
+        eta_weight,
+        compute_likelihood,
+        random_state
     );
 }
 
@@ -128,18 +130,35 @@ template <typename Scalar>
 std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_correspondence_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    Scalar mu
+    Scalar mu,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::CorrespondenceSupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
-        mu
+        mu,
+        compute_likelihood,
+        random_state
     );
 }
 
 template <typename Scalar>
 std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_classic_m_step() {
     return std::make_shared<em::UnsupervisedMStep<Scalar> >();
+}
+
+template <typename Scalar>
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_m_step(
+    size_t m_step_iterations,
+    Scalar m_step_tolerance,
+    Scalar regularization_penalty
+) {
+    return std::make_shared<em::FastSupervisedMStep<Scalar> >(
+        m_step_iterations,
+        m_step_tolerance,
+        regularization_penalty
+    );
 }
 
 template <typename Scalar>
@@ -156,20 +175,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_second_order_supervised_m_step(
-    size_t m_step_iterations,
-    Scalar m_step_tolerance,
-    Scalar regularization_penalty
-) {
-    return std::make_shared<em::SecondOrderSupervisedMStep<Scalar> >(
-        m_step_iterations,
-        m_step_tolerance,
-        regularization_penalty
-    );
-}
-
-template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_online_m_step(
     size_t num_classes,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -177,7 +183,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
     Scalar eta_learning_rate,
     Scalar beta_weight
 ) {
-    return std::make_shared<em::OnlineSupervisedMStep<Scalar> >(
+    return std::make_shared<em::FastOnlineSupervisedMStep<Scalar> >(
         num_classes,
         regularization_penalty,
         minibatch_size,
@@ -188,7 +194,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_online_m_step(
     std::vector<Scalar> class_weights,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -202,7 +208,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
         weights[i] = class_weights[i];
     }
 
-    return get_supervised_online_m_step(
+    return get_fast_supervised_online_m_step(
         weights,
         regularization_penalty,
         minibatch_size,
@@ -213,7 +219,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_online_m_step(
     Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -221,7 +227,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
     Scalar eta_learning_rate,
     Scalar beta_weight
 ) {
-    return std::make_shared<em::OnlineSupervisedMStep<Scalar> >(
+    return std::make_shared<em::FastOnlineSupervisedMStep<Scalar> >(
         class_weights,
         regularization_penalty,
         minibatch_size,

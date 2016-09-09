@@ -39,15 +39,14 @@ include_directories(include)
 # for an explanation (yes stackoverflow the very credible software authority)
 set(SOURCES
     src/ldaplusplus/Document.cpp
-    src/ldaplusplus/em/ApproximatedSupervisedEStep.cpp
+    src/ldaplusplus/em/AbstractEStep.cpp
     src/ldaplusplus/em/CorrespondenceSupervisedEStep.cpp
     src/ldaplusplus/em/CorrespondenceSupervisedMStep.cpp
+    src/ldaplusplus/em/FastOnlineSupervisedMStep.cpp
     src/ldaplusplus/em/FastSupervisedEStep.cpp
-    src/ldaplusplus/em/FastUnsupervisedEStep.cpp
+    src/ldaplusplus/em/FastSupervisedMStep.cpp
     src/ldaplusplus/em/MultinomialSupervisedEStep.cpp
     src/ldaplusplus/em/MultinomialSupervisedMStep.cpp
-    src/ldaplusplus/em/OnlineSupervisedMStep.cpp
-    src/ldaplusplus/em/SecondOrderSupervisedMStep.cpp
     src/ldaplusplus/em/SemiSupervisedEStep.cpp
     src/ldaplusplus/em/SemiSupervisedMStep.cpp
     src/ldaplusplus/em/SupervisedEStep.cpp

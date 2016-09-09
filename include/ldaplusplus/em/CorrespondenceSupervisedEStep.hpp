@@ -1,7 +1,7 @@
 #ifndef _CORRESPONDENCESUPERVISEDESTEP_HPP_
 #define _CORRESPONDENCESUPERVISEDESTEP_HPP__
 
-#include "ldaplusplus/em/UnsupervisedEStep.hpp"
+#include "ldaplusplus/em/AbstractEStep.hpp"
 
 namespace ldaplusplus {
 namespace em {
@@ -45,26 +45,33 @@ namespace em {
  * Research and development in informaion retrieval (pp. 127-134). ACM.
  */
 template<typename Scalar>
-class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
+class CorrespondenceSupervisedEStep: public AbstractEStep<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
 
     public:
         /**
-         * @param e_step_iterations The max number of times to alternate
-         *                          between maximizing for \f$\gamma\f$
-         *                          and for \f$\phi\f$.
-         * @param e_step_tolerance  The minimum relative change in the
-         *                          likelihood of generating the document.
-         * @param mu                The uniform Dirichlet prior of \f$\eta\f$,
-         *                          practically is a smoothing parameter 
-         *                          during the maximization of \f$\eta\f$.
+         * @param e_step_iterations  The max number of times to alternate
+         *                           between maximizing for \f$\gamma\f$ and
+         *                           for \f$\phi\f$.
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           variational parameter \f$\gamma\f$.
+         * @param mu                 The uniform Dirichlet prior of \f$\eta\f$,
+         *                           practically is a smoothing parameter 
+         *                           during the maximization of \f$\eta\f$.
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         CorrespondenceSupervisedEStep(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            Scalar mu = 2.
+            Scalar mu = 2.,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
 
         /** Maximize the ELBO w.r.t. \f$\phi\f$ and \f$\gamma\f$.
@@ -100,17 +107,6 @@ class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
         ) override;
 
     private:
-        /**
-         * Check for convergence based on the change of the variational
-         * parameter \f$\gamma\f$.
-         *
-         * @param gamma_old The gamma of the previous iteration.
-         * @param gamma     The gamma of this iteration.
-         * @return          Whether the change is small enough to indicate
-         *                  convergence.
-         */
-        bool converged(const VectorX & gamma_old, const VectorX & gamma);
-
         // The maximum number of iterations in E-step.
         size_t e_step_iterations_;
         // The convergence tolerance for the maximazation of the ELBO w.r.t.
@@ -118,6 +114,8 @@ class CorrespondenceSupervisedEStep: public UnsupervisedEStep<Scalar>
         Scalar e_step_tolerance_;
         // The Dirichlet prior for the class predicting parameters.
         Scalar mu_;
+        // Compute the likelihood of that many documents (pecentile)
+        Scalar compute_likelihood_;
 };
 
 }  // namespace em
