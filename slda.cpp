@@ -319,13 +319,15 @@ LDA<double> create_lda_for_training(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             std::stof(args["--mu"].asString()),
-            std::stof(args["--eta_weight"].asString())
+            std::stof(args["--eta_weight"].asString()),
+            static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else if (args["--correspondence"].asBool()) {
         builder.set_correspondence_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
-            std::stof(args["--mu"].asString())
+            std::stof(args["--mu"].asString()),
+            static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else {
         builder.set_supervised_e_step(

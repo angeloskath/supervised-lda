@@ -254,22 +254,30 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * You can also see a description of the parameters at
          * MultinomialSupervisedEStep::MultinomialSupervisedEStep.
          *
-         * @param e_step_iterations The maximum iterations for each
-         *                          document's expectation step
-         * @param e_step_tolerance  The minimum relative change in the
-         *                          ELBO (less than that and we stop
-         *                          iterating)
-         * @param mu                A uniform Dirichlet prior for the
-         *                          supervised parameters (default: 2)
-         * @param eta_weight        A weight parameter that decreases or
-         *                          increases the influence of the supervised
-         *                          part (default: 1).
+         * @param e_step_iterations  The max number of times to alternate
+         *                           between maximizing for \f$\gamma\f$ and
+         *                           for \f$\phi\f$.
+         * @param e_step_tolerance   The minimum relative change in the
+         *                           variational parameter \f$\gamma\f$.
+         * @param mu                 The uniform Dirichlet prior of \f$\eta\f$,
+         *                           practically is a smoothing parameter 
+         *                           during the maximization of \f$\eta\f$.
+         * @param eta_weight         A weighting parameter that either
+         *                           increases or decreases the influence of
+         *                           the supervised part.
+         * @param compute_likelihood The percentage of documents to compute
+         *                           likelihood for (1.0 means compute for
+         *                           every document)
+         * @param random_state       An initial seed value for any random
+         *                           numbers needed
          */
         std::shared_ptr<em::EStepInterface<Scalar> > get_multinomial_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar mu = 2,
-            Scalar eta_weight = 1
+            Scalar eta_weight = 1,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -278,13 +286,17 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
             Scalar mu = 2,
-            Scalar eta_weight = 1
+            Scalar eta_weight = 1,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_multinomial_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
                 mu,
-                eta_weight
+                eta_weight,
+                compute_likelihood,
+                random_state
             ));
         }
 
@@ -305,7 +317,9 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         std::shared_ptr<em::EStepInterface<Scalar> > get_correspondence_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            Scalar mu = 2
+            Scalar mu = 2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -313,12 +327,16 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         LDABuilder & set_correspondence_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            Scalar mu = 2
+            Scalar mu = 2,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_correspondence_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
-                mu
+                mu,
+                compute_likelihood,
+                random_state
             ));
         }
 

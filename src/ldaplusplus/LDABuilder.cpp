@@ -112,13 +112,17 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_multinomial
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar mu,
-    Scalar eta_weight
+    Scalar eta_weight,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::MultinomialSupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
         mu,
-        eta_weight
+        eta_weight,
+        compute_likelihood,
+        random_state
     );
 }
 
@@ -126,12 +130,16 @@ template <typename Scalar>
 std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_correspondence_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    Scalar mu
+    Scalar mu,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::CorrespondenceSupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
-        mu
+        mu,
+        compute_likelihood,
+        random_state
     );
 }
 
