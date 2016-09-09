@@ -1,16 +1,15 @@
 #include <utility>
 
-#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
+#include "ldaplusplus/em/FastOnlineSupervisedMStep.hpp"
 #include "ldaplusplus/optimization/MultinomialLogisticRegression.hpp"
 #include "ldaplusplus/events/ProgressEvents.hpp"
 
 namespace ldaplusplus {
-
-using em::OnlineSupervisedMStep;
+namespace em {
 
 
 template <typename Scalar>
-OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
+FastOnlineSupervisedMStep<Scalar>::FastOnlineSupervisedMStep(
     VectorX class_weights,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -28,14 +27,14 @@ OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
 {}
 
 template <typename Scalar>
-OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
+FastOnlineSupervisedMStep<Scalar>::FastOnlineSupervisedMStep(
     size_t num_classes,
     Scalar regularization_penalty,
     size_t minibatch_size,
     Scalar eta_momentum,
     Scalar eta_learning_rate,
     Scalar beta_weight
-) : OnlineSupervisedMStep(
+) : FastOnlineSupervisedMStep(
         VectorX::Constant(num_classes, 1),
         regularization_penalty,
         minibatch_size,
@@ -46,7 +45,7 @@ OnlineSupervisedMStep<Scalar>::OnlineSupervisedMStep(
 {}
 
 template <typename Scalar>
-void OnlineSupervisedMStep<Scalar>::doc_m_step(
+void FastOnlineSupervisedMStep<Scalar>::doc_m_step(
     const std::shared_ptr<corpus::Document> doc,
     const std::shared_ptr<parameters::Parameters> v_parameters,
     std::shared_ptr<parameters::Parameters> m_parameters
@@ -87,7 +86,7 @@ void OnlineSupervisedMStep<Scalar>::doc_m_step(
 }
 
 template <typename Scalar>
-void OnlineSupervisedMStep<Scalar>::m_step(
+void FastOnlineSupervisedMStep<Scalar>::m_step(
     std::shared_ptr<parameters::Parameters> parameters
 ) {
     // Check whether we should actually perform the m_step
@@ -126,7 +125,9 @@ void OnlineSupervisedMStep<Scalar>::m_step(
 
 
 // Instantiations
-template class OnlineSupervisedMStep<float>;
-template class OnlineSupervisedMStep<double>;
+template class FastOnlineSupervisedMStep<float>;
+template class FastOnlineSupervisedMStep<double>;
 
-}
+
+}  // namespace em
+}  // namespace ldaplusplus

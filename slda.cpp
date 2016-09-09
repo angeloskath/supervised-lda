@@ -346,7 +346,7 @@ LDA<double> create_lda_for_training(
             std::stof(args["--regularization_penalty"].asString())
         );
     } else if (args["--online_m_step"].asBool()) {
-        builder.set_supervised_online_m_step(
+        builder.set_fast_supervised_online_m_step(
             create_class_weights(y),
             std::stof(args["--regularization_penalty"].asString()),
             args["--batch_size"].asLong(),

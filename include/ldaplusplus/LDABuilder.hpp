@@ -432,10 +432,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create an OnlineSupervisedMStep without specifying class weights.
+         * Create an FastOnlineSupervisedMStep without specifying class weights.
          *
          * You can also see a description of the parameters at
-         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         * FastOnlineSupervisedMStep::FastOnlineSupervisedMStep.
          *
          * @param num_classes            The number of classes
          * @param regularization_penalty The L2 penalty for the logistic
@@ -447,9 +447,9 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * @param eta_learning_rate      The learning rate for the SGD
          *                               update of \f$\eta\f$
          * @param beta_weight            The weight for the online update
-         *                                   of \f$\beta\f$
+         *                               of \f$\beta\f$
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_online_m_step(
             size_t num_classes,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -457,7 +457,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         );
-        LDABuilder & set_supervised_online_m_step(
+        LDABuilder & set_fast_supervised_online_m_step(
             size_t num_classes,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -465,7 +465,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         ) {
-            return set_m(get_supervised_online_m_step(
+            return set_m(get_fast_supervised_online_m_step(
                 num_classes,
                 regularization_penalty,
                 minibatch_size,
@@ -476,10 +476,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create an OnlineSupervisedMStep.
+         * Create an FastOnlineSupervisedMStep.
          *
          * You can also see a description of the parameters at
-         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         * FastOnlineSupervisedMStep::FastOnlineSupervisedMStep.
          *
          * @param class_weights          Weights to account for class
          *                               imbalance
@@ -494,7 +494,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_online_m_step(
             std::vector<Scalar> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -502,7 +502,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         );
-        LDABuilder & set_supervised_online_m_step(
+        LDABuilder & set_fast_supervised_online_m_step(
             std::vector<Scalar> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -510,7 +510,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         ) {
-            return set_m(get_supervised_online_m_step(
+            return set_m(get_fast_supervised_online_m_step(
                 class_weights,
                 regularization_penalty,
                 minibatch_size,
@@ -521,10 +521,10 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         }
 
         /**
-         * Create an OnlineSupervisedMStep.
+         * Create an FastOnlineSupervisedMStep.
          *
          * You can also see a description of the parameters at
-         * OnlineSupervisedMStep::OnlineSupervisedMStep.
+         * FastOnlineSupervisedMStep::FastOnlineSupervisedMStep.
          *
          * @param class_weights          Weights to account for class
          *                               imbalance
@@ -539,7 +539,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
          * @param beta_weight            The weight for the online update
          *                                   of \f$\beta\f$
          */
-        std::shared_ptr<em::MStepInterface<Scalar> > get_supervised_online_m_step(
+        std::shared_ptr<em::MStepInterface<Scalar> > get_fast_supervised_online_m_step(
             Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -547,7 +547,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         );
-        LDABuilder & set_supervised_online_m_step(
+        LDABuilder & set_fast_supervised_online_m_step(
             Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
             Scalar regularization_penalty = 1e-2,
             size_t minibatch_size = 128,
@@ -555,7 +555,7 @@ class LDABuilder : public LDABuilderInterface<Scalar>
             Scalar eta_learning_rate = 0.01,
             Scalar beta_weight = 0.9
         ) {
-            return set_m(get_supervised_online_m_step(
+            return set_m(get_fast_supervised_online_m_step(
                 class_weights,
                 regularization_penalty,
                 minibatch_size,

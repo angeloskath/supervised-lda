@@ -1,10 +1,10 @@
 #include "ldaplusplus/LDABuilder.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedEStep.hpp"
 #include "ldaplusplus/em/CorrespondenceSupervisedMStep.hpp"
+#include "ldaplusplus/em/FastOnlineSupervisedMStep.hpp"
 #include "ldaplusplus/em/FastSupervisedMStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedEStep.hpp"
 #include "ldaplusplus/em/MultinomialSupervisedMStep.hpp"
-#include "ldaplusplus/em/OnlineSupervisedMStep.hpp"
 #include "ldaplusplus/em/SemiSupervisedEStep.hpp"
 #include "ldaplusplus/em/SemiSupervisedMStep.hpp"
 #include "ldaplusplus/em/SupervisedEStep.hpp"
@@ -175,7 +175,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_online_m_step(
     size_t num_classes,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -183,7 +183,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
     Scalar eta_learning_rate,
     Scalar beta_weight
 ) {
-    return std::make_shared<em::OnlineSupervisedMStep<Scalar> >(
+    return std::make_shared<em::FastOnlineSupervisedMStep<Scalar> >(
         num_classes,
         regularization_penalty,
         minibatch_size,
@@ -194,7 +194,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_online_m_step(
     std::vector<Scalar> class_weights,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -208,7 +208,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
         weights[i] = class_weights[i];
     }
 
-    return get_supervised_online_m_step(
+    return get_fast_supervised_online_m_step(
         weights,
         regularization_penalty,
         minibatch_size,
@@ -219,7 +219,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
 }
 
 template <typename Scalar>
-std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_online_m_step(
+std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_supervised_online_m_step(
     Eigen::Matrix<Scalar, Eigen::Dynamic, 1> class_weights,
     Scalar regularization_penalty,
     size_t minibatch_size,
@@ -227,7 +227,7 @@ std::shared_ptr<em::MStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_
     Scalar eta_learning_rate,
     Scalar beta_weight
 ) {
-    return std::make_shared<em::OnlineSupervisedMStep<Scalar> >(
+    return std::make_shared<em::FastOnlineSupervisedMStep<Scalar> >(
         class_weights,
         regularization_penalty,
         minibatch_size,
