@@ -331,7 +331,8 @@ LDA<double> create_lda_for_training(
         builder.set_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
-            args["--fixed_point_iterations"].asLong()
+            args["--fixed_point_iterations"].asLong(),
+            static_cast<double>(args["--show_likelihood"].asBool())
         );
     }
 

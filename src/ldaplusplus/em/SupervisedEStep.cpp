@@ -3,19 +3,22 @@
 #include "ldaplusplus/e_step_utils.hpp"
 
 namespace ldaplusplus {
-
-using em::SupervisedEStep;
+namespace em {
 
 
 template <typename Scalar>
 SupervisedEStep<Scalar>::SupervisedEStep(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    size_t fixed_point_iterations
-) {
+    size_t fixed_point_iterations,
+    Scalar compute_likelihood,
+    int random_state
+) : AbstractEStep<Scalar>(random_state)
+{
     e_step_iterations_ = e_step_iterations;
     fixed_point_iterations_ = fixed_point_iterations;
     e_step_tolerance_ = e_step_tolerance;
+    compute_likelihood_ = compute_likelihood;
 }
 
 template <typename Scalar>
@@ -47,9 +50,15 @@ std::shared_ptr<parameters::Parameters> SupervisedEStep<Scalar>::doc_e_step(
     VectorX h(num_topics);
 
     // to check for convergence
-    Scalar old_likelihood = -INFINITY, new_likelihood = -INFINITY;
+    VectorX gamma_old = VectorX::Zero(num_topics);
 
     for (size_t iteration=0; iteration<e_step_iterations_; iteration++) {
+        // check for early stopping
+        if (this->converged(gamma_old, gamma, e_step_tolerance_)) {
+            break;
+        }
+        gamma_old = gamma;
+
         e_step_utils::compute_supervised_phi_gamma<Scalar>(
             X,
             X_ratio,
@@ -61,25 +70,22 @@ std::shared_ptr<parameters::Parameters> SupervisedEStep<Scalar>::doc_e_step(
             gamma,
             h
         );
-
-        new_likelihood = e_step_utils::compute_supervised_likelihood<Scalar>(
-            X,
-            y,
-            alpha,
-            beta,
-            eta,
-            phi,
-            gamma,
-            h
-        );
-        if ((new_likelihood - old_likelihood)/(-old_likelihood) < e_step_tolerance_) {
-            break;
-        }
-        old_likelihood = new_likelihood;
     }
 
-    // notify that the e step has finished
-    this->get_event_dispatcher()->template dispatch<events::ExpectationProgressEvent<Scalar> >(new_likelihood);
+    // notify that the e step has finished and compute the likelihood with
+    // probability compute_likelihood_
+    std::bernoulli_distribution emit_likelihood(compute_likelihood_);
+    if (emit_likelihood(this->get_prng())) {
+        this->get_event_dispatcher()->
+            template dispatch<events::ExpectationProgressEvent<Scalar> >(
+                e_step_utils::compute_supervised_likelihood<Scalar>(
+                    X, y, alpha, beta, eta, phi, gamma, h
+                )
+            );
+    } else {
+        this->get_event_dispatcher()->
+            template dispatch<events::ExpectationProgressEvent<Scalar> >(NAN);
+    }
 
     return std::make_shared<parameters::VariationalParameters<Scalar> >(gamma, phi);
 }
@@ -88,5 +94,5 @@ std::shared_ptr<parameters::Parameters> SupervisedEStep<Scalar>::doc_e_step(
 template class SupervisedEStep<float>;
 template class SupervisedEStep<double>;
 
-
-}
+}  // namespace em
+}  // namespace ldaplusplus

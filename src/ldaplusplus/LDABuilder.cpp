@@ -57,12 +57,16 @@ template <typename Scalar>
 std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_supervised_e_step(
     size_t e_step_iterations,
     Scalar e_step_tolerance,
-    size_t fixed_point_iterations
+    size_t fixed_point_iterations,
+    Scalar compute_likelihood,
+    int random_state
 ) {
     return std::make_shared<em::SupervisedEStep<Scalar> >(
         e_step_iterations,
         e_step_tolerance,
-        fixed_point_iterations
+        fixed_point_iterations,
+        compute_likelihood,
+        random_state
     );
 }
 

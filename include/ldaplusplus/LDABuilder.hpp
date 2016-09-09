@@ -141,7 +141,9 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         std::shared_ptr<em::EStepInterface<Scalar> > get_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            size_t fixed_point_iterations = 10
+            size_t fixed_point_iterations = 10,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         );
         /**
          * See the corresponding get_*_e_step() method.
@@ -149,12 +151,16 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         LDABuilder & set_supervised_e_step(
             size_t e_step_iterations = 10,
             Scalar e_step_tolerance = 1e-2,
-            size_t fixed_point_iterations = 10
+            size_t fixed_point_iterations = 10,
+            Scalar compute_likelihood = 1.0,
+            int random_state = 0
         ) {
             return set_e(get_supervised_e_step(
                 e_step_iterations,
                 e_step_tolerance,
-                fixed_point_iterations
+                fixed_point_iterations,
+                compute_likelihood,
+                random_state
             ));
         }
 
