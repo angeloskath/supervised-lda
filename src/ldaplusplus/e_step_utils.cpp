@@ -19,6 +19,9 @@ Scalar compute_unsupervised_likelihood(
 
     Scalar likelihood = 0;
 
+    // Make sure we ignore phi for words that are not in the document
+    MatrixX<Scalar> phi2 = phi.array().rowwise() * (X.array() != 0).cast<Scalar>().transpose();
+
     // \Psi(\gamma) - \Psi(\sum_j \gamma)
     VectorX<Scalar> t1 = gamma.unaryExpr(cwise_digamma).array() - math_utils::digamma(gamma.sum());
 
@@ -27,7 +30,7 @@ Scalar compute_unsupervised_likelihood(
     likelihood += std::lgamma(alpha.sum()) - alpha.unaryExpr(cwise_lgamma).sum();
 
     // E_q[log p(z | \theta)]
-    likelihood += (phi.transpose() * t1).sum();
+    likelihood += (phi2.transpose() * t1).sum();
 
     // E_q[log p(w | z, \beta)]
     auto phi_scaled = phi.array().rowwise() * X.cast<Scalar>().transpose().array();
@@ -36,7 +39,7 @@ Scalar compute_unsupervised_likelihood(
     // H(q)
     likelihood += -((gamma.array() - 1).matrix().transpose() * t1).value();
     likelihood += -std::lgamma(gamma.sum()) + gamma.unaryExpr(cwise_lgamma).sum();
-    likelihood += -(phi.array() * (phi.array() + 1e-44).log()).sum();
+    likelihood += -(phi2.array() * (phi2.array() + 1e-44).log()).sum();
     
     return likelihood;
 }
