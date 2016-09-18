@@ -58,7 +58,7 @@ example.
 ~~~
 $ wget http://ldaplusplus.com/files/mnist.tar.gz
 $ tar -zxf mnist.tar.gz
-$ g++ example.cpp -lldaplusplus -o example
+$ g++ example.cpp -l ldaplusplus -o example
 $ ./example minst_train.npy mnist_test.npy
 ~~~
 
