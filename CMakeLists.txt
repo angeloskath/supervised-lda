@@ -109,6 +109,14 @@ if (DOCOPT_FOUND)
     target_link_libraries(slda ldaplusplus)
 endif()
 
+# Create command application for unsupervised_lda executable
+if (DOCOPT_FOUND)
+    set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} unsupervised_lda)
+    add_executable(unsupervised_lda src/applications/unsupervised_lda.cpp)
+    target_link_libraries(unsupervised_lda ${DOCOPT_LIBRARIES})
+    target_link_libraries(unsupervised_lda ldaplusplus)
+endif()
+
 # Set the installation rules
 install(TARGETS ${TARGETS_FOR_INSTALL}
         RUNTIME DESTINATION bin
