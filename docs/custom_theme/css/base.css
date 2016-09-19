@@ -285,3 +285,17 @@ h1:hover .headerlink, h2:hover .headerlink, h3:hover .headerlink, h4:hover .head
 #next{
     display: inline-block;
 }
+
+#logo {
+    font-family: "Inconsolata", monospace;
+    color: black;
+    font-weight: bold;
+    font-size: 150%;
+}
+#plusplus {
+    display: inline-block;
+    margin-left: -10px;
+    transform: skewX(-20deg);
+    color: #990000;
+    letter-spacing: -3px;
+}
