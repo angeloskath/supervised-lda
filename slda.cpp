@@ -301,17 +301,10 @@ LDA<double> create_lda_for_training(
             static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else if (args["--fast_e_step"].asBool()) {
-        typename em::FastSupervisedEStep<double>::CWeightType weight_evolution;
-        if (args["--supervised_weight_evolution"].asString() == "exponential") {
-            weight_evolution = em::FastSupervisedEStep<double>::ExponentialDecay;
-        } else {
-            weight_evolution = em::FastSupervisedEStep<double>::Constant;
-        }
         builder.set_fast_supervised_e_step(
             args["--e_step_iterations"].asLong(),
             std::stof(args["--e_step_tolerance"].asString()),
             std::stof(args["--supervised_weight"].asString()),
-            weight_evolution,
             static_cast<double>(args["--show_likelihood"].asBool())
         );
     } else if (args["--multinomial"].asBool()) {
@@ -406,9 +399,8 @@ R"(Supervised LDA and other flavors of LDA.
                    [--unsupervised_e_step] [--fast_e_step]
                    [--second_order_m_step] [--online_m_step] [--semi_supervised]
                    [--supervised_weight=C] [--show_likelihood]
-                   [--supervised_weight_evolution=WE] [--regularization_penalty=L]
-                   [--beta_weight=BW] [--momentum=MM] [--learning_rate=LR]
-                   [--batch_size=BS]
+                   [--regularization_penalty=L] [--beta_weight=BW] [--momentum=MM]
+                   [--learning_rate=LR] [--batch_size=BS]
                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
                    [--continue=M] DATA MODEL
         slda transform [-q | --quiet] [--e_step_iterations=EI]
@@ -438,9 +430,6 @@ R"(Supervised LDA and other flavors of LDA.
         -C C, --supervised_weight=C   The weight of the supervised term for the
                                       E step [default: 1]
         --show_likelihood       Compute supervised likelihood during the e step
-        --supervised_weight_evolution=WE    Choose the weight evolution
-                                            strategy for the supervised part of
-                                            the e step [default: constant]
         --m_step_iterations=MI  The maximum number of iterations to perform
                                 in the M step [default: 200]
         --m_step_tolerance=MT   The minimum accepted relative increase in log

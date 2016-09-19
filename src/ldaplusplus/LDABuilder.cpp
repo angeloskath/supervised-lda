@@ -22,7 +22,9 @@ LDABuilder<Scalar>::LDABuilder()
       m_step_(std::make_shared<em::UnsupervisedMStep<Scalar> >()),
       model_parameters_(
         std::make_shared<parameters::SupervisedModelParameters<Scalar> >()
-      )
+      ),
+      e_requires_eta_(false),
+      m_requires_eta_(false)
 {}
 
 template <typename Scalar>
@@ -75,7 +77,6 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_superv
     size_t e_step_iterations,
     Scalar e_step_tolerance,
     Scalar C,
-    typename em::FastSupervisedEStep<Scalar>::CWeightType weight_type,
     Scalar compute_likelihood,
     int random_state
 ) {
@@ -83,7 +84,7 @@ std::shared_ptr<em::EStepInterface<Scalar> > LDABuilder<Scalar>::get_fast_superv
         e_step_iterations,
         e_step_tolerance,
         C,
-        weight_type,
+        em::FastSupervisedEStep<Scalar>::CWeightType::Constant,
         compute_likelihood,
         random_state
     );
