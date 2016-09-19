@@ -7,7 +7,5 @@ site_dir: docs/output
 pages:
 - Home: index.md
 - Documentation:
-  - Getting Started: getting-started.md
-  - Parameters: parameters.md
-  - Corpus & Documents: corpus_documents.md
+  - Installation: installation.md
 include_nav: true

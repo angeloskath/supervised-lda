@@ -27,7 +27,7 @@ topics in a supervised manner, which is tested on UCF-101 video dataset.
 You can navigate the documentation from the top navigation bar but we also
 provide a list of useful links below.
 
-* Installation instructions
+* [Installation instructions](installation.md)
 * Using the console applications
 * Visualization of topic inference
 * Creating a new LDA model
