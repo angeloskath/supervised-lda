@@ -101,20 +101,19 @@ target_link_libraries(ldaplusplus ${CMAKE_THREAD_LIBS_INIT})
 # problems (so I've heard :-) not sure) for windows builds
 # set_target_properties(ldaplusplus_static PROPERTIES OUTPUT_NAME ldaplusplus)
 
-# Create the slda executable
-if (DOCOPT_FOUND)
-    set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} slda)
-    add_executable(slda slda.cpp)
-    target_link_libraries(slda ${DOCOPT_LIBRARIES})
-    target_link_libraries(slda ldaplusplus)
-endif()
-
 # Create command application for unsupervised_lda executable
 if (DOCOPT_FOUND)
-    set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} unsupervised_lda)
-    add_executable(unsupervised_lda src/applications/unsupervised_lda.cpp)
-    target_link_libraries(unsupervised_lda ${DOCOPT_LIBRARIES})
-    target_link_libraries(unsupervised_lda ldaplusplus)
+    set(APPLICATION_SOURCES
+        src/applications/lda_io.cpp
+        src/applications/EpochProgress.cpp
+        src/applications/ExpectationProgress.cpp
+        src/applications/MaximizationProgress.cpp
+        src/applications/SnapshotEvery.cpp
+    )
+    set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} lda)
+    add_executable(lda src/applications/lda.cpp ${APPLICATION_SOURCES})
+    target_link_libraries(lda ${DOCOPT_LIBRARIES})
+    target_link_libraries(lda ldaplusplus)
 endif()
 
 # Set the installation rules
