@@ -86,27 +86,29 @@ R"(Console application for unsupervised LDA.
                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
                   [--continue=M] DATA MODEL
         lda transform [-q | --quiet] [--e_step_iterations=EI]
-                       [--e_step_tolerance=ET] [--workers=W]
-                       MODEL DATA OUTPUT
+                      [--e_step_tolerance=ET] [--workers=W]
+                      MODEL DATA OUTPUT
         lda (-h | --help)
 
-    Options:
+    General Options:
         -h, --help              Show this help
         -q, --quiet             Produce no output to the terminal
         --topics=K              How many topics to train [default: 100]
         --iterations=I          Run LDA for I iterations [default: 20]
+        --random_state=RS       The initial seed value for any random numbers
+                                needed [default: 0]
+        --snapshot_every=N      Snapshot the model every N iterations [default: -1]
+        --workers=N             The number of concurrent workers [default: 1]
+        --continue=M            A model to continue training from
+
+    E Step Options:
         --e_step_iterations=EI  The maximum number of iterations to perform
                                 in the E step [default: 30]
         --e_step_tolerance=ET   The minimum accepted relative increase in log
                                 likelihood during the E step [default: 1e-3]
-        --random_state=RS       The initial seed value for any random numbers
-                                needed [default: 0]
         --compute_likelihood=CL The percentage of documents to compute the
                                 likelihood for (1.0 means compute for every
                                 document) [default: 0.0]
-        --snapshot_every=N      Snapshot the model every N iterations [default: -1]
-        --workers=N             The number of concurrent workers [default: 1]
-        --continue=M            A model to continue training from
 )";
 
 int main(int argc, char **argv) {
