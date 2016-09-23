@@ -82,6 +82,19 @@ class LDA
         void fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y);
 
         /**
+         * Compute an unsupervised topic model for word counts X.
+         *
+         * Perform as many EM iterations as configured and stop when reaching
+         * max_iter_ or any other stopping criterion.
+         *
+         * An EigenCorpus will be created from the passed
+         * parameters.
+         *
+         * @param X The word counts in column-major order
+         */
+        void fit(const Eigen::MatrixXi &X);
+
+        /**
          * Perform a single EM iteration.
          *
          * An EigenClassificationCorpus will be created from the passed

@@ -72,6 +72,16 @@ void LDA<Scalar>::fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y) {
 
 
 template <typename Scalar>
+void LDA<Scalar>::fit(const Eigen::MatrixXi &X) {
+    auto corpus = get_corpus(X);
+
+    for (size_t i=0; i<iterations_; i++) {
+        partial_fit(corpus);
+    }
+}
+
+
+template <typename Scalar>
 void LDA<Scalar>::partial_fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y) {
     partial_fit(get_corpus(X, y));
 }

@@ -13,7 +13,7 @@
 namespace ldaplusplus {
 namespace numpy_format {
     template <typename Scalar>
-    const char * dtype_for_scalar() {
+    inline const char * dtype_for_scalar() {
         return "object";
     }
 
@@ -21,28 +21,28 @@ namespace numpy_format {
     // These specializations only work if the machine you are going to be
     // reading the file from has the same endianess
     template<>
-    const char * dtype_for_scalar<int8_t>() { return "i1"; }
+    inline const char * dtype_for_scalar<int8_t>() { return "i1"; }
     template<>
-    const char * dtype_for_scalar<int16_t>() { return "i2"; }
+    inline const char * dtype_for_scalar<int16_t>() { return "i2"; }
     template<>
-    const char * dtype_for_scalar<int32_t>() { return "i4"; }
+    inline const char * dtype_for_scalar<int32_t>() { return "i4"; }
     template<>
-    const char * dtype_for_scalar<int64_t>() { return "i8"; }
+    inline const char * dtype_for_scalar<int64_t>() { return "i8"; }
     template<>
-    const char * dtype_for_scalar<uint8_t>() { return "u1"; }
+    inline const char * dtype_for_scalar<uint8_t>() { return "u1"; }
     template<>
-    const char * dtype_for_scalar<uint16_t>() { return "u2"; }
+    inline const char * dtype_for_scalar<uint16_t>() { return "u2"; }
     template<>
-    const char * dtype_for_scalar<uint32_t>() { return "u4"; }
+    inline const char * dtype_for_scalar<uint32_t>() { return "u4"; }
     template<>
-    const char * dtype_for_scalar<uint64_t>() { return "u8"; }
+    inline const char * dtype_for_scalar<uint64_t>() { return "u8"; }
     template<>
-    const char * dtype_for_scalar<float>() { return "f4"; }
+    inline const char * dtype_for_scalar<float>() { return "f4"; }
     template<>
-    const char * dtype_for_scalar<double>() { return "f8"; }
+    inline const char * dtype_for_scalar<double>() { return "f8"; }
 
 
-    bool is_big_endian() {
+    inline bool is_big_endian() {
         union ByteOrder
         {
             int32_t i;
