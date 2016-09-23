@@ -156,6 +156,7 @@ int main(int argc, char **argv) {
         if (!args["--quiet"].asBool()) {
             lda.get_event_dispatcher()->add_listener<EpochProgress>();
             lda.get_event_dispatcher()->add_listener<ExpectationProgress>();
+            lda.get_event_dispatcher()->add_listener<MaximizationProgress>();
         }
 
         if (args["--snapshot_every"].asLong() > 0) {
