@@ -111,18 +111,20 @@ if (DOCOPT_FOUND)
         src/applications/SnapshotEvery.cpp
         src/applications/utils.cpp
     )
+    add_library(applications OBJECT ${APPLICATION_SOURCES})
+
     set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} lda)
-    add_executable(lda src/applications/lda.cpp ${APPLICATION_SOURCES})
+    add_executable(lda src/applications/lda.cpp $<TARGET_OBJECTS:applications>)
     target_link_libraries(lda ${DOCOPT_LIBRARIES})
     target_link_libraries(lda ldaplusplus)
 
     set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} slda)
-    add_executable(slda src/applications/slda.cpp ${APPLICATION_SOURCES})
+    add_executable(slda src/applications/slda.cpp $<TARGET_OBJECTS:applications>)
     target_link_libraries(slda ${DOCOPT_LIBRARIES})
     target_link_libraries(slda ldaplusplus)
 
     set(TARGETS_FOR_INSTALL ${TARGETS_FOR_INSTALL} fslda)
-    add_executable(fslda src/applications/fslda.cpp ${APPLICATION_SOURCES})
+    add_executable(fslda src/applications/fslda.cpp $<TARGET_OBJECTS:applications>)
     target_link_libraries(fslda ${DOCOPT_LIBRARIES})
     target_link_libraries(fslda ldaplusplus)
 endif()
