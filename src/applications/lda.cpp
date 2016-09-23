@@ -76,7 +76,6 @@ LDA<double> create_lda_for_transform(
     return builder;
 }
 
-
 static const char * USAGE = 
 R"(Console application for unsupervised LDA.
 
@@ -109,7 +108,6 @@ R"(Console application for unsupervised LDA.
         --workers=N             The number of concurrent workers [default: 1]
         --continue=M            A model to continue training from
 )";
-
 
 int main(int argc, char **argv) {
     
@@ -179,4 +177,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
