@@ -143,7 +143,7 @@ LDA<double> create_lda_for_transform(
     builder.set_classic_e_step(
         args["--e_step_iterations"].asLong(),
         std::stof(args["--e_step_tolerance"].asString()),
-        1.0
+        0.0
     );
 
     builder.
