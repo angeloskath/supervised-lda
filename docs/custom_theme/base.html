@@ -12,10 +12,10 @@
 
 	<title>{% if page_title %}{{ page_title }} - {% endif %}{{ site_name }}</title>
 
-        <link href="https://fonts.googleapis.com/css?family=Inconsolata:700" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Arvo:400,400i,700,700i|Dosis:500|Inconsolata:700" rel="stylesheet">
         <link href="{{ base_url }}/css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="{{ base_url }}/css/font-awesome-4.5.0.css" rel="stylesheet">
-        <link href="{{ base_url }}/css/base.css" rel="stylesheet">
+        <link href="{{ base_url }}/css/theme.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ base_url }}/css/highlight.css">
         {%- for path in extra_css %}
         <link href="{{ path }}" rel="stylesheet">
@@ -71,26 +71,34 @@
             {% endblock %}
         </div>
 
-        <footer class="col-md-12">
+        <footer>
             {% if include_next_prev %}
-                {% if previous_page %}
-                <div id="previous" {% if not previous_page %}class="disabled"{% endif %}>
-                    <a rel="prev" href="{{ previous_page.url }}">
+            <div class="container">
+                <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                <div class="prev">
+                    <a rel="prev" 
+                        {% if previous_page %}
+                            href="{{ previous_page.url }}"
+                        {% else %}
+                            disabled="disabled"
+                        {% endif %}>
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                </div>
-               {% endif %}
-               {% if next_page %}
-                <div id="next" {% if not next_page %}class="disabled"{% endif %}>
-                    <a rel="next" href="{{ next_page.url }}">
+                <div class="next">
+                    <a rel="next"
+                       {% if next_page %}
+                            href="{{ next_page.url }}"
+                        {% else %}
+                            disabled="disabled"
+                        {% endif %}>
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </div>
-                {% endif %}
-                {% endif %}
-            {% if copyright %}
-                <hr>
-                <p>{{ copyright }}</p>
+                </div>
+                </div>
+            </div>
             {% endif %}
         </footer>
 
@@ -131,9 +139,3 @@
 
     </body>
 </html>
-{% if current_page and current_page.is_homepage %}
-<!--
-MkDocs version : {{ mkdocs_version }}
-Build Date UTC : {{ build_date_utc }}
--->
-{% endif %}

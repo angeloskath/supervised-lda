@@ -33,7 +33,7 @@ $(document).ready(function() {
 
 
 $('body').scrollspy({
-    target: '.bs-sidebar',
+    target: 'div.sidebar',
 });
 
 /* Prevent disabled links from causing a page reload */
