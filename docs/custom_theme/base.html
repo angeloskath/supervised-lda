@@ -72,34 +72,43 @@
         </div>
 
         <footer>
-            {% if include_next_prev %}
             <div class="container">
-                <div class="row">
+            {% if include_next_prev %}
+                <div class="row footernav">
                 <div class="col-md-9 col-md-offset-3">
-                <div class="prev">
-                    <a rel="prev" 
-                        {% if previous_page %}
-                            href="{{ previous_page.url }}"
-                        {% else %}
-                            disabled="disabled"
-                        {% endif %}>
-                        <i class="fa fa-arrow-left"></i> Previous
-                    </a>
-               </div>
-                <div class="next">
-                    <a rel="next"
-                       {% if next_page %}
-                            href="{{ next_page.url }}"
-                        {% else %}
-                            disabled="disabled"
-                        {% endif %}>
-                        Next <i class="fa fa-arrow-right"></i>
-                    </a>
+                    <div class="prev">
+                        <a rel="prev" 
+                            {% if previous_page %}
+                                href="{{ previous_page.url }}"
+                            {% else %}
+                                disabled="disabled"
+                            {% endif %}>
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                   </div>
+                    <div class="next">
+                        <a rel="next"
+                           {% if next_page %}
+                                href="{{ next_page.url }}"
+                            {% else %}
+                                disabled="disabled"
+                            {% endif %}>
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
                 </div>
+            {% endif %}
+                <div class="row credits">
+                    <div class="col-md-9 col-md-offset-3">
+                        Copyright &copy; 2016 - now <span
+                        class="normal-logo">lda<span
+                        class="normal-plusplus">++</span></span> <br /> Created
+                        with <a href="http://www.mkdocs.org/">MkDocs</a> by
+                        adapting the default style
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </footer>
 
         <script src="{{ base_url }}/js/jquery-1.10.2.min.js"></script>

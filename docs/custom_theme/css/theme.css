@@ -21,18 +21,22 @@ a {color: #0c3ba7;}
 a:hover, a:visited {color: #0c3ba7;}
 
 /* CSS Logo */
-#logo {
+.normal-logo, #logo {
     font-family: "Inconsolata", monospace;
-    color: #ccc;
     font-weight: bold;
-    font-size: 150%;
 }
-#plusplus {
+.normal-plusplus, #plusplus {
     display: inline-block;
-    margin-left: -10px;
     transform: skewX(-20deg);
     color: #ee0000;
     letter-spacing: -3px;
+}
+#logo {
+    color: #ccc;
+    font-size: 150%;
+}
+#plusplus {
+    margin-left: -10px;
 }
 
 /* Top navigation bar */
@@ -67,23 +71,38 @@ div.sidebar li.active>a {
 
 /* Next Prev */
 footer {
-    padding: 20px 0px 30px 0px;
+    padding: 20px 0px 20px 0px;
 }
 footer .next {float: left; width: 50%; text-align: right;}
 footer .prev {float: left; width: 50%;}
-footer a, footer a:visited {
+.footernav a, .footernav a:visited {
     border: 1px solid #ccc;
     padding: 10px;
     border-radius: 5px;
     background: #eee;
     color: #415b70;
 }
-footer a:hover {
+.footernav a:hover {
     text-decoration: none;
     background: #ddd;
 }
-footer a[disabled="disabled"], footer a[disabled="disabled"]:hover {
+.footernav a[disabled="disabled"], .footernav a[disabled="disabled"]:hover {
     color: #ccc;
     background: #eee;
     cursor: not-allowed;
+}
+
+/* Code */
+pre code {
+    white-space: pre;
+}
+
+/* Code color chooser and credits */
+.credits {
+    margin-top: 30px;
+    font-size: 80%;
+    text-align: center;
+}
+.credits .normal-logo {
+    font-size: 140%;
 }

@@ -160,29 +160,30 @@ Assuming you have already installed LDA++ on your system, simply copy and paste
 the following instructions in a terminal to compile the previous example and
 infer topics on the 60000 images from MNIST dataset.
 
-~~~
+```bash
 $ wget "http://ldaplusplus.com/files/mnist.tar.gz"
 $ tar -zxf mnist.tar.gz
 $ g++ example.cpp -lldaplusplus -o example
 $ ./example minst_train.npy model.npy
-~~~
+```
 
 ## Citation
 
 Please cite our paper if it helped your research.
 
-~~~
+```
 @inproceedings{KatharopoulosACMMM2016,
-author={Angelos Katharopoulos and Despoina Paschalidou and Christos Diou and Anastasios Delopoulos},
-title={Fast Supervised LDA for discovering micro-events in large-scale video datasets},
-booktitle={In proceedings of the 24th ACM international conference on multimedia (ACM-MM 2016)},
-address={Amsterdam, The Netherlands},
-year={2016},
-month={10},
-date={2016-10-15},
-url={http://mug.ee.auth.gr/wp-content/uploads/fsLDA.pdf}
+    author={Angelos Katharopoulos and Despoina Paschalidou and Christos Diou and Anastasios Delopoulos},
+    title={Fast Supervised LDA for discovering micro-events in large-scale video datasets},
+    booktitle={In proceedings of the 24th ACM international conference on multimedia (ACM-MM 2016)},
+    address={Amsterdam, The Netherlands},
+    year={2016},
+    month={10},
+    date={2016-10-15},
+    url={http://mug.ee.auth.gr/wp-content/uploads/fsLDA.pdf}
 }
-~~~
+```
+
 ## License
 
 LDA++ is released under the MIT license which practically allows anyone to do anything with it.
