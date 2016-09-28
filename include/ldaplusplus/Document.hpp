@@ -1,5 +1,5 @@
-#ifndef _DOCUMENT_HPP_
-#define _DOCUMENT_HPP_
+#ifndef _LDAPLUSPLUS_DOCUMENT_HPP_
+#define _LDAPLUSPLUS_DOCUMENT_HPP_
 
 
 #include <memory>
@@ -229,4 +229,4 @@ class EigenClassificationCorpus : public ClassificationCorpus
 }  // namespace corpus
 }  // namespace ldaplusplus
 
-#endif  // _DOCUMENT_HPP_
+#endif  // _LDAPLUSPLUS_DOCUMENT_HPP_

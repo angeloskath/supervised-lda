@@ -1,5 +1,5 @@
-#ifndef _NUMPY_FORMAT_H_
-#define _NUMPY_FORMAT_H_
+#ifndef _LDAPLUSPLUS_NUMPY_FORMAT_HPP_
+#define _LDAPLUSPLUS_NUMPY_FORMAT_HPP_
 
 
 #include <cstdint>
@@ -424,5 +424,5 @@ namespace numpy_format {
 
 } // namespace numpy_format 
 
-}
-#endif
+} // namespace ldaplusplus
+#endif // _LDAPLUSPLUS_NUMPY_FORMAT_HPP_

@@ -1,5 +1,5 @@
-#ifndef _E_STEP_UTILS_HPP_
-#define _E_STEP_UTILS_HPP_
+#ifndef _LDAPLUSPLUS_E_STEP_UTILS_HPP_
+#define _LDAPLUSPLUS_E_STEP_UTILS_HPP_
 
 #include <Eigen/Core>
 
@@ -217,7 +217,7 @@ namespace e_step_utils {
         const MatrixX<Scalar> & phi,
         Ref<VectorX<Scalar> > tau
     );
-}
+} // namespace e_step_utils
 
-}
-#endif  // _E_STEP_UTILS_HPP_
+} // namespace ldaplusplus
+#endif  // _LDAPLUSPLUS_E_STEP_UTILS_HPP_

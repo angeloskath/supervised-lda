@@ -1,5 +1,5 @@
-#ifndef _PARAMETERS_HPP_
-#define _PARAMETERS_HPP_
+#ifndef _LDAPLUSPLUS_PARAMETERS_HPP_
+#define _LDAPLUSPLUS_PARAMETERS_HPP_
 
 
 #include <utility>
@@ -101,4 +101,4 @@ struct SupervisedCorrespondenceVariationalParameters : public VariationalParamet
 }  // namespace parameters
 }  // namespace ldaplusplus
 
-#endif  // _PARAMETERS_HPP_
+#endif  // _LDAPLUSPLUS_PARAMETERS_HPP_

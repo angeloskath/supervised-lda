@@ -1,5 +1,5 @@
-#ifndef _LDA_HPP_
-#define _LDA_HPP_
+#ifndef _LDAPLUSPLUS_LDA_HPP_
+#define _LDAPLUSPLUS_LDA_HPP_
 
 
 #include <condition_variable>
@@ -271,5 +271,5 @@ class LDA
 };
 
 
-}
-#endif  // _LDA_HPP_
+} // namespace ldaplusplus
+#endif  // _LDAPLUSPLUS_LDA_HPP_

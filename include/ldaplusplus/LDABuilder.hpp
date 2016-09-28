@@ -1,5 +1,5 @@
-#ifndef _LDA_BUILDER_HPP_
-#define _LDA_BUILDER_HPP_
+#ifndef _LDAPLUSPLUS_LDA_BUILDER_HPP_
+#define _LDAPLUSPLUS_LDA_BUILDER_HPP_
 
 #include <memory>
 #include <stdexcept>
@@ -826,5 +826,5 @@ class LDABuilder : public LDABuilderInterface<Scalar>
 };
 
 
-}
-#endif  //_LDA_BUILDER_HPP_
+} // namespace ldaplusplus
+#endif  // _LDAPLUSPLUS_LDA_BUILDER_HPP_

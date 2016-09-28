@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef _LDAPLUSPLUS_UTILS_HPP_
+#define _LDAPLUSPLUS_UTILS_HPP_
 
 #include <cmath>
 #include <memory>
@@ -617,4 +617,4 @@ class ThreadSafePRNG
 }  // namespace math_utils
 }  // namespace ldaplusplus
 
-#endif // UTILS_H
+#endif // _LDAPLUSPLUS_UTILS_HPP_
