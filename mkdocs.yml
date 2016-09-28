@@ -9,4 +9,5 @@ pages:
 - Home: index.md
 - Documentation:
   - Installation: installation.md
+  - Console applications: console_applications.md
 include_nav: true
