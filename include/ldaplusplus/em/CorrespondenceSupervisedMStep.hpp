@@ -1,5 +1,5 @@
-#ifndef _CORRESPONDENCE_SUPERVISED_M_STEP_HPP_
-#define _CORRESPONDENCE_SUPERVISED_M_STEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_CORRESPONDENCESUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_CORRESPONDENCESUPERVISEDMSTEP_HPP_
 
 #include "ldaplusplus/em/MStepInterface.hpp"
 
@@ -76,4 +76,4 @@ class CorrespondenceSupervisedMStep : public MStepInterface<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _CORRESPONDENCE_SUPERVISED_M_STEP_HPP_
+#endif  // _LDAPLUSPLUS_EM_CORRESPONDENCESUPERVISEDMSTEP_HPP_

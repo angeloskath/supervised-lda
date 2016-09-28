@@ -1,5 +1,5 @@
-#ifndef _MSTEPINTERFACE_HPP_
-#define _MSTEPINTERFACE_HPP_
+#ifndef _LDAPLUSPLUS_EM_MSTEPINTERFACE_HPP_
+#define _LDAPLUSPLUS_EM_MSTEPINTERFACE_HPP_
 
 #include <Eigen/Core>
 
@@ -66,4 +66,4 @@ class MStepInterface : public events::EventDispatcherComposition
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _MSTEPINTERFACE_HPP_
+#endif  // _LDAPLUSPLUS_EM_MSTEPINTERFACE_HPP_

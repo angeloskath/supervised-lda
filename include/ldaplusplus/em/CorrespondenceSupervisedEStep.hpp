@@ -1,5 +1,5 @@
-#ifndef _CORRESPONDENCESUPERVISEDESTEP_HPP_
-#define _CORRESPONDENCESUPERVISEDESTEP_HPP__
+#ifndef _LDAPLUSPLUS_EM_CORRESPONDENCESUPERVISEDESTEP_HPP_
+#define _LDAPLUSPLUS_EM_CORRESPONDENCESUPERVISEDESTEP_HPP_
 
 #include "ldaplusplus/em/AbstractEStep.hpp"
 
@@ -121,4 +121,4 @@ class CorrespondenceSupervisedEStep: public AbstractEStep<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif   //  _CORRESPONDENCESUPERVISEDESTEP_HPP_
+#endif   // _LDAPLUSPLUS_EM_CORRESPONDENCESUPERVISEDESTEP_HPP__

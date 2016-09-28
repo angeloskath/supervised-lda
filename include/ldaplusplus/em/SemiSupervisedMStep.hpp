@@ -1,5 +1,5 @@
-#ifndef _SEMISUPERVISEDMSTEP_HPP_
-#define _SEMISUPERVISEDMSTEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_SEMISUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_SEMISUPERVISEDMSTEP_HPP_
 
 
 #include "ldaplusplus/em/FastSupervisedMStep.hpp"
@@ -59,4 +59,4 @@ class SemiSupervisedMStep : public FastSupervisedMStep<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _SEMISUPERVISEDMSTEP_HPP_
+#endif  // _LDAPLUSPLUS_EM_SEMISUPERVISEDMSTEP_HPP_

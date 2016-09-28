@@ -1,5 +1,5 @@
-#ifndef _MULTINOMIALSUPERVISEDESTEP_HPP_
-#define _MULTINOMIALSUPERVISEDESTEP_HPP__
+#ifndef _LDAPLUSPLUS_EM_MULTINOMIALSUPERVISEDESTEP_HPP_
+#define _LDAPLUSPLUS_EM_MULTINOMIALSUPERVISEDESTEP_HPP__
 
 #include "ldaplusplus/em/AbstractEStep.hpp"
 
@@ -88,4 +88,4 @@ class MultinomialSupervisedEStep: public AbstractEStep<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif   //  _MULTINOMIALSUPERVISEDESTEP_HPP_
+#endif   // _LDAPLUSPLUS_EM_MULTINOMIALSUPERVISEDESTEP_HPP_

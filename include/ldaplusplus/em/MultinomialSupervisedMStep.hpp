@@ -1,5 +1,5 @@
-#ifndef _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
-#define _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_MULTINOMIALSUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_MULTINOMIALSUPERVISEDMSTEP_HPP_
 
 #include "ldaplusplus/em/MStepInterface.hpp"
 
@@ -47,4 +47,4 @@ class MultinomialSupervisedMStep : public MStepInterface<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _MULTINOMIAL_SUPERVISED_M_STEP_HPP_
+#endif  // _LDAPLUSPLUS_EM_MULTINOMIALSUPERVISEDMSTEP_HPP_

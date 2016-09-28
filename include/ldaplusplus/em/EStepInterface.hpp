@@ -1,5 +1,5 @@
-#ifndef _ESTEPINTERFACE_HPP_
-#define _ESTEPINTERFACE_HPP_
+#ifndef _LDAPLUSPLUS_EM_ESTEPINTERFACE_HPP_
+#define _LDAPLUSPLUS_EM_ESTEPINTERFACE_HPP_
 
 #include <Eigen/Core>
 
@@ -56,4 +56,4 @@ class EStepInterface : public events::EventDispatcherComposition
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif //  _ESTEPINTERFACE_HPP_
+#endif // _LDAPLUSPLUS_EM_ESTEPINTERFACE_HPP_

@@ -1,5 +1,5 @@
-#ifndef _UNSUPERVISEDESTEP_HPP_
-#define _UNSUPERVISEDESTEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_UNSUPERVISEDESTEP_HPP_
+#define _LDAPLUSPLUS_EM_UNSUPERVISEDESTEP_HPP_
 
 #include "ldaplusplus/em/AbstractEStep.hpp"
 
@@ -86,5 +86,4 @@ class UnsupervisedEStep : public AbstractEStep<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif //  _UNSUPERVISEDESTEP_HPP_
-
+#endif // _LDAPLUSPLUS_EM_UNSUPERVISEDESTEP_HPP_

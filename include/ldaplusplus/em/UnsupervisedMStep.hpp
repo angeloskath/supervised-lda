@@ -1,5 +1,5 @@
-#ifndef _UNSUPERVISEDMSTEP_HPP_
-#define _UNSUPERVISEDMSTEP_HPP_
+#ifndef _LDAPLUSPLUS_EM_UNSUPERVISEDMSTEP_HPP_
+#define _LDAPLUSPLUS_EM_UNSUPERVISEDMSTEP_HPP_
 
 #include "ldaplusplus/em/MStepInterface.hpp"
 
@@ -81,4 +81,4 @@ class UnsupervisedMStep : public MStepInterface<Scalar>
 }  // namespace em
 }  // namespace ldaplusplus
 
-#endif  // _UNSUPERVISEDMSTEP_HPP_ 
+#endif  // _LDAPLUSPLUS_EM_UNSUPERVISEDMSTEP_HPP_
