@@ -1,5 +1,5 @@
-#ifndef _GRADIENT_DESCENT_HPP_
-#define _GRADIENT_DESCENT_HPP_
+#ifndef _LDAPLUSPLUS_OPTIMIZATION_GRADIENT_DESCENT_HPP_
+#define _LDAPLUSPLUS_OPTIMIZATION_GRADIENT_DESCENT_HPP_
 
 #include <functional>
 #include <memory>
@@ -209,4 +209,4 @@ class GradientDescent
 }  // namespace optimization
 }  // namespace ldaplusplus
 
-#endif // _GRADIENT_DESCENT_HPP_
+#endif // _LDAPLUSPLUS_OPTIMIZATION_GRADIENT_DESCENT_HPP_
