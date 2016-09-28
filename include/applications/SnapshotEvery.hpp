@@ -25,4 +25,4 @@ class SnapshotEvery : public events::EventListenerInterface
         int seen_so_far_;
 };
 
-#endif //  _APPLICATIONS_SNAPSHOTEVERY_HPP_
+#endif // _APPLICATIONS_SNAPSHOTEVERY_HPP_
