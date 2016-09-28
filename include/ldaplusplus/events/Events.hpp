@@ -1,5 +1,5 @@
-#ifndef _EVENTS_HPP_
-#define _EVENTS_HPP_
+#ifndef _LDAPLUSPLUS_EVENTS_EVENTS_HPP_
+#define _LDAPLUSPLUS_EVENTS_EVENTS_HPP_
 
 
 #include <list>
@@ -252,4 +252,4 @@ class SameThreadEventDispatcher : public ThreadSafeEventDispatcher
 }  // namespace events
 }  // namespace ldaplusplus
 
-#endif  // _EVENTS_HPP_
+#endif  // _LDAPLUSPLUS_EVENTS_EVENTS_HPP_

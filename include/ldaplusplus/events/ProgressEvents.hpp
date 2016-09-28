@@ -1,5 +1,5 @@
-#ifndef _PROGRESS_EVENTS_HPP_
-#define _PROGRESS_EVENTS_HPP_
+#ifndef _LDAPLUSPLUS_EVENTS_PROGRESS_EVENTS_HPP_
+#define _LDAPLUSPLUS_EVENTS_PROGRESS_EVENTS_HPP_
 
 
 #include "ldaplusplus/events/Events.hpp"
@@ -65,4 +65,4 @@ class EpochProgressEvent : public Event
 }  // namespace events
 }  // namespace ldaplusplus
 
-#endif // _PROGRESS_EVENTS_HPP_
+#endif // _LDAPLUSPLUS_EVENTS_PROGRESS_EVENTS_HPP_
