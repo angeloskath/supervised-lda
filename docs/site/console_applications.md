@@ -117,13 +117,18 @@ in LDA++.
 
 - **topics**: The number of topics used to train a specific LDA variant
   (default=100).
+
 - **iterations**: The number of Expectation-Maximization steps used to train a
   model (default=20).
+
 - **random_state**: Pseudo-random number generator seed control (default=0).
+
 - **snapshot_every**: The number of iterations after which one model will be
   saved (default=-1).
+
 - **workers**: The number of concurrent threads used during Expectation step
   (default=1).
+
 - **continue**: A model to continue the training from
 
 I/O format
@@ -260,7 +265,7 @@ Now, we use the trained model to transform our data with the following bash
 command.
 
 ```bash
-$ ./fslda transform /tmp/fslda_model.npy /tmp/data.npy /tmp/transform_data.npy
+$ ./fslda transform /tmp/fslda_model.npy /tmp/data.npy /tmp/transformed_data.npy
 E-M Iteration 1
 100
 ```
@@ -271,7 +276,7 @@ transformed data.
 ```python
 In [1]: import numpy as np
 
-In [2]: with open("/tmp/transform_data.npy", "rb") as f:
+In [2]: with open("/tmp/transformed_data.npy", "rb") as f:
    ...:     Z = np.load(f)
 
 # Print the contents of Z, which is the per topic document distribution. We
@@ -330,4 +335,234 @@ array([[ 1019.9107783 ,   859.3746101 ,  1427.69863967,  1088.73008294,
           944.04983208,  1349.38277865,   860.47146176,  1079.81075318,
           799.40590558,  1098.63316048,  1039.41374872,  1003.07705429,
          1121.47772463,   773.91529544,  1152.11024316,  1168.75355131]])
+```
+
+lda application
+===============
+
+**lda** is the command-line program that implements the vanilla LDA
+(unsupervised LDA), as it was introduced in [*Latent Dirichlet
+Allocation*](http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf), by Blei
+et al. This program allows the training of an unsupervised LDA model and the
+application of that model to a set of data in order to transform them.
+
+Apart from the optional arguments, we have already discussed, the user can
+specify additional arguments. The extensive help menu of **lda** is presented
+below.
+
+```bash
+$ ./lda --help
+Console application for unsupervised LDA.
+
+    Usage:
+        lda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                  [--e_step_tolerance=ET] [--random_state=RS]
+                  [--compute_likelihood=CL] 
+                  [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                  [--continue=M] DATA MODEL
+        lda transform [-q | --quiet] [--e_step_iterations=EI]
+                      [--e_step_tolerance=ET] [--workers=W]
+                      MODEL DATA OUTPUT
+        lda (-h | --help)
+
+    General Options:
+        -h, --help              Show this help
+        -q, --quiet             Produce no output to the terminal
+        --topics=K              How many topics to train [default: 100]
+        --iterations=I          Run LDA for I iterations [default: 20]
+        --random_state=RS       The initial seed value for any random numbers
+                                needed [default: 0]
+        --snapshot_every=N      Snapshot the model every N iterations [default: -1]
+        --workers=N             The number of concurrent workers [default: 1]
+        --continue=M            A model to continue training from
+
+    E Step Options:
+        --e_step_iterations=EI  The maximum number of iterations to perform
+                                in the E step [default: 30]
+        --e_step_tolerance=ET   The minimum accepted relative increase in log
+                                likelihood during the E step [default: 1e-3]
+        --compute_likelihood=CL The percentage of documents to compute the
+                                likelihood for (1.0 means compute for every
+                                document) [default: 0.0]
+```
+
+The user can specify the values of the following arguments:
+
+- **e_step_iterations**: This argument sets the maximum number of times to
+  alternate between maximizing $\gamma$ and $\phi$ in the Expectation step.
+
+- **e_step_tolerance**: The minimum relative change between consecutive updates
+  in the variational parameter $\gamma$. During the Expectation step, we try to
+  learn the variational parameters $\phi$ and $\gamma$, by iteratively updating
+  their values. However, even though we define a maximum number of iterations
+  (via **e_step_iterations** argument), this process can stop earlier if the
+  difference between the $\gamma$ in the $i^{th}$ iteration and the
+  $\hat{\gamma}$ in the $(i+1)^{th}$ iteration is less than
+  **e_step_tolerance** (default=1e-3).
+
+- **compute_likelihood**: The variational parameters of the trained model are
+  updated according to every document in the corpus, during the
+  Expectation-step. As soon as, the Expectation-step is complete we compute the
+  value of the Evidence Lower Bound (ELBO). This value can be computed either
+  for all the documents in the corpus or for a percentage of them. The
+  percentage of documents to be used during this computation is given via the
+  **compute_likelihood** argument. Apparently, 1.0 means compute for every
+  document in the corpus (default=0.0).
+
+slda application
+================
+
+**slda** is the command-line program that implements the supervised LDA (sLDA).
+For more information about the sLDA, see papers [*"Simultaneous Image
+Classification and
+Annotation"*](http://www.cs.cmu.edu/~chongw/papers/WangBleiFeiFei2009.pdf), by
+Wang et al. and [*"Supervised topic
+models"*](https://www.cs.princeton.edu/~blei/papers/BleiMcAuliffe2007.pdf), by
+Blei et al. This program allows the training of a supervised LDA model and the
+application of that model to a set of data in order to transform them.
+
+The extensive help menu of **slda** is presented below.
+
+```bash
+$ ./slda --help
+Console application for supervised LDA.
+    
+    Usage:
+        slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                   [--e_step_tolerance=ET] [--fixed_point_iterations=FI]
+                   [--random_state=RS] [--compute_likelihood=CL]
+                   [--m_step_iterations=MI] [--m_step_tolerance=MT] 
+                   [--regularization_penalty=L]
+                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                   [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        slda transform [-q | --quiet] [--e_step_iterations=EI]
+                       [--e_step_tolerance=ET] [--workers=W]
+                       MODEL DATA OUTPUT
+        slda (-h | --help)
+
+    General Options:
+        -h, --help                        Show this help
+        -q, --quiet                       Produce no output to the terminal
+        --topics=K                        How many topics to train [default: 100]
+        --iterations=I                    Run LDA for I iterations [default: 20]
+        --random_state=RS                 The initial seed value for any random numbers
+                                          needed [default: 0]
+        --snapshot_every=N                Snapshot the model every N iterations [default: -1]
+        --workers=N                       The number of concurrent workers [default: 1]
+        --continue=M                      A model to continue training from
+        --continue_from_unsupervised=M    An unsupervised model to continue training from
+
+    E Step Options:
+        --e_step_iterations=EI            The maximum number of iterations to perform
+                                          in the E step [default: 10]
+        --e_step_tolerance=ET             The minimum accepted relative increase in log
+                                          likelihood during the E step [default: 1e-4]
+        --fixed_point_iterations=FI       The number of fixed point iterations to compute
+                                          phi [default: 20]
+        --compute_likelihood=CL           The percentage of documents to compute the
+                                          likelihood for (1.0 means compute for every
+                                          document) [default: 0.0]
+
+    M Step Options:
+        --m_step_iterations=MI            The maximum number of iterations to perform
+                                          in the M step [default: 200]
+        --m_step_tolerance=MT             The minimum accepted relative increase in log
+                                          likelihood during the M step [default: 1e-4]
+        -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
+                                          Logistic Regression [default: 0.05]
+```
+
+In case of **slda** the user can continue the training of an unsupervised model
+in a supervised manner, by using the **continue_from_unsupervised** argument to
+define the path to the model to continue from. The **e_step_iterations**
+argument as well as the **e_step_tolerance** argument and the
+**compute_likelihood** argument, are thoroughly analysed in the previous
+section. The rest of the arguments are explained below: 
+
+- **fixed_point_iterations**: In supervised LDA, the update of $\phi$ is a
+  fixed-point iteration method. The maximum number of iterations used in the
+  maximization of $\phi$ can be specified via **fixed_point_iterations**
+  argument.
+
+- **m_step_iterations**: The maximum number of gradient descent iterations
+  (default=200).
+
+- **m_step_tolerance**: The minimum relative improvement between consecutive
+  gradient descent iterations (default=1e-4).
+
+- **regularization_penalty**: The L2 penalty penalty for logistic regression
+  (default=0.05).
+
+fslda application
+================
+
+**fslda** is the command-line program that implements the fast supervised LDA
+(fsLDA). For more information, please check our publication with title [*"Fast
+Supervised LDA for Discovering Micro-Events in Large-Scale Video
+Datasets"*](http://mug.ee.auth.gr/wp-content/uploads/fsLDA.pdf).
+
+The extensive help menu of **fslda** is presented below.
+
+```bash
+$ ./fslda --help
+Console application for fast supervised LDA (fsLDA).
+
+    Usage:
+        slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                   [--e_step_tolerance=ET] [--random_state=RS]
+                   [--compute_likelihood=CL] [--supervised_weight=C]
+                   [--m_step_iterations=MI] [--m_step_tolerance=MT]
+                   [--regularization_penalty=L]
+                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                   [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        slda online_train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                          [--e_step_tolerance=ET] [--random_state=RS]
+                          [--compute_likelihood=CL] [--supervised_weight=C]
+                          [--regularization_penalty=L] [--batch_size=BS]
+                          [--momentum=MM] [--learning_rate=LR] [--beta_weight=BW]
+                          [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                          [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        slda transform [-q | --quiet] [--e_step_iterations=EI]
+                       [--e_step_tolerance=ET] [--workers=W]
+                       MODEL DATA OUTPUT
+        slda (-h | --help)
+
+    General Options:
+        -h, --help                        Show this help
+        -q, --quiet                       Produce no output to the terminal
+        --topics=K                        How many topics to train [default: 100]
+        --iterations=I                    Run LDA for I iterations [default: 20]
+        --random_state=RS                 The initial seed value for any random numbers
+                                          needed [default: 0]
+        --snapshot_every=N                Snapshot the model every N iterations [default: -1]
+        --workers=N                       The number of concurrent workers [default: 1]
+        --continue=M                      A model to continue training from
+        --continue_from_unsupervised=M    An unsupervised model to continue training from
+
+    E Step Options:
+        --e_step_iterations=EI            The maximum number of iterations to perform
+                                          in the E step [default: 10]
+        --e_step_tolerance=ET             The minimum accepted relative increase in log
+                                          likelihood during the E step [default: 1e-4]
+        -C C, --supervised_weight=C       The weight of the supervised term for the
+                                          E step [default: 1]
+        --compute_likelihood=CL           The percentage of documents to compute the
+                                          likelihood printed (1.0 means compute for every
+                                          document) [default: 0.0]
+    M Step Options:
+        -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
+                                          Logistic Regression in M step [default: 0.05]
+
+    Batch M Step Options:
+        --m_step_iterations=MI            The maximum number of iterations to perform
+                                          in the M step [default: 200]
+        --m_step_tolerance=MT             The minimum accepted relative increase in log
+                                          likelihood during the M step [default: 1e-4]
+
+    Online M Step Options:
+        --batch_size=BS                   The mini-batch size for the online learning [default: 128]
+        --momentum=MM                     Set the momentum for changing eta [default: 0.9]
+        --learning_rate=LR                Set the learning rate for changing eta [default: 0.01]
+        --beta_weight=BW                  Set the weight of the previous beta parameters
+                                          w.r.t to the new from the minibatch [default: 0.9]
 ```
