@@ -135,7 +135,8 @@ install(TARGETS ${TARGETS_FOR_INSTALL}
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include
-        PATTERN "test" EXCLUDE)
+        PATTERN "test" EXCLUDE
+        PATTERN "applications" EXCLUDE)
 
 # Build the tests
 # We need to explicitly define a test the same way we explicitly define a
