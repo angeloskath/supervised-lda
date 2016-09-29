@@ -1,5 +1,5 @@
-#ifndef _LDAPLUSPLUS_E_STEP_UTILS_HPP_
-#define _LDAPLUSPLUS_E_STEP_UTILS_HPP_
+#ifndef _LDAPLUSPLUS_ESTEPUTILS_HPP_
+#define _LDAPLUSPLUS_ESTEPUTILS_HPP_
 
 #include <Eigen/Core>
 
@@ -220,4 +220,4 @@ namespace e_step_utils {
 } // namespace e_step_utils
 
 } // namespace ldaplusplus
-#endif  // _LDAPLUSPLUS_E_STEP_UTILS_HPP_
+#endif  // _LDAPLUSPLUS_ESTEPUTILS_HPP_
