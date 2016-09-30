@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
         USAGE,
         {argv+1, argv + argc},
         true,  // show help if requested
-        "Unsupervised LDA 0.1"
+        "Supervised LDA 0.1"
     );
 
     if (args["train"].asBool()) {

@@ -158,24 +158,24 @@ static const char * USAGE =
 R"(Console application for fast supervised LDA (fsLDA).
 
     Usage:
-        slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
-                   [--e_step_tolerance=ET] [--random_state=RS]
-                   [--compute_likelihood=CL] [--supervised_weight=C]
-                   [--m_step_iterations=MI] [--m_step_tolerance=MT]
-                   [--regularization_penalty=L]
-                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
-                   [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
-        slda online_train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
-                          [--e_step_tolerance=ET] [--random_state=RS]
-                          [--compute_likelihood=CL] [--supervised_weight=C]
-                          [--regularization_penalty=L] [--batch_size=BS]
-                          [--momentum=MM] [--learning_rate=LR] [--beta_weight=BW]
-                          [-q | --quiet] [--snapshot_every=N] [--workers=W]
-                          [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
-        slda transform [-q | --quiet] [--e_step_iterations=EI]
-                       [--e_step_tolerance=ET] [--workers=W]
-                       MODEL DATA OUTPUT
-        slda (-h | --help)
+        fslda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                    [--e_step_tolerance=ET] [--random_state=RS]
+                    [--compute_likelihood=CL] [--supervised_weight=C]
+                    [--m_step_iterations=MI] [--m_step_tolerance=MT]
+                    [--regularization_penalty=L]
+                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                    [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        fslda online_train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                           [--e_step_tolerance=ET] [--random_state=RS]
+                           [--compute_likelihood=CL] [--supervised_weight=C]
+                           [--regularization_penalty=L] [--batch_size=BS]
+                           [--momentum=MM] [--learning_rate=LR] [--beta_weight=BW]
+                           [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                           [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        fslda transform [-q | --quiet] [--e_step_iterations=EI]
+                        [--e_step_tolerance=ET] [--workers=W]
+                        MODEL DATA OUTPUT
+        fslda (-h | --help)
 
     General Options:
         -h, --help                        Show this help
@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
         USAGE,
         {argv+1, argv + argc},
         true,  // show help if requested
-        "Unsupervised LDA 0.1"
+        "Fast Supervised LDA 0.1"
     );
 
     if (args["train"].asBool()) {
