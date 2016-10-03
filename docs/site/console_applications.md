@@ -53,7 +53,7 @@ console application to train a supervised LDA model with the aforementioned
 paths, one should simply execute the following bash command.
 
 ```bash
-$ ./slda train /tmp/input_data /tmp/supervised_model
+$ slda train /tmp/input_data /tmp/supervised_model
 E-M Iteration 1
 100
 200
@@ -71,7 +71,7 @@ data according to previously trained model and save the transformed results in
 `/tmp/transformed_data`, one should simply execute the following bash command.
 
 ```bash
-$ ./slda transform /tmp/supervised_model /tmp/input_data /tmp/transformed_data
+$ slda transform /tmp/supervised_model /tmp/input_data /tmp/transformed_data
 E-M Iteration 1
 100
 200
@@ -174,7 +174,7 @@ newly created data and train a Fast Supervised LDA model with 10 topics. The
 created model will be saved in numpy format.
 
 ```bash
-$ ./fslda train /tmp/data.npy /tmp/fslda_model.npy --topics 10
+$ fslda train /tmp/data.npy /tmp/fslda_model.npy --topics 10
 E-M Iteration 1
 100
 log p(y | \bar{z}, eta): -179.176
@@ -265,7 +265,7 @@ Now, we use the trained model to transform our data with the following bash
 command.
 
 ```bash
-$ ./fslda transform /tmp/fslda_model.npy /tmp/data.npy /tmp/transformed_data.npy
+$ fslda transform /tmp/fslda_model.npy /tmp/data.npy /tmp/transformed_data.npy
 E-M Iteration 1
 100
 ```
@@ -351,7 +351,7 @@ specify additional arguments. The extensive help menu of **lda** is presented
 below.
 
 ```bash
-$ ./lda --help
+$ lda --help
 Console application for unsupervised LDA.
 
     Usage:
@@ -424,7 +424,7 @@ application of that model to a set of data in order to transform them.
 The extensive help menu of **slda** is presented below.
 
 ```bash
-$ ./slda --help
+$ slda --help
 Console application for supervised LDA.
     
     Usage:
@@ -504,27 +504,27 @@ Datasets"*](http://mug.ee.auth.gr/wp-content/uploads/fsLDA.pdf).
 The extensive help menu of **fslda** is presented below.
 
 ```bash
-$ ./fslda --help
+$ fslda --help
 Console application for fast supervised LDA (fsLDA).
 
     Usage:
-        slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
-                   [--e_step_tolerance=ET] [--random_state=RS]
-                   [--compute_likelihood=CL] [--supervised_weight=C]
-                   [--m_step_iterations=MI] [--m_step_tolerance=MT]
-                   [--regularization_penalty=L]
-                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
-                   [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
-        slda online_train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
-                          [--e_step_tolerance=ET] [--random_state=RS]
-                          [--compute_likelihood=CL] [--supervised_weight=C]
-                          [--regularization_penalty=L] [--batch_size=BS]
-                          [--momentum=MM] [--learning_rate=LR] [--beta_weight=BW]
-                          [-q | --quiet] [--snapshot_every=N] [--workers=W]
-                          [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
-        slda transform [-q | --quiet] [--e_step_iterations=EI]
-                       [--e_step_tolerance=ET] [--workers=W]
-                       MODEL DATA OUTPUT
+        fslda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                    [--e_step_tolerance=ET] [--random_state=RS]
+                    [--compute_likelihood=CL] [--supervised_weight=C]
+                    [--m_step_iterations=MI] [--m_step_tolerance=MT]
+                    [--regularization_penalty=L]
+                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                    [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        fslda online_train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
+                           [--e_step_tolerance=ET] [--random_state=RS]
+                           [--compute_likelihood=CL] [--supervised_weight=C]
+                           [--regularization_penalty=L] [--batch_size=BS]
+                           [--momentum=MM] [--learning_rate=LR] [--beta_weight=BW]
+                           [-q | --quiet] [--snapshot_every=N] [--workers=W]
+                           [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
+        fslda transform [-q | --quiet] [--e_step_iterations=EI]
+                        [--e_step_tolerance=ET] [--workers=W]
+                        MODEL DATA OUTPUT
         slda (-h | --help)
 
     General Options:
