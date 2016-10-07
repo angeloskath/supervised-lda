@@ -20,7 +20,9 @@ Basic commands
 ==============
 
 All implemented console applications have two basic commands **train** and
-**transform**. The first command is used to **train** a specific model (which
+**transform**.
+
+The first command is used to **train** a specific model (which
 can be either unsupervised or supervised or fast supervised ) from a set of
 input data, while the second one is used to **transform** a set of input data
 according to an already trained model. Both commands have similar formats and
@@ -81,12 +83,8 @@ E-M Iteration 1
 Optional arguments
 ------------------
 
-In the previous section, we discussed how one could use the provided console
-applications to train a specific LDA variant from a set of input data. However,
-apart from the **MODEL** and the **DATA** paths the user can provide additional
-command-line arguments, which are common for every console application. All
-these arguments are optionals, namely it is not necessary to assign a value to
-the corresponding variable.
+Apart from the **MODEL** and the **DATA** paths the user can provide additional
+command-line arguments, which are common for every console application.
 
 LDA++ implements a variational Expectation-Maximization (EM) procedure for the
 parameter estimation. To be more precise, we perform variational inference for
@@ -568,11 +566,10 @@ Console application for fast supervised LDA (fsLDA).
 ```
 
 In the case of **fsLDA** we added an additional command, named
-**online_train**. This command can be used in order to choose an *online
-learning method*, namely instead of using all training data in each
-Expectation-Maximization update, we use a mini-batch of the training data to
-update the parameters incrementally. The rest of the arguments are explained
-below:
+**online_train**. This command is used to choose an *online learning method*,
+namely instead of using all training data in each Expectation-Maximization
+update, we use a mini-batch of the training data to update the parameters
+incrementally. The rest of the arguments are explained below:
 
 - **C**: One of the main contributions of **Fast Supervised LDA (fsLDA)**
   concerns the fact that this variation of LDA is able to adapt the influence
