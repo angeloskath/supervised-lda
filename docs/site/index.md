@@ -28,7 +28,7 @@ You can navigate the documentation from the top navigation bar but we also
 provide a list of useful links below.
 
 * [Installation instructions](installation.md)
-* Using the console applications
+* [Using the console applications](console_applications.md)
 * Visualization of topic inference
 * Creating a new LDA model
 * [API Documentation](/api/html/)
