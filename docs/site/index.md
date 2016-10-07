@@ -8,7 +8,7 @@ Among the already implemented LDA variations are:
 
 * [Unsupervised LDA](http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf)
 * [Supervised LDA (sLDA)](http://www.cs.cmu.edu/~chongw/papers/WangBleiFeiFei2009.pdf)
-* [Fast supervised LDA (fsLDA)](http://mug.ee.auth.gr/wp-content/uploads/fsLDA.pdf)
+* [Fast supervised LDA (fsLDA)](http://mug.ee.auth.gr/discovering-micro-events-from-video-data-using-topic-modeling/)
 
 ## Why LDA++?
 
@@ -172,16 +172,23 @@ $ ./example minst_train.npy model.npy
 Please cite our paper if it helped your research.
 
 ```
-@inproceedings{KatharopoulosACMMM2016,
-    author={Angelos Katharopoulos and Despoina Paschalidou and Christos Diou and Anastasios Delopoulos},
-    title={Fast Supervised LDA for discovering micro-events in large-scale video datasets},
-    booktitle={In proceedings of the 24th ACM international conference on multimedia (ACM-MM 2016)},
-    address={Amsterdam, The Netherlands},
-    year={2016},
-    month={10},
-    date={2016-10-15},
-    url={http://mug.ee.auth.gr/wp-content/uploads/fsLDA.pdf}
-}
+@inproceedings{Katharopoulos:2016:FSL:2964284.2967237,
+    author = {Katharopoulos, Angelos and Paschalidou, Despoina and Diou, Christos and Delopoulos, Anastasios},
+    title = {Fast Supervised LDA for Discovering Micro-Events in Large-Scale Video Datasets},
+    booktitle = {Proceedings of the 2016 ACM on Multimedia Conference},
+    series = {MM '16},
+    year = {2016},
+    isbn = {978-1-4503-3603-1},
+    location = {Amsterdam, The Netherlands},
+    pages = {332--336},
+    numpages = {5},
+    url = {http://doi.acm.org/10.1145/2964284.2967237},
+    doi = {10.1145/2964284.2967237},
+    acmid = {2967237},
+    publisher = {ACM},
+    address = {New York, NY, USA},
+    keywords = {supervised topic modeling, variational inference, video event detection, video micro-events},
+} 
 ```
 
 ## License
