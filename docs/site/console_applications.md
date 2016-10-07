@@ -20,13 +20,8 @@ Basic commands
 ==============
 
 All implemented console applications have two basic commands **train** and
-**transform**.
-
-The first command is used to **train** a specific model (which
-can be either unsupervised or supervised or fast supervised ) from a set of
-input data, while the second one is used to **transform** a set of input data
-according to an already trained model. Both commands have similar formats and
-are presented below:
+**transform**. Both commands are self-explanatory and have similar formats that
+are presented below.
 
 ```bash
 # Train command.
@@ -45,17 +40,15 @@ $ console_application_name transform MODEL DATA OUTPUT
 
 ```
 
-It can be easily seen that in case of the **train** command, the user has to specify two
-paths, the first one corresponds to the input data, while the second one refers
-to the path where the trained model will be saved. In order to make all these a
-bit more clear, let us assume that we want to train a supervised LDA model and
-the desired path to save the trained model is `/tmp/supervised_model`, while
-the path to the input data is `/tmp/input_data`. In order to use the **slda**
-console application to train a supervised LDA model with the aforementioned
-paths, one should simply execute the following bash command.
+In case of the **train** command, the user has to specify two paths. The first
+one corresponds to the input data, while the second one refers to the path
+where the trained model will be saved. For example, if we want to train a
+vanilla LDA according to a set of data stored in `/tmp/input_data` and save the
+trained model to `/tmp/lda_model`, we should simple execute the following bash
+command.
 
 ```bash
-$ slda train /tmp/input_data /tmp/supervised_model
+$ lda train /tmp/input_data /tmp/lda_model
 E-M Iteration 1
 100
 200
@@ -63,17 +56,15 @@ E-M Iteration 1
 ```
 
 On the other hand, in the case of the **transform** command, the user has to
-specify three paths, the first one corresponds to the trained LDA model,
+specify three paths. The first one corresponds to the trained LDA model,
 according to which we will transform the input data, the second one refers to
 the path where the input data are stored, while the last one refers to the path
-where the transformed data should be saved. Let us continue the previous
-example, where we have already trained a supervised LDA model from a set of
-input data using the **slda** console application. In order to transform these
-data according to previously trained model and save the transformed results in
-`/tmp/transformed_data`, one should simply execute the following bash command.
+where the transformed data will be saved. If we continue the previous example,
+we can now transform our data and save the transformed results in
+`/tmp/transformed_data`, by simply executing the following bash command.
 
 ```bash
-$ slda transform /tmp/supervised_model /tmp/input_data /tmp/transformed_data
+$ lda transform /tmp/lda_model /tmp/input_data /tmp/transformed_data
 E-M Iteration 1
 100
 200
@@ -89,18 +80,18 @@ command-line arguments, which are common for every console application.
 LDA++ implements a variational Expectation-Maximization (EM) procedure for the
 parameter estimation. To be more precise, we perform variational inference for
 learning the variational parameters in E-step and parameter estimation in
-M-step. The number of Expectation-Maximization (EM) steps that should be
-executed in order to train a model can be specified, by setting the
-**iterations** argument. In addition, the user can specify the number of threads
-to be used in the Expectation step, by setting the value of the **workers**
-argument. The **snapshot_every** parameter is used to specify the number of EM
-steps, after which a model will be saved in the defined path. For example, if
-we set the **snapshot_every** argument to 5 and the **iterations** argument to
-20, we will end up with 4 trained model, the first one will refer to the 5th
-iteration, the second one to the 10th, the third one to the 15th and the last
-one to 20th iteration. Moreover, the user can change the number of topics, by
-setting the **topics** optional argument and the seed value, used for the
-generation of random numbers, be setting the **random_state** argument. 
+M-step. The number of Expectation-Maximization steps that should be executed in
+order to train a model can be specified, by setting the **iterations**
+argument. In addition, the user can specify the number of threads to be used in
+the Expectation step, by setting the value of the **workers** argument. The
+**snapshot_every** parameter is used to specify the number of EM steps, after
+which a model will be saved in the defined path. For example, if we set the
+**snapshot_every** argument to 5 and the **iterations** argument to 20, we will
+end up with 4 trained model, the first one will refer to the 5th iteration, the
+second one to the 10th, the third one to the 15th and the last one to 20th
+iteration. Moreover, the user can change the number of topics, by setting the
+**topics** optional argument and the seed value, used for the generation of
+random numbers, be setting the **random_state** argument. 
 
 Finally, the last argument in all provided console applications is **continue**.
 This argument is used to define the path of an already trained model from which
