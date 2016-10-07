@@ -1,7 +1,7 @@
 Console applications
 ====================
 
-LDA++ provides a set of command-line executables for a corresponding set of LDA
+LDA++ provides a set of command-line executables for a set of corresponding LDA
 variants in order to allow fast and easy experimentation, without the overhead
 of writing C++ code. Below is the thorough list of console applications
 implemented in LDA++:
@@ -23,7 +23,7 @@ All implemented console applications have two basic commands **train** and
 **transform**. The first command is used to **train** a specific model (which
 can be either unsupervised or supervised or fast supervised ) from a set of
 input data, while the second one is used to **transform** a set of input data
-according to an already trained model. Both commands have similar formats which
+according to an already trained model. Both commands have similar formats and
 are presented below:
 
 ```bash
@@ -90,11 +90,11 @@ the corresponding variable.
 
 LDA++ implements a variational Expectation-Maximization (EM) procedure for the
 parameter estimation. To be more precise, we perform variational inference for
-learning the variational parameters in E-step, while we perform parameter
-estimation in M-step. The number of Expectation-Maximization (EM) steps that
-should be executed in order to train a model can be specified, by setting the
-value of **iterations** argument. In addition, the user can specify the number
-of jobs to be used in the Expectation step, by setting the value of **workers**
+learning the variational parameters in E-step and parameter estimation in
+M-step. The number of Expectation-Maximization (EM) steps that should be
+executed in order to train a model can be specified, by setting the
+**iterations** argument. In addition, the user can specify the number of threads
+to be used in the Expectation step, by setting the value of the **workers**
 argument. The **snapshot_every** parameter is used to specify the number of EM
 steps, after which a model will be saved in the defined path. For example, if
 we set the **snapshot_every** argument to 5 and the **iterations** argument to
@@ -155,11 +155,11 @@ In [1]: import numpy as np
 
 # Create 100 random documents with a vocabulary of 1000 words. The cast to
 # int32 at the end is mandatory because all console applications expect that
-# type of array.
+# type of array
 In [2]: X = np.round(np.maximum(0, np.random.rand(1000, 100)*20)).astype(np.int32)
 
 # Create the class labels for all documents in the corpus. We multiply with 5,
-# because we assume that there are 6 classes.
+# because we assume that there are 6 classes
 In [3]: y = np.round(np.random.rand(100)*5).astype(np.int32)
 
 # Save the data in a file that can be then passed to all console applications
@@ -203,8 +203,8 @@ In [2]: with open("/tmp/fslda_model.npy") as model:
    ...:     beta = np.load(model)
    ...:     eta = np.load(model)
 
-# Print the contents of alpha. We have trained our model with 10 topics, as a
-# result the shape of alpha is (10, 1)
+# Print the contents of alpha. We have trained our model with 10 topics and
+# subsequently the shape of alpha is (10, 1)
 In [3]: alpha
 Out[3]:
 array([[ 0.1],
@@ -219,7 +219,7 @@ array([[ 0.1],
        [ 0.1]])
 
 # Print the contents of beta. The shape of beta is (10, 1000), as it refers to
-# the per topic word distributions.
+# the per topic word distributions
 In [4]: beta
 Out[4]:
 array([[ 0.00086267,  0.00094678,  0.00102146, ...,  0.00096579,
@@ -236,7 +236,7 @@ array([[ 0.00086267,  0.00094678,  0.00102146, ...,  0.00096579,
        [ 0.00110573,  0.00129864,  0.00132421, ...,  0.00071085,
          0.00068612,  0.00109131]])
 
-# Print the contents of eta. The shape of eta is (10, 6).
+# Print the contents of eta. The shape of eta is (10, 6)
 In [5]: eta
 Out[5]:
 array([[ -1.36514771e+00,  -1.36315903e+00,   6.86343073e+00,
@@ -281,7 +281,7 @@ In [2]: with open("/tmp/transformed_data.npy", "rb") as f:
 
 # Print the contents of Z, which is the per topic document distribution. We
 # could say that Z[0] is the number of words that were produced from topic 0.
-# The size of zeta is (10, 100).
+# The size of Z is (10, 100)
 In [3]: Z
 Out[3]:
 array([[ 1019.9107783 ,   859.3746101 ,  1427.69863967,  1088.73008294,
@@ -346,9 +346,9 @@ Allocation*](http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf), by Blei
 et al. This program allows the training of an unsupervised LDA model and the
 application of that model to a set of data in order to transform them.
 
-Apart from the optional arguments, we have already discussed, the user can
-specify additional arguments. The extensive help menu of **lda** is presented
-below.
+Apart from the optional arguments, which we have already discussed, the user
+can specify additional arguments. The extensive help menu of **lda** is
+presented below.
 
 ```bash
 $ lda --help
@@ -490,7 +490,7 @@ section. The rest of the arguments are explained below:
 - **m_step_tolerance**: The minimum relative improvement between consecutive
   gradient descent iterations (default=1e-4).
 
-- **regularization_penalty**: The L2 penalty penalty for logistic regression
+- **regularization_penalty**: The L2 penalty for logistic regression
   (default=0.05).
 
 fslda application
@@ -525,7 +525,7 @@ Console application for fast supervised LDA (fsLDA).
         fslda transform [-q | --quiet] [--e_step_iterations=EI]
                         [--e_step_tolerance=ET] [--workers=W]
                         MODEL DATA OUTPUT
-        slda (-h | --help)
+        fslda (-h | --help)
 
     General Options:
         -h, --help                        Show this help
@@ -566,3 +566,29 @@ Console application for fast supervised LDA (fsLDA).
         --beta_weight=BW                  Set the weight of the previous beta parameters
                                           w.r.t to the new from the minibatch [default: 0.9]
 ```
+
+In the case of **fsLDA** we added an additional command, named
+**online_train**. This command can be used in order to choose an *online
+learning method*, namely instead of using all training data in each
+Expectation-Maximization update, we use a mini-batch of the training data to
+update the parameters incrementally. The rest of the arguments are explained
+below:
+
+- **C**: One of the main contributions of **Fast Supervised LDA (fsLDA)**
+  concerns the fact that this variation of LDA is able to adapt the influence
+  of the supervised part on the final topic representation. This influence is
+  quantified via an extra hyperparameter, named **C**, which is used for the
+  weighting of the supervised component in the update rule of $\phi$
+  (default=1).
+
+- **batch_size**: The number of documents, after which we perform the
+  Maximization step (default=128), in case of the online training method. 
+
+- **momentum**: The momentum used for the SGD update of $\eta$, in case of the
+  online training method (default=0.9).
+
+- **learning_rate**: The learning rate used for the SGD update of $\eta$, in
+  case of the online training method (default=0.01).
+
+- **beta_weight**: The weight used for the online update of $\beta$
+  (default=0.9).
