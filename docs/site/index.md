@@ -27,10 +27,10 @@ topics in a supervised manner, which is tested on UCF-101 video dataset.
 You can navigate the documentation from the top navigation bar but we also
 provide a list of useful links below.
 
-* [Installation instructions](installation.md)
-* [Using the console applications](console-applications.md)
+* [Installation instructions](/installation/)
+* [Using the console applications](/console-applications/)
 * Visualization of topic inference
-* Creating a new LDA model
+* [Getting started with the LDA++ library](/getting-started/)
 * [API Documentation](/api/html/)
 
 ## Example
@@ -44,7 +44,7 @@ back to your code asynchronously which we use to
 report the likelihood and the progress.
 
 If the example below seems too big or too complex you should check the [getting
-started](#) in the documentation as well as some of the other tutorials.
+started](/getting-started/) in the documentation as well as some of the other tutorials.
 
 ```cpp
 #include <fstream>
@@ -172,7 +172,7 @@ $ ./example minst_train.npy model.npy
 Please cite our paper if it helped your research.
 
 ```
-@inproceedings{Katharopoulos:2016:FSL:2964284.2967237,
+@inproceedings{Katharopoulos,
     author = {Katharopoulos, Angelos and Paschalidou, Despoina and Diou, Christos and Delopoulos, Anastasios},
     title = {Fast Supervised LDA for Discovering Micro-Events in Large-Scale Video Datasets},
     booktitle = {Proceedings of the 2016 ACM on Multimedia Conference},

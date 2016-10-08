@@ -10,4 +10,5 @@ pages:
 - Documentation:
   - Installation: installation.md
   - Console applications: console-applications.md
+  - Getting started: getting-started.md
 include_nav: true

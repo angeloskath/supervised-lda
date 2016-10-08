@@ -1,219 +1,317 @@
 # Getting Started
 
-**LDA++** is a fast and easy-to-use C++ library, that allows users to
-experiment with various LDA models. The purpose of this page is to help users
-become acquainted with **LDA++**. Latent Dirichlet Allocation (LDA)
-[[1]](#lda), to quote
-[wikipedia](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation), is a
-generative statistical model that allows sets of observations to be explained
-by unobserved groups that explain why some parts of the data are similar. LDA
-was initially presented as a graphical model for topic discovery by Blei,
-Andrew Ng, and Michael I. Jordan in 2003. From 2003 onwards, a multitude of
-variations of the original model were developed such as supervised LDA
-[[2]](#slda) and Corr-LDA [[3]](#corrlda). **LDA++** implements many of the
-existing LDA variations, as well as fsLDA [[4]](#fsLDA) (a new variation
-created by the authors of the library). In addition, among the implemented
-algorithms, we include a set of new variations that aim to improve existing
-models in terms of speed and reduce memory requirements.
+The goal of this page is to introduce you to the C++ library **LDA++**.
+If instead you just want to use LDA++ to infer topics from a corpus see
+the [console applications](/console-applications/).
 
-## Notation and Terminology 
+LDA++ has only one dependency to external libraries. It depends on
+[Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) for efficient
+matrix and vector operations. As it will be seen in the following sections
+Eigen matrices and vectors are used to interface easily with the library. The
+model parameters, for instance, are Eigen matrices and they can be printed with
+`std::cout` or otherwise manipulated.
 
-First of all, it is essential to make some claims about the parameters and
-variables used in all LDA models in order to introduce a suitable notation. For
-this reason, we will use the unsupervised LDA model, due to its simplicity, as
-it was initially introduced by Blei et.al [[1]](#lda). Using [plate
-notation](https://en.wikipedia.org/wiki/Plate_notation) we can illustrate the
-dependencies among the variables concisely. The following image depicts the
-probabilistic graphical model for unsupervised LDA.
+All of the classes in the library are parameterized using templates with
+respect to the floating point scalar type. This allows us to save memory (and
+maybe speed up) using single precision floats by changing a simple `double` to
+`float`.
 
-![lda_pgm](img/lda_pgm.png)
+## LDA facade
 
-Looking the figure from an overall perspective, it is clear that there are three
-levels to the LDA representation. The parameters $\alpha_{K \times 1}$ and
-$\beta_{K \times V}$ are corpus level parameters (model parameters), assumed to
-be sampled once in the process of generating the corpus, while $\theta_{D
-\times K}$ and $z_{D \times N \times K}$ are latent variables. $\theta$
-corresponds to document-level variables, sampled once per document, whereas $z$
-and $w$ are word-level variables, sampled once for each word in each document.
-
-The key inferential problem that needs to be solved, in order to use LDA, is that
-of computing the posterior distribution of the hidden variables given a
-document:
-
-\begin{equation}
-    p \left( \theta, z \mid w, \alpha, \beta \right) = \frac{p\left( \theta, z,
-    w \mid \alpha, \beta \right)}{p \left( w \mid \alpha, \beta \right)}
-\end{equation}
-
-However, although the posterior distribution is intractable to compute in
-general, a wide variety of approximate inference algorithms can be considered
-for LDA. The original paper used a [variational
-Bayes](https://en.wikipedia.org/wiki/Variational_Bayesian_methods)
-approximation of the posterior distribution [[1]](#lda), while alternative
-inference techniques use Gibbs Sampling [[5]](#gibbs). At this point, it is
-important to note that in **LDA++** the various LDA models are implemented by
-using exclusively variational inference techniques and not Gibbs Sampling.
-
-In case of unsupervised LDA, we use a fully factorized model as a variational
-distribution $q(.)$, where Dirichlet parameter $\gamma_{D \times K}$ and the
-multinomial $\phi_{D \times N \times K}$ are variational parameters. 
-\begin{equation}
-    q \left( \theta, z \mid \gamma, \phi \right) = q \left( \theta \mid \gamma
-    \right) q \left( z \mid \phi \right)
-\end{equation}
-The following image depicts the graphical model representation of the
-variational distributions used to approximate the posterior distribution in
-LDA.
-
-![factorized_lda_pgm](img/factorized_lda_pgm.png)
-
-Variational inference provides us with a tractable lower bound, which can be
-maximized with respect to $\alpha$ and $\beta$. Quoting Blei et.al in
-[[1]](#lda), we can thus find approximate empirical Bayes estimates for LDA
-model via alternating variational EM procedure that maximizes a lower bound
-with respect to the variational parameters $\gamma$ and $\phi$, and then, for
-fixed values of the variational parameters, maximizes the lower bound with
-respect to the model parameters $\alpha$ and $\beta$. To sum up, we perform
-variational inference for learning variational parameters in E-step while
-perform parameter estimation in M-step. 
-
-Using Jensens inequality to bound the log probability of a document, we
-introduce the evidence lower bound (ELBO), which will be maximized in E-step. 
-\begin{equation}\label{eq:elbo}
-    \log p(w \mid \alpha, \beta) \geq \mathcal{L}(\gamma, \phi \mid
-    \alpha, \beta) = E_q[\log p(\theta \mid \alpha)] + E_q[\log p(z \mid
-    \theta)] + E_q[\log p(w \mid \beta, z)] + H(q)
-\end{equation}
-
-## Walkthrough
-
-In this section, we provide a roadmap to the code implemented in **LDA++**. To
-begin with, we introduce the concept of *Corpus* and *Document*. *Documents*
-wrap the actual document that is used to apply LDA, while a *Corpus* is simply
-a collection of *Documents*. Furthermore, we define two sets of *Parameters*,
-*ModelParameters* and *VariationalParameters* that refer to model and
-variational parameters respectively. Finally, there are also two interfaces
-that implement E-step and M-step of variational EM.
-
-### E-step Interface
-
-The E-step interface is very simple and implements merely two methods. The
-first method, **doc_e_step** defines 
+All types of LDA training take place through the
+[ldaplusplus::LDA](/api/html/classldaplusplus_1_1LDA.html) facade. This class
+combines an **expectation step** implementation, **a maximization step**
+implementation and some **model parameters** to perform variational inference
+and compute the optimal LDA model parameters. The interface of LDA is heavily
+inspired (the same really) with the Estimator, Transformer and Classifier
+scikit-learn interfaces.
 
 ```cpp
-/**
-  * Interface that defines an E-step iteration for any LDA inference.
-  *
-  * The expectation step maximizes the likelihood (actually the Evidence Lower
-  * Bound) of the data given constant parameters. In variational inference this
-  * is achieved by changing the free variational parameters. In classical LDA
-  * this step computes \f$\phi\f$ and \f$\gamma\f$ for every document given the
-  * distribution over words for all topics, usually \f$\beta\f$ in literature.
-  */
+namespace ldaplusplus {
+
 template <typename Scalar>
-class IEStep : public EventDispatcherComposition
+class LDA
 {
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
-    
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorX;
+
     public:
+        void fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y);
+        void fit(const Eigen::MatrixXi &X);
 
-        /**
-          * Maximize the ELBO.
-          *
-          * @param doc        A single document
-          * @param parameters An instance of class Parameters, which
-          *                   contains all necessary model parameters 
-          *                   for e-step's implementation
-          * @return           The variational parameters for the current
-          *                   model, after e-step is completed
-          */
-        virtual std::shared_ptr<Parameters> doc_e_step(
-            const std::shared_ptr<Document> doc,
-            const std::shared_ptr<Parameters> parameters
-        )=0;
+        void partial_fit(const Eigen::MatrixXi &X, const Eigen::VectorXi &y);
 
-        /**
-         * Perform actions that should be performed once for each epoch for the
-         * whole corpus. One use of this method is so that the e steps can know
-         * which epoch they are running for.
-         */
-        virtual void e_step()=0;
-};
+        MatrixX transform(const Eigen::MatrixXi &X);
+
+        MatrixX decision_function(const Eigen::MatrixXi &X);
+        MatrixX decision_function(const MatrixX &Z);
+
+        Eigen::VectorXi predict(const MatrixX &scores);
+        Eigen::VectorXi predict(const Eigen::MatrixXi &X);
+
+        const std::shared_ptr<parameters::Parameters> model_parameters();
+        ...
+}
+
+}  // namespace ldaplusplus
 ```
+
+The easiest way to interact with
+[ldaplusplus::LDA](/api/html/classldaplusplus_1_1LDA.html) is through Eigen
+matrices. As is expected **LDA::fit()** fits the model to the provided training
+data mutating the model parameters which are accesible through
+**LDA::model_parameters()**. The functions **LDA::decision_function()** and
+**LDA::predict()** both assume supervised LDA with linear classifier.
+
+Assuming we have created an LDA instance the following example showcases the
+use of the facade.
 
 ```cpp
-/**
- * Interface that defines an M-step iteration for any LDA inference.
- *
- * The maximization step maximizes the likelihood (actually the Evidence Lower
- * Bound) of the data by changing the parameters and using the variational
- * parameters as constants. In classical LDA this step computes the
- * distribution over words for all topics using the variational parameters
- * \f$\phi\f$ and \f$\gamma\f$.
- */
-template <typename Scalar>
-class IMStep : public EventDispatcherComposition
-{
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixX;
-    typedef Matrix<Scalar, Dynamic, 1> VectorX;
-    
-    public:
+using namespace Eigen;
 
-        /**
-         * Maximize the ELBO.
-         *
-         * This function usually changes the passed in parameters.
-         *
-         * @param parameters Model parameters (maybe changed after call)
-         */
-        virtual void m_step(
-            std::shared_ptr<Parameters> parameters
-        )=0;
+LDA<double> lda = ... get an LDA instance ...;
 
-        /**
-         * Perform calculations for a specific document.
-         *
-         * The variational parameters are only passed to the maximization step
-         * in this method. In other implementations this method is usually
-         * called *sufficient statistics*.
-         *
-         * This method allows for the implementation of online LDA inference
-         * methods.
-         *
-         * @param doc          A single document
-         * @param v_parameters The variational parameters computed in the e-step
-         * @param m_parameters Model parameters could be changed in case of 
-         *                     online methods
-         */
-        virtual void doc_m_step(
-            const std::shared_ptr<Document> doc,
-            const std::shared_ptr<Parameters> v_parameters,
-            std::shared_ptr<Parameters> m_parameters
-        )=0;
-};
+// Create 1000 random documents
+MatrixXi X = (ArrayXXd::Random(100, 1000).abs() * 20).matrix().cast<int>();
+VectorXi y = (ArrayXd::Random(1000).abs() * 5).matrix().cast<int>();
+
+// Assuming lda represents a supervised model
+lda.fit(X, y);
+auto model = std:static_pointer_cast<parameters::SupervisedModelParameters<double> >(
+    lda.model_parameters()
+);
+// Contains the dirichlet prior
+VectorXd alpha = model->alpha;
+// Contains the topics
+MatrixXd beta = model->beta;
+// Contains the supervised parameters eta
+MatrixXd eta = model->eta;
+
+// Create 100 random test documents
+MatrixXi X_test = (ArrayXXd::Random(100, 100).abs() * 20).matrix().cast<int>();
+// Z now contains the topic mixtures for each document
+MatrixXd Z = lda.transform(X_test):
+// y_test contains the predictions and in pseudocode is
+// y_test = (lda.transform(X_test).transpose() * lda.model_parameters()->eta).argmax(axis=1)
+VectorXi y_test = lda.predict(X_test);
+
+// You can further train one more iteration using partial_fit
+lda.partial_fit(X, y)
 ```
-## References
 
-<a name="lda"/>[[1] Blei, David M., Andrew Y. Ng, and Michael I. Jordan. "Latent dirichlet
-allocation." Journal of machine Learning research 3.Jan (2003):
-993-1022.](http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf)</a>
+## LDABuilder
 
-<a name="slda"/>[[2] Mcauliffe, J.D. and Blei, D.M., 2008. Supervised topic
-models. In Advances in neural information processing systems (pp.
-121-128).](https://www.cs.princeton.edu/~blei/papers/BleiMcAuliffe2007.pdf)</a>
+Although we could build an LDA instance directly using its constructor, it is
+easier to use the provided builder
+[ldaplusplus::LDABuilder](/api/html/classldaplusplus_1_1LDABuilder.html) to
+ensure the readability of our code. A builder instance can be implicitly casted
+to an LDA instance, thus the creation of a new LDA instance is as easy as the
+following code.
 
-<a name="corrlda"/> [[3] Blei, D.M. and Jordan, M.I., 2003, July. Modeling
-annotated data. In Proceedings of the 26th annual international ACM SIGIR
-conference on Research and development in informaion retrieval (pp. 127-134).
-ACM.](http://www.cs.columbia.edu/~blei/papers/BleiJordan2003.pdf)</a>
+```cpp
+// Create an unsupervised lda with 10 topics expecting 1000 words vocabulary
+LDA<double> lda = LDABuilder<double>().initialize_topics_uniform(1000, 10);
+```
 
-<a name="fslda"/>[[4] Angelos Katharopoulos, Despoina Paschalidou, Christos Diou, Anastasios
-Delopoulos. 2016. Fast Supervised LDA for Discovering Micro-Events in
-Large-Scale Video Datasets. ACM International conference on Multimedia (MM
-'16)](http://dx.doi.org/10.1145/2964284.2967237)</a>
+### Initialize model parameters
 
-<a name="gibbs"/> [[5] Griffiths, T.L. and Steyvers, M., 2004. Finding
-scientific topics. Proceedings of the National academy of Sciences, 101(suppl
-1),
-pp.5228-5235.](http://www.cse.iitk.ac.in/users/piyush/courses/pml_winter16/lda_gibbs.pdf)</a>
+In order to create an LDA from an LDABuilder at least the model parameters must
+be initialized. The LDABuilder checks if the model parameters have been
+initialized correctly and throws a `std::runtime_error` in case they haven't.
+In case of unsupervised LDA (which is the default for LDABuilder) only the
+topics must be initialized using one of the `LDABuilder::initialize_topics_*()`
+functions.
+
+```cpp
+namespace ldaplusplus {
+
+template <typename Scalar>
+class LDABuilder
+{
+    public:
+        ...
+        LDABuilder & initialize_topics_seeded(const Eigen::MatrixXi &X, size_t topics, ...);
+        LDABuilder & initialize_topics_uniform(size_t words, size_t topics);
+        LDABuilder & initialize_topics_from_model(
+            std::shared_ptr<parameters::ModelParameters<Scalar> > model);
+        ...
+}  // namespace ldaplusplus
+```
+
+In the case of supervised topic models (sLDA and fsLDA) one must also
+initialize the supervised model parameters (after initializing the topics)
+using one of the `LDABuilder::initialize_eta_*()` functions.
+
+```cpp
+namespace ldaplusplus {
+
+template <typename Scalar>
+class LDABuilder
+{
+    public:
+        ...
+        LDABuilder & initialize_eta_zeros(size_t num_classes);
+        LDABuilder & initialize_eta_uniform(size_t num_classes);
+        LDABuilder & initialize_eta_from_model(
+            std::shared_ptr<parameters::SupervisedModelParameters<Scalar> > model);
+        ...
+}  // namespace ldaplusplus
+```
+
+### Choose LDA method
+
+Choosing the LDA method means choosing the variational inference method for
+solving an LDA problem, namely the *Expectation Step* and the *Maximization
+Step*. Unlike the [console applications](/console-applications/) which focus on
+three models, the library contains a lot more models and allows users to define
+their own. The LDABuilder has support for creating LDA models that use any of
+the variational implementations that ship with the library.
+
+Choosing an implementation for the Expectation and Maximization steps is done
+by calling methods named `set_[method_name]_[e or m]_step`. Almost all methods
+have sensible default parameters and we encourage you to read the Api
+documentation of
+[ldaplusplus::LDABuilder](/api/html/classldaplusplus_1_1LDA.html) for the
+documentation of the parameters. For every `set_*` method there exists a
+corresponding `get_*` method that returns a pointer to the corresponding
+implementation instance. Next follows a list with all the available method
+names:
+
+* classic (LDA)
+* supervised (sLDA)
+* fast_supervised (fsLDA)
+* fast_supervised_online (fsLDA online maximization step only)
+* semi_supervised (experimental)
+* multinomial_supervised (experimental)
+* correspondence_supervised (experimental)
+
+## Examples
+
+In this section we will provide some examples using the LDABuilder to
+instantiate various kinds of LDA models and use them on a small randomly
+generated dataset.
+
+The code below can be compiled, provided you have [installed](/installation/)
+LDA++, with the following simple command `g++ -std=c++11 test.cpp -o test
+-lldaplusplus`.
+
+```cpp
+#include <iostream>
+
+#include <Eigen/Core>
+#include <ldaplusplus/LDABuilder.hpp>
+
+using namespace Eigen;
+using namespace ldaplusplus;
+
+int main() {
+    // Define some variables that we will be using in LDA creation
+    size_t num_classes = 5;
+    size_t num_topics = 10;
+
+    // Create a random dataset 100 words 50 documents and
+    // corresponding class labels
+    MatrixXi X = (ArrayXXd::Random(100, 50).abs() * 20).matrix().cast<int>();
+    VectorXi y = (ArrayXd::Random(50).abs() * num_classes).matrix().cast<int>();
+
+    // Create the simplest lda possible an Unsupervised LDA with uniform topic
+    // initialization
+    LDA<double> lda = LDABuilder<double>().initialize_topics_uniform(
+        X.rows(),   // X.rows() is the number of words in the vocab
+        num_topics  // how many topics we want to infer
+    );
+
+    // Create a supervised LDA as defined by Wang et al in Simultaneous image
+    // classification and annotation
+    LDA<double> slda = LDABuilder<double>()
+                            .set_supervised_e_step()
+                            .set_supervised_m_step()
+                            .initialize_topics_seeded(X, num_topics)
+                            .initialize_eta_zeros(num_classes); // we need to
+                                                                // initialize eta
+                                                                // as well now
+
+    // Create a fast supervised LDA as defined in Fast Supervised LDA for
+    // Discovering Micro-Events in Large-Scale Video Datasets
+    LDA<double> fslda = LDABuilder<double>()
+                            .set_fast_supervised_e_step()
+                            .set_fast_supervised_m_step()
+                            .initialize_topics_seeded(X, num_topics)
+                            .initialize_eta_zeros(num_classes);
+
+    // Train all our models
+    lda.fit(X);
+    slda.fit(X, y);
+    fslda.fit(X, y);
+
+    // Extract the top words of the unsupervised model
+    auto model = std::static_pointer_cast<parameters::ModelParameters<double> >(
+        lda.model_parameters()
+    );
+    VectorXi top_words(model->beta.rows());
+    for (int i=0; i<model->beta.rows(); i++) {
+        model->beta.row(i).maxCoeff(&top_words[i]);
+    }
+    std::cout << "Top Words:" << std::endl << top_words
+              << std::endl << std::endl;
+
+    // Now to transform the data using the slda model we need an unsupervised
+    // lda model (because we do not know the class labels for the untransformed
+    // data)
+    LDA<double> transformer = LDABuilder<double>().initialize_topics_from_model(
+        std::static_pointer_cast<parameters::ModelParameters<double> >(
+            slda.model_parameters()
+        )
+    );
+    MatrixXd Z = transformer.transform(X);
+    std::cout << "The topic mixtures for the first document" << std::endl
+              << Z.col(0) << std::endl << std::endl;
+
+    
+    // Predict the class labels using the fslda model (again we will be using
+    // an unsupervised model because we do not know the class labels
+    // beforehand)
+    auto sup_model = std::static_pointer_cast<parameters::SupervisedModelParameters<double> >(
+        fslda.model_parameters()
+    );
+    LDA<double> predictor = LDABuilder<double>()
+            .initialize_topics_from_model(sup_model)
+            .initialize_eta_from_model(sup_model);
+
+    VectorXi y_pred = predictor.predict(X);
+    std::cout << "Accuracy: " << (y.array() == y_pred.array()).cast<float>().mean()
+              << std::endl;
+
+    return 0;
+}
+```
+
+And here follows a possible output
+
+```
+Top Words:
+65
+65
+65
+65
+65
+65
+65
+65
+65
+65
+
+The topic mixtures for the first document
+39.4252
+64.1777
+87.8473
+ 171.12
+69.4335
+85.5534
+95.9499
+66.3159
+214.033
+54.1435
+
+Accuracy: 0.92
+```

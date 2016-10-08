@@ -3,6 +3,7 @@ body {
     padding-top: 70px;
     background-color: #f8f8f8;
     text-align: justify;
+    word-wrap: break-word;
     font-family: "Arvo", serif;
     color: #1a1a1a;
     font-size: 1.5em;
