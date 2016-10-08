@@ -11,4 +11,6 @@ pages:
   - Installation: installation.md
   - Console applications: console-applications.md
   - Getting started: getting-started.md
+- Examples:
+  - MNIST example: mnist-example.md
 include_nav: true
