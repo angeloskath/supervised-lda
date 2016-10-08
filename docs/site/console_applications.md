@@ -20,23 +20,22 @@ Basic commands
 ==============
 
 All implemented console applications have two basic commands **train** and
-**transform**. Both commands are self-explanatory and have similar formats that
-are presented below.
+**transform**. Both commands have similar formats that are presented below.
 
 ```bash
 # Train command.
-# The console_application_name can be either lda, slda or fslda according to
-# the type of the LDA variant. The DATA refers to the path of the input data
-# according to which we will train a model. The MODEL refers to the path where
-# the trained model will be saved.
-$ console_application_name train DATA MODEL
+# The app_name can be either lda, slda or fslda according to the type of the
+# LDA variant. The DATA refers to the path of the input data according to which
+# we will train a model. The MODEL refers to the path where the trained model
+# will be saved.
+$ app_name train DATA MODEL
 
 # Transform command.
-# The console_application_name can be either lda, slda or fslda, according to
-# the type of LDA variant. The MODEL refers to the path of the already trained
-# model. The DATA refers to the path of the input data that will be transformed
-# The OUTPUT refers to the path, where the transformed DATA will be saved.
-$ console_application_name transform MODEL DATA OUTPUT
+# The app_name can be either lda, slda or fslda, according to the type of LDA
+# variant. The MODEL refers to the path of the already trained model. The DATA
+# refers to the path of the input data that will be transformed The OUTPUT
+# refers to the path, where the transformed DATA will be saved.
+$ app_name transform MODEL DATA OUTPUT
 
 ```
 
@@ -77,21 +76,22 @@ Optional arguments
 Apart from the **MODEL** and the **DATA** paths the user can provide additional
 command-line arguments, which are common for every console application.
 
-LDA++ implements a variational Expectation-Maximization (EM) procedure for the
-parameter estimation. To be more precise, we perform variational inference for
-learning the variational parameters in E-step and parameter estimation in
-M-step. The number of Expectation-Maximization steps that should be executed in
-order to train a model can be specified, by setting the **iterations**
-argument. In addition, the user can specify the number of threads to be used in
-the Expectation step, by setting the value of the **workers** argument. The
-**snapshot_every** parameter is used to specify the number of EM steps, after
-which a model will be saved in the defined path. For example, if we set the
-**snapshot_every** argument to 5 and the **iterations** argument to 20, we will
-end up with 4 trained model, the first one will refer to the 5th iteration, the
-second one to the 10th, the third one to the 15th and the last one to 20th
-iteration. Moreover, the user can change the number of topics, by setting the
-**topics** optional argument and the seed value, used for the generation of
-random numbers, be setting the **random_state** argument. 
+LDA++ implements a [variational Expectation-Maximization (EM)
+procedure](https://arxiv.org/pdf/1601.00670.pdf) for the parameter estimation.
+To be more precise, we perform variational inference for learning the
+variational parameters in E-step and parameter estimation in M-step. The number
+of Expectation-Maximization steps that should be executed in order to train a
+model can be specified, by setting the **iterations** argument. In addition,
+the user can specify the number of threads to be used in the Expectation step,
+by setting the value of the **workers** argument. The **snapshot_every**
+parameter is used to specify the number of EM steps, after which a model will
+be saved in the defined path. For example, if we set the **snapshot_every**
+argument to 5 and the **iterations** argument to 20, we will end up with 4
+trained model, the first one will refer to the 5th iteration, the second one to
+the 10th, the third one to the 15th and the last one to 20th iteration.
+Moreover, the user can change the number of topics, by setting the **topics**
+optional argument and the seed value, used for the generation of random
+numbers, by setting the **random_state** argument. 
 
 Finally, the last argument in all provided console applications is **continue**.
 This argument is used to define the path of an already trained model from which
@@ -386,7 +386,7 @@ The user can specify the values of the following arguments:
   their values. However, even though we define a maximum number of iterations
   (via **e_step_iterations** argument), this process can stop earlier if the
   difference between the $\gamma$ in the $i^{th}$ iteration and the
-  $\hat{\gamma}$ in the $(i+1)^{th}$ iteration is less than
+  $\gamma$ in the $(i+1)^{th}$ iteration is less than
   **e_step_tolerance** (default=1e-3).
 
 - **compute_likelihood**: The variational parameters of the trained model are
@@ -395,7 +395,7 @@ The user can specify the values of the following arguments:
   value of the Evidence Lower Bound (ELBO). This value can be computed either
   for all the documents in the corpus or for a percentage of them. The
   percentage of documents to be used during this computation is given via the
-  **compute_likelihood** argument. Apparently, 1.0 means compute for every
+  **compute_likelihood** argument. Obviously, 1.0 means compute for every
   document in the corpus (default=0.0).
 
 slda application
@@ -463,10 +463,7 @@ Console application for supervised LDA.
 
 In case of **slda** the user can continue the training of an unsupervised model
 in a supervised manner, by using the **continue_from_unsupervised** argument to
-define the path to the model to continue from. The **e_step_iterations**
-argument as well as the **e_step_tolerance** argument and the
-**compute_likelihood** argument, are thoroughly analysed in the previous
-section. The rest of the arguments are explained below: 
+define the path to the model to continue from.
 
 - **fixed_point_iterations**: In supervised LDA, the update of $\phi$ is a
   fixed-point iteration method. The maximum number of iterations used in the
@@ -481,6 +478,9 @@ section. The rest of the arguments are explained below:
 
 - **regularization_penalty**: The L2 penalty for logistic regression
   (default=0.05).
+
+The rest of the arguments, namely **e_step_iterations**, **e_step_tolerance**
+and **compute_likelihood** are already explained in [lda](#lda-application).
 
 fslda application
 ================
@@ -557,10 +557,11 @@ Console application for fast supervised LDA (fsLDA).
 ```
 
 In the case of **fsLDA** we added an additional command, named
-**online_train**. This command is used to choose an *online learning method*,
-namely instead of using all training data in each Expectation-Maximization
-update, we use a mini-batch of the training data to update the parameters
-incrementally. The rest of the arguments are explained below:
+**online_train**. This command chooses an *online learning method*, namely
+instead of using all training data in each Expectation-Maximization update, we
+use a mini-batch of the training data to update the parameters incrementally,
+using *Stochastic Variational Bayes* for $\beta$ and *Stochastic Gradient
+Descent* for $\eta$.
 
 - **C**: One of the main contributions of **Fast Supervised LDA (fsLDA)**
   concerns the fact that this variation of LDA is able to adapt the influence
@@ -578,5 +579,12 @@ incrementally. The rest of the arguments are explained below:
 - **learning_rate**: The learning rate used for the SGD update of $\eta$, in
   case of the online training method (default=0.01).
 
-- **beta_weight**: The weight used for the online update of $\beta$
+- **beta_weight**: The weight used for the online update of $\beta$ according
+  to the following equation
+  $\beta_{new} = \text{beta_weight}\*\beta_{old} + (1-\text{beta_weight})\*\beta_{batch}$
   (default=0.9).
+
+The rest of the arguments, namely **e_step_iterations**, **e_step_tolerance**,
+**compute_likelihood**, **regularization_penalty**, **m_step_iterations** and
+**m_step_tolerance** are already explained in [lda](#lda-application) and
+[slda](#slda-application).
