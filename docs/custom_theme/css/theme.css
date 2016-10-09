@@ -3,11 +3,13 @@ body {
     padding-top: 70px;
     background-color: #f8f8f8;
     text-align: justify;
-    word-wrap: break-word;
     font-family: "Arvo", serif;
     color: #1a1a1a;
     font-size: 1.5em;
     line-height: 1.8em;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 h1, h2, h3 {
     font-family: "Dosis", sans-serif;

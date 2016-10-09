@@ -29,14 +29,22 @@ $(document).ready(function() {
     // Highlight.js
     hljs.initHighlightingOnLoad();
     $('table').addClass('table table-striped table-hover');
+
+    $('body').scrollspy({
+        target: 'div.sidebar',
+    });
+
+    /* Prevent disabled links from causing a page reload */
+    $("li.disabled a").click(function() {
+        event.preventDefault();
+    });
+
+    // Manually hyphenate the sidebar
+    $.get("/js/hypher-en-us.json").then(function (data) {
+        window["Hypher"]["languages"]["en-us"] = new Hypher(data);
+        $(".sidebar a").hyphenate("en-us");
+    });
 });
 
 
-$('body').scrollspy({
-    target: 'div.sidebar',
-});
 
-/* Prevent disabled links from causing a page reload */
-$("li.disabled a").click(function() {
-    event.preventDefault();
-});
