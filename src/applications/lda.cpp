@@ -35,11 +35,16 @@ LDA<double> create_lda_for_train(
         std::stof(args["--compute_likelihood"].asString()),
         args["--random_state"].asLong()
     );
-
+    
     // Initialize the model parameters
     if (args["--continue"]) {
         auto model = io::load_lda(args["--continue"].asString());
         builder.initialize_topics_from_model(model);
+    } else if (args["--initialize_uniform"].asBool()) {
+        builder.initialize_topics_uniform(
+            X.rows(),
+            args["--topics"].asLong()
+        );
     } else {
         builder.initialize_topics_seeded(
             X,
@@ -82,7 +87,7 @@ R"(Console application for unsupervised LDA.
     Usage:
         lda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                   [--e_step_tolerance=ET] [--random_state=RS]
-                  [--compute_likelihood=CL] 
+                  [--compute_likelihood=CL] [--initialize_seeded | --initialize_uniform]
                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
                   [--continue=M] DATA MODEL
         lda transform [-q | --quiet] [--e_step_iterations=EI]
@@ -97,6 +102,12 @@ R"(Console application for unsupervised LDA.
         --iterations=I          Run LDA for I iterations [default: 20]
         --random_state=RS       The initial seed value for any random numbers
                                 needed [default: 0]
+        --initialize_seeded     Initialize the topic over words distributions by
+                                seeding them from the passed documents. The
+                                default initialization option is initialize_seeded
+        --initialize_uniform    Initialize the topic over words distributions as
+                                as uniform distributions. The default
+                                initialization option is initialize_seeded
         --snapshot_every=N      Snapshot the model every N iterations [default: -1]
         --workers=N             The number of concurrent workers [default: 1]
         --continue=M            A model to continue training from
