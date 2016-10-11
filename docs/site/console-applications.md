@@ -120,6 +120,14 @@ in LDA++.
 
 - **continue**: A model to continue the training from
 
+- **initialize_random**: With this option, the topic over words distribution,
+  namely $\beta$, are initialized as random distributions. **The default
+  initialization method is initialize_seeded.**
+
+- **initialize_seeded**: This option, allows user to initialize the topic over
+  words distribution, namely $\beta$, by seeding them from a set of documents.
+  **The default initialization method is initialize_seeded.**
+
 I/O format
 ===========
 
@@ -346,7 +354,7 @@ Console application for unsupervised LDA.
     Usage:
         lda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                   [--e_step_tolerance=ET] [--random_state=RS]
-                  [--compute_likelihood=CL] 
+                  [--compute_likelihood=CL] [--initialize_seeded | --initialize_random]
                   [-q | --quiet] [--snapshot_every=N] [--workers=W]
                   [--continue=M] DATA MODEL
         lda transform [-q | --quiet] [--e_step_iterations=EI]
@@ -361,6 +369,12 @@ Console application for unsupervised LDA.
         --iterations=I          Run LDA for I iterations [default: 20]
         --random_state=RS       The initial seed value for any random numbers
                                 needed [default: 0]
+        --initialize_seeded     Initialize the topic over words distributions by
+                                seeding them from the passed documents. The
+                                default initialization option is initialize_seeded
+        --initialize_random     Initialize the topic over words distributions as
+                                random distributions. The default
+                                initialization option is initialize_seeded
         --snapshot_every=N      Snapshot the model every N iterations [default: -1]
         --workers=N             The number of concurrent workers [default: 1]
         --continue=M            A model to continue training from
@@ -420,7 +434,8 @@ Console application for supervised LDA.
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--e_step_tolerance=ET] [--fixed_point_iterations=FI]
                    [--random_state=RS] [--compute_likelihood=CL]
-                   [--m_step_iterations=MI] [--m_step_tolerance=MT] 
+                   [--initialize_seeded | --initialize_random]
+                   [--m_step_iterations=MI] [--m_step_tolerance=MT]
                    [--regularization_penalty=L]
                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
                    [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
@@ -436,6 +451,12 @@ Console application for supervised LDA.
         --iterations=I                    Run LDA for I iterations [default: 20]
         --random_state=RS                 The initial seed value for any random numbers
                                           needed [default: 0]
+        --initialize_seeded               Initialize the topic over words distributions by
+                                          seeding them from the passed documents. The
+                                          default initialization option is initialize_seeded
+        --initialize_random               Initialize the topic over words distributions as
+                                          random distributions. The default
+                                          initialization option is initialize_seeded
         --snapshot_every=N                Snapshot the model every N iterations [default: -1]
         --workers=N                       The number of concurrent workers [default: 1]
         --continue=M                      A model to continue training from
@@ -459,6 +480,7 @@ Console application for supervised LDA.
                                           likelihood during the M step [default: 1e-4]
         -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
                                           Logistic Regression [default: 0.05]
+
 ```
 
 In case of **slda** the user can continue the training of an unsupervised model
@@ -499,15 +521,15 @@ Console application for fast supervised LDA (fsLDA).
     Usage:
         fslda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                     [--e_step_tolerance=ET] [--random_state=RS]
-                    [--compute_likelihood=CL] [--supervised_weight=C]
-                    [--m_step_iterations=MI] [--m_step_tolerance=MT]
-                    [--regularization_penalty=L]
+                    [--compute_likelihood=CL] [--initialize_seeded | --initialize_random]
+                    [--supervised_weight=C] [--m_step_iterations=MI]
+                    [--m_step_tolerance=MT] [--regularization_penalty=L]
                     [-q | --quiet] [--snapshot_every=N] [--workers=W]
                     [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
         fslda online_train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                            [--e_step_tolerance=ET] [--random_state=RS]
-                           [--compute_likelihood=CL] [--supervised_weight=C]
-                           [--regularization_penalty=L] [--batch_size=BS]
+                           [--compute_likelihood=CL] [--initialize_seeded | --initialize_random]
+                           [--supervised_weight=C] [--regularization_penalty=L] [--batch_size=BS]
                            [--momentum=MM] [--learning_rate=LR] [--beta_weight=BW]
                            [-q | --quiet] [--snapshot_every=N] [--workers=W]
                            [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
@@ -523,6 +545,12 @@ Console application for fast supervised LDA (fsLDA).
         --iterations=I                    Run LDA for I iterations [default: 20]
         --random_state=RS                 The initial seed value for any random numbers
                                           needed [default: 0]
+        --initialize_seeded               Initialize the topic over words distributions by
+                                          seeding them from the passed documents. The
+                                          default initialization option is initialize_seeded
+        --initialize_random               Initialize the topic over words distributions as
+                                          random distributions. The default
+                                          initialization option is initialize_seeded
         --snapshot_every=N                Snapshot the model every N iterations [default: -1]
         --workers=N                       The number of concurrent workers [default: 1]
         --continue=M                      A model to continue training from
@@ -554,6 +582,7 @@ Console application for fast supervised LDA (fsLDA).
         --learning_rate=LR                Set the learning rate for changing eta [default: 0.01]
         --beta_weight=BW                  Set the weight of the previous beta parameters
                                           w.r.t to the new from the minibatch [default: 0.9]
+
 ```
 
 In the case of **fsLDA** we added an additional command, named
