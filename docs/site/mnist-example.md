@@ -1,12 +1,13 @@
 MNIST Example
 =============
 
-In the current example we use the [MNIST
-database](http://yann.lecun.com/exdb/mnist/) which is a dataset of 70,0000
-handwritten digits to train and inspect three trained LDA models, one for each
-LDA variant. The training of the LDA modes is done using the console
-applications that are thoroughly explained in the corresponding
-[documentation page](/console-applications/).
+The following example aims to point out the differences between the inferred
+topics of LDA, sLDA and fsLDA. We decided to use the [MNIST
+database](http://yann.lecun.com/exdb/mnist/) which is a dataset of 70000
+handwritten digits, in order to make the topics visualization more fancy. The
+training of the LDA modes is done using the console applications that are
+thoroughly explained in the corresponding [documentation
+page](/console-applications/).
 
 The console applications that are used in this example expect and save data in
 **numpy format**. We have already transformed the MNIST dataset to numpy format
@@ -48,9 +49,9 @@ in the dataset are $28\times28$ images, thus the first dimension is 784
 (28*28=784), while the second dimension refers to the number of the training
 samples.
 
-In the subsequent python session, we use the [**matplotlib
-library**](http://matplotlib.org/) and the [**seaborn visualization
-library**](https://stanford.edu/~mwaskom/software/seaborn/) to plot 20 randomly
+In the subsequent python session, we use the [*matplotlib
+library*](http://matplotlib.org/) and the [*seaborn visualization
+library*](https://stanford.edu/~mwaskom/software/seaborn/) to plot 20 randomly
 selected training image.
 
 ```python
@@ -80,11 +81,47 @@ One possible output could be the following image.
     <figcaption>MNIST sample images from training set</figcaption>
 </figure>
 
+The MNIST database consists of images, thus there is no direct analogy between 
+
 Unsupervised LDA
 ----------------
 
-In this section, we will train an unsupervised LDA model, using the [**lda
-console application**](/console-applications/).
+In this section, we will visualize the inferred topics from an unsupervised LDA
+model using the [*lda*](/console-applications/) application. Initially, we
+will train an unsupervised model with 15 topics for 15 Expectation-Maximization
+steps. We randomly select the pseudo-random number generator seed control to be
+42.
+
+```bash
+$ lda train mnist_train.npy mnist_lda_model.npy --topics 10 --iterations 15 --random_state 42 --workers 4
+E-M Iteration 1
+100
+200
+300
+400
+...
+60000
+E-M Iteration 2
+100
+200
+300
+...
+59700
+59800
+59900
+60000
+E-M Iteration 15
+100
+200
+...
+60000
+```
+
+At this point, it is important to recall that the lda application trains a
+model that consists of two arrays. The first one corresponds to $\alpha$, which
+is the Dirichlet prior on the per-document topic distributions, while the
+second one is $\beta$, which is the per-topic word distribution. Thus we can
+visualize the topics, by merely visualizing the $\beta$ parameter.
 
 Supervised LDA
 --------------
