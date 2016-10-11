@@ -29,7 +29,7 @@ provide a list of useful links below.
 
 * [Installation instructions](/installation/)
 * [Using the console applications](/console-applications/)
-* Visualization of topic inference
+* [Visualization of topic inference](/topic-inference-visualization/)
 * [Getting started with the LDA++ library](/getting-started/)
 * [API Documentation](/api/html/)
 

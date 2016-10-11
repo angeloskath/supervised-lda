@@ -130,6 +130,10 @@ figure > figcaption {
    color: #415b70;
    margin-top: 10px;
 }
+div.img-spacer {
+    display: inline-block;
+    width: 50px;
+}
 img.full-width {width: 100%;}
 img.half-width {width: 50%;}
 img.third-width {width: 33%;}
