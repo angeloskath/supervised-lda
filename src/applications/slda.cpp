@@ -58,6 +58,12 @@ LDA<double> create_lda_for_train(
             initialize_topics_from_model(model).
             initialize_eta_zeros(y.maxCoeff() + 1);
 
+    } else if (args["--initialize_random"].asBool()) {
+        builder.initialize_topics_random(
+            X.rows(),
+            args["--topics"].asLong(),
+            args["--random_state"].asLong()
+        ).initialize_eta_zeros(y.maxCoeff() + 1);
     } else {
         builder.
             initialize_topics_seeded(
@@ -103,7 +109,8 @@ R"(Console application for supervised LDA.
         slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
                    [--e_step_tolerance=ET] [--fixed_point_iterations=FI]
                    [--random_state=RS] [--compute_likelihood=CL]
-                   [--m_step_iterations=MI] [--m_step_tolerance=MT] 
+                   [--initialize_seeded | --initialize_random]
+                   [--m_step_iterations=MI] [--m_step_tolerance=MT]
                    [--regularization_penalty=L]
                    [-q | --quiet] [--snapshot_every=N] [--workers=W]
                    [--continue=M] [--continue_from_unsupervised=M] DATA MODEL
@@ -119,6 +126,12 @@ R"(Console application for supervised LDA.
         --iterations=I                    Run LDA for I iterations [default: 20]
         --random_state=RS                 The initial seed value for any random numbers
                                           needed [default: 0]
+        --initialize_seeded               Initialize the topic over words distributions by
+                                          seeding them from the passed documents. The
+                                          default initialization option is initialize_seeded
+        --initialize_random               Initialize the topic over words distributions as
+                                          random distributions. The default
+                                          initialization option is initialize_seeded
         --snapshot_every=N                Snapshot the model every N iterations [default: -1]
         --workers=N                       The number of concurrent workers [default: 1]
         --continue=M                      A model to continue training from
