@@ -11,6 +11,7 @@
 #include "ldaplusplus/em/SupervisedMStep.hpp"
 #include "ldaplusplus/em/UnsupervisedEStep.hpp"
 #include "ldaplusplus/em/UnsupervisedMStep.hpp"
+#include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
 
@@ -313,19 +314,26 @@ LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_seeded(
 }
 
 template <typename Scalar>
-LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_uniform(
+LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_random(
     size_t words,
-    size_t topics
+    size_t topics,
+    int random_state
 ) {
     // Initialize alpha as 1/topics
     model_parameters_->alpha = VectorX::Constant(topics, 1.0 / topics);
 
-    // Initialize beta as 1/words
-    model_parameters_->beta = MatrixX::Constant(
-        topics,
-        words,
-        1.0 / words
-    );
+    // Allocate memory for beta
+    model_parameters_->beta = MatrixX::Zero(topics, words);
+
+    std::srand(random_state);
+
+    for (size_t k=0; k<topics; k++) {
+        for (size_t w=0; w<words; w++) {
+            model_parameters_->beta(k, w) = ((double) std::rand() / RAND_MAX);
+        }
+    }
+    // Normalize beta
+    math_utils::normalize_rows(model_parameters_->beta);
 
     return *this;
 }

@@ -718,17 +718,19 @@ class LDABuilder : public LDABuilderInterface<Scalar>
         );
 
         /**
-         * Initialize the topics over words distributions as uniform
+         * Initialize the topics over words distributions as random
          * distributions.
          *
          * This initialization also initializes alpha as 1.0 / topics
          *
-         * @param words  The number of distinct words in the vocabulary
-         * @param topics The number of topics
+         * @param words        The number of distinct words in the vocabulary
+         * @param topics       The number of topics
+         * @param random_state The initial state of the random number generator
          */
-        LDABuilder & initialize_topics_uniform(
+        LDABuilder & initialize_topics_random(
             size_t words,
-            size_t topics
+            size_t topics,
+            int random_state = 0
         );
 
         /**
