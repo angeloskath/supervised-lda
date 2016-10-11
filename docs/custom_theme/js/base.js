@@ -44,7 +44,29 @@ $(document).ready(function() {
         window["Hypher"]["languages"]["en-us"] = new Hypher(data);
         $(".sidebar a").hyphenate("en-us");
     });
+
+    // Change all span elements that have data-figureref to references to a
+    // figure
+    var reffrom = $("span[data-figureref]");
+    var refto = reffrom.map(function () {
+        return this.getAttribute("data-figureref")
+    }).get();
+    $("div[role='main'] figure").each(function (index) {
+        // if the figure has a defined id
+        if (this.id != "") {
+            // search the figure in the references
+            var ii = refto.indexOf(this.id);
+            // if found replace the reference with the string Figure index+1
+            // and a link to that figure
+            if (ii >= 0) {
+                reffrom[ii].innerHTML =
+                    "<a href=\"#" +
+                    this.id +
+                    "\">Figure " +
+                    (index+1) +
+                    "</a>";
+            }
+        }
+    });
 });
-
-
 

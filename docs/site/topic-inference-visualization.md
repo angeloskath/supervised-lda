@@ -166,7 +166,8 @@ topics of the faces dataset for different epochs.
 <figure>
     <img src="/img/topic-inference-visualization/faces_evolution.png"
          class="full-width" />
-    <figcaption>The evolution of all 10 topics in the Olivetti faces dataset</figcaption>
+    <figcaption>The evolution of all 10 topics in the Olivetti faces
+    dataset</figcaption>
 </figure>
 
 We can see that after one epoch all topics start from approximately the same
@@ -181,22 +182,24 @@ the images of the wordclouds are larger we will visualize the inference of a
 single topic. We observe that the topics now converge much faster in the first
 tens of epochs.
 
-<figure>
+<figure id="20news_evolution">
     <img src="/img/topic-inference-visualization/20news_evolution.png"
-         class="full-width" id="20news_evolution" />
-    <figcaption>Evolution of a single topic in the 20 news groups dataset</figcaption>
+         class="full-width" />
+    <figcaption>Evolution of a single topic in the 20 news groups
+    dataset</figcaption>
 </figure>
 
 Another attribute of a topic that we can visualize is the distribution over the
 words and its evolution. When the distribution over the words stops changing
 then the topic model has converged. It is common to check convergence using the
 likelihood instead. In the following figure we see the change in the
-distribution of the same topic as in <span data-ref="20news_evolution">the
+distribution of the same topic as in <span data-figureref="20news_evolution">the
 above figure</span>. We see that indeed the topic changes very little from the
 30th epoch and onwards.
 
 <figure>
     <img src="/img/topic-inference-visualization/20news_distribution_change.gif"
          class="full-width" />
-    <figcaption>Evolution of a topic's distribution in the 20 news groups dataset</figcaption>
+    <figcaption>Evolution of a topic's distribution in the 20 news groups
+    dataset</figcaption>
 </figure>
