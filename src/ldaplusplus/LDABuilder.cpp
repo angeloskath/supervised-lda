@@ -324,14 +324,15 @@ LDABuilder<Scalar> & LDABuilder<Scalar>::initialize_topics_random(
 
     // Allocate memory for beta
     model_parameters_->beta = MatrixX::Zero(topics, words);
-
-    std::srand(random_state);
-
+    
+    std::mt19937 rng(random_state);
+    std::uniform_real_distribution<> dis(0, 1);
     for (size_t k=0; k<topics; k++) {
         for (size_t w=0; w<words; w++) {
-            model_parameters_->beta(k, w) = ((double) std::rand() / RAND_MAX);
+            model_parameters_->beta(k, w) = dis(rng);
         }
     }
+
     // Normalize beta
     math_utils::normalize_rows(model_parameters_->beta);
 
