@@ -1,162 +1,100 @@
 LDA++
 =====
 
-LDA++ was developed to allow quick experimentation with variational
-inference methods for Latent Dirichlet Allocation based models.
+LDA++ is a C++ library and a set of accompanying console applications that
+enable the inference of various [Latent Dirichlet
+Allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) models.
 
-The project is designed in two separate parts. A library that allows the
-implementation of new variational inference methods for models based on LDA and
-a console application that allows the use of most models (focusing on
-supervised LDA) on serialized numpy arrays.
+The project provides three [console applications](http://ldaplusplus.com/console-applications/)
 
-Dedicated documentation site can be found at
-[ldaplusplus.com](http://ldaplusplus.com/) but it is still being developed.
+* **lda** implementing **LDA**
+* **slda** implementing **Supervised LDA**
+* **fslda** implementing **Fast Supervised LDA**
 
-Models implemented
-------------------
+and a library that can be used from your own C++ projects.
 
-* Unsupervised LDA
-* Categorical supervised LDA
-* Categorical fast approximate supervised LDA (paper coming soon...)
-* Single tag correspondence LDA
+You can read the documentation site at
+[ldaplusplus.com](http://ldaplusplus.com/) and there is of course an [API
+documentation](http://ldaplusplus.com/api/) as well.
 
-Build
------
+How to get it
+-------------
 
-We use CMake for building the project. The dependencies are not handled by
-CMake and must be installed manually. We also link explicitly to pthreads
-although `std::thread` is only used in the code. Finally, `Eigen` is included
-from an `Eigen` path like so `#include <Eigen/Core>`. If you have installed it
-in another folder then symlink it to `Eigen` as well.
+We use CMake for building the project and currently only provide the option to
+build from source. The [LDA++
+installation](http://ldaplusplus.com/installation/) process is straightforward
+and documented at our site.
 
-So, after resolving the following dependencies
+Console applications
+--------------------
 
-* [Eigen](http://eigen.tuxfamily.org/dox/)
-* [docopt.cpp](https://github.com/docopt/docopt.cpp)
-* [googletest](https://github.com/google/googletest)
+We expect that the preferred way of using LDA++ will be through the provided
+console applications. You can read thorough [documentation for
+them](http://ldaplusplus.com/console-applications/) as well. All our console
+applications are designed to read matrix files serialized in numpy format so
+that one can easily create files in a python session.
 
-You can run the following standard commands.
+It suffices to say that the following shell session runs the Fast Supervised
+LDA (fsLDA) on the scikit learn digits dataset (provided you have installed
+LDA++).
 
-    $ mkdir build && cd build
-    $ cmake -DCMAKE_BUILD_TYPE=Release ..
-    $ # or cmake -DBUILD_SHARED_LIBS=OFF .. to build a static library
-    $ make
-    $ make check # to build and run the tests
-    $ make bench # to build the benchmarks (run them manually)
-    $ sudo make install
-    $ slda
-
-Console application
--------------------
-
-The help message of the console application is the following
-
-    Supervised LDA and other flavors of LDA.
-    
-        Usage:
-            slda train [--topics=K] [--iterations=I] [--e_step_iterations=EI]
-                       [--m_step_iterations=MI] [--e_step_tolerance=ET]
-                       [--m_step_tolerance=MT] [--fixed_point_iterations=FI]
-                       [--multinomial] [--correspondence] [--mu=MU] [--eta_weight=EW]
-                       [--unsupervised_e_step] [--fast_e_step]
-                       [--second_order_m_step] [--online_m_step] [--semi_supervised]
-                       [--supervised_weight=C] [--show_likelihood]
-                       [--supervised_weight_evolution=WE] [--regularization_penalty=L]
-                       [--beta_weight=BW] [--momentum=MM] [--learning_rate=LR]
-                       [--batch_size=BS]
-                       [-q | --quiet] [--snapshot_every=N] [--workers=W]
-                       [--continue=M] DATA MODEL
-            slda transform [-q | --quiet] [--e_step_iterations=EI]
-                           [--e_step_tolerance=ET] [--workers=W]
-                           MODEL DATA OUTPUT
-            slda evaluate [-q | --quiet] [--e_step_iterations=EI]
-                          [--e_step_tolerance=ET] [--workers=W]
-                          MODEL DATA
-            slda (-h | --help)
-    
-        Options:
-            -h, --help         Show this help
-            -q, --quiet         Produce no output to the terminal
-            --topics=K          How many topics to train [default: 100]
-            --iterations=I      Run LDA for I iterations [default: 20]
-            --e_step_iterations=EI  The maximum number of iterations to perform
-                                    in the E step [default: 10]
-            --e_step_tolerance=ET   The minimum accepted relative increase in log
-                                    likelihood during the E step [default: 1e-4]
-            --unsupervised_e_step   Use the unsupervised E step to calculate phi and gamma
-            --fast_e_step           Choose a variant of E step that doesn't compute
-                                    likelihood in order to be faster
-            --second_order_m_step   Use the second order approximation for the M step
-            --online_m_step         Choose online M step that updates the model
-                                    parameters after seeing mini_batch documents
-            --semi_supervised       Train a semi supervised lda
-            -C C, --supervised_weight=C   The weight of the supervised term for the
-                                          E step [default: 1]
-            --show_likelihood       Compute supervised likelihood during the e step
-            --supervised_weight_evolution=WE    Choose the weight evolution
-                                                strategy for the supervised part of
-                                                the e step [default: constant]
-            --m_step_iterations=MI  The maximum number of iterations to perform
-                                    in the M step [default: 200]
-            --m_step_tolerance=MT   The minimum accepted relative increase in log
-                                    likelihood during the M step [default: 1e-4]
-            --fixed_point_iterations=FI  The number of fixed point iterations to compute
-                                         \phi [default: 20]
-            --multinomial           Use the multinomial version of supervised LDA
-            --correspondence        Use the correspondence version of supervised LDA
-            --mu=MU                 The multinomial prior on the naive bayesian
-                                    classification [default: 2]
-            --eta_weight=EW         The weight of eta in the multinomial phi update [default: 1]
-            -L L, --regularization_penalty=L  The regularization penalty for the Multinomial
-                                              Logistic Regression [default: 0.05]
-            --beta_weight=BW        Set the weight of the previous beta parameters
-                                    w.r.t to the new from the minibatch [default: 0.9]
-            --momentum=MM           Set the momentum for changing eta [default: 0.9]
-            --learning_rate=LR      Set the learning rate for changing eta [default: 0.01]
-            --batch_size=BS         The mini-batch size for the online learning [default: 128]
-            --snapshot_every=N      Snapshot the model every N iterations [default: -1]
-            --workers=N             The number of concurrent workers [default: 1]
-            --continue=M            A model to continue training from
-
-We can create a very small example dataset in 6 lines of python code and then
-run the console application to infer topics on it.
-
-    # We will be needing that since the LDA++ console app
-    # reads serialized numpy arrays.
-    import numpy as np
-    
-    # Create 100 random documents with a vocabulary of 100 words. The cast to
-    # int32 at the end is mandatory because the application expects that type
-    # of array.
-    X = np.round(np.maximum(0, np.log(np.random.rand(100, 100)+0.5))*20).astype(np.int32)
-
-    # Choose labels for our 100 documents.
-    y = np.round(np.random.rand(100)*3).astype(np.int32)
-
-    # Finally save the data in a file to be passed to the console application.
-    with open("/tmp/data.npy", "wb") as data:
-        np.save(data, X)
-        np.save(data, y)
-
-After running the script above we can run a multitude of LDA methods on our data.
-
-    $ bin/slda train --topics 4 --unsupervised_e_step /tmp/data.npy /tmp/model
+    $ python
+    Python 2.7.12 (default, Jul  1 2016, 15:12:24) 
+    [GCC 5.4.0 20160609] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from sklearn.datasets import load_digits
+    >>> import numpy as np
+    >>> d = load_digits()
+    >>> with open("digits.npy", "wb") as f:
+    ...     np.save(f, d.data.astype(np.int32).T)
+    ...     np.save(f, d.target.astype(np.int32))
+    ... 
+    >>> exit()
+    $ fslda train digits.npy model.npy
+    E-M Iteration 1
+    100
+    200
+    300
+    400
+    500
+    600
+    700
+    800
+    900
+    1000
+    1100
+    1200
+    1300
+    1400
+    1500
+    1600
+    1700
+    log p(y | \bar{z}, eta): -4137.75
+    log p(y | \bar{z}, eta): -3230.67
+    log p(y | \bar{z}, eta): -2758.81
+    log p(y | \bar{z}, eta): -2498.32
+    log p(y | \bar{z}, eta): -2341.4
+    log p(y | \bar{z}, eta): -2240.48
+    log p(y | \bar{z}, eta): -2172.38
+    log p(y | \bar{z}, eta): -2124.71
+    log p(y | \bar{z}, eta): -2090.4
+    log p(y | \bar{z}, eta): -2065.15
     ...
+    $ python
+    Python 2.7.12 (default, Jul  1 2016, 15:12:24) 
+    [GCC 5.4.0 20160609] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import numpy as np
+    >>> with open("model.npy") as f:
+    ...     alpha = np.load(f)
+    ...     beta = np.load(f)
+    ...     eta = np.load(f)
     ...
-    ...
-    $ bin/slda train --topics 4 --fast_e_step -C 0.1 --show_likelihood /tmp/data.npy /tmp/model
-    ...
-    ...
-    ...
-    $ bin/slda train --topics 4 --show_likelihood /tmp/data.npy /tmp/model
-    ...
-    ...
-    ...
-    $ bin/slda evaluate /tmp/model /tmp/data.npy
-    ...
-    ...
-    ...
-
+    >>> import matplotlib.pyplot as plt
+    >>> plt.imshow(beta[0].reshape(8, 8), interpolation='nearest', cmap='gray')
+    <matplotlib.image.AxesImage object at 0x7f4cf201b810>
+    >>> plt.show()
+    >>> exit()
 
 License
 -------

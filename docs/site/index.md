@@ -19,8 +19,10 @@ minimal code.
 inference procedure followed for the available LDA models.
 
 **Efficient multithreaded implementations** enable the inference of topics even
-for large-scale datasets. Check our research page for our new method to infer
-topics in a supervised manner, which is tested on UCF-101 video dataset.
+for large-scale datasets. Check our [research
+page](http://mug.ee.auth.gr/discovering-micro-events-from-video-data-using-topic-modeling/)
+for our new method to infer topics in a supervised manner, which is tested on
+UCF-101 video dataset.
 
 ## Documentation
 
@@ -44,7 +46,9 @@ back to your code asynchronously which we use to
 report the likelihood and the progress.
 
 If the example below seems too big or too complex you should check the [getting
-started](/getting-started/) in the documentation as well as some of the other tutorials.
+started](/getting-started/) in the documentation as well as some of the other
+tutorials. If you prefer using the console applications instead of writing code
+then you should read their [documentation page](/console-applications/).
 
 ```cpp
 #include <fstream>
