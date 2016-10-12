@@ -3,11 +3,13 @@ body {
     padding-top: 70px;
     background-color: #f8f8f8;
     text-align: justify;
-    word-wrap: break-word;
     font-family: "Arvo", serif;
     color: #1a1a1a;
     font-size: 1.5em;
     line-height: 1.8em;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 h1, h2, h3 {
     font-family: "Dosis", sans-serif;
@@ -106,4 +108,39 @@ pre code {
 }
 .credits .normal-logo {
     font-size: 140%;
+}
+
+/* Images in articles */
+div[role="main"] {
+    counter-reset: figures;
+}
+figure {
+    text-align: center;
+    padding: 10px;
+}
+figure > img {box-shadow: 0px 2px 5px #415b70;}
+figure > figcaption::before {
+    counter-increment: figures;
+    content: "Figure " counter(figures) ": ";
+    font-weight: bold;
+}
+figure > figcaption {
+   font-size: 90%;
+   font-style: italic;
+   color: #415b70;
+   margin-top: 10px;
+}
+div.img-spacer {
+    display: inline-block;
+    width: 50px;
+}
+img.full-width {width: 100%;}
+img.half-width {width: 50%;}
+img.third-width {width: 33%;}
+@media (max-width: 992px) {
+    img.half-width {width: 100%;}
+    img.third-width {width: 50%;}
+}
+@media (max-width: 768px) {
+    img.third-width {width: 100%;}
 }

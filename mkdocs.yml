@@ -11,4 +11,7 @@ pages:
   - Installation: installation.md
   - Console applications: console-applications.md
   - Getting started: getting-started.md
+- Examples:
+  - Visualize topics from MNIST: mnist-example.md
+  - Topic inference visualization: topic-inference-visualization.md
 include_nav: true
