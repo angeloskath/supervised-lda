@@ -110,7 +110,7 @@ following code.
 
 ```cpp
 // Create an unsupervised lda with 10 topics expecting 1000 words vocabulary
-LDA<double> lda = LDABuilder<double>().initialize_topics_uniform(1000, 10);
+LDA<double> lda = LDABuilder<double>().initialize_topics_random(1000, 10);
 ```
 
 ### Initialize model parameters
@@ -131,7 +131,7 @@ class LDABuilder
     public:
         ...
         LDABuilder & initialize_topics_seeded(const Eigen::MatrixXi &X, size_t topics, ...);
-        LDABuilder & initialize_topics_uniform(size_t words, size_t topics);
+        LDABuilder & initialize_topics_random(size_t words, size_t topics);
         LDABuilder & initialize_topics_from_model(
             std::shared_ptr<parameters::ModelParameters<Scalar> > model);
         ...
@@ -214,9 +214,9 @@ int main() {
     MatrixXi X = (ArrayXXd::Random(100, 50).abs() * 20).matrix().cast<int>();
     VectorXi y = (ArrayXd::Random(50).abs() * num_classes).matrix().cast<int>();
 
-    // Create the simplest lda possible an Unsupervised LDA with uniform topic
+    // Create the simplest lda possible an Unsupervised LDA with random topic
     // initialization
-    LDA<double> lda = LDABuilder<double>().initialize_topics_uniform(
+    LDA<double> lda = LDABuilder<double>().initialize_topics_random(
         X.rows(),   // X.rows() is the number of words in the vocab
         num_topics  // how many topics we want to infer
     );
@@ -290,28 +290,28 @@ And here follows a possible output
 
 ```
 Top Words:
+44
+8
 65
-65
-65
-65
-65
-65
-65
-65
-65
-65
+71
+18
+33
+6
+58
+56
+36
 
 The topic mixtures for the first document
-39.4252
-64.1777
-87.8473
- 171.12
-69.4335
-85.5534
-95.9499
-66.3159
-214.033
-54.1435
+23.433
+39.2927
+58.34
+153.297
+96.5914
+32.2527
+121.298
+77.9765
+317.722
+27.7965
 
 Accuracy: 0.92
 ```
