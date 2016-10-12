@@ -183,7 +183,7 @@ figure. If we observe the image from an overall perspective it is easily noticea
 that some of the topics resemble numbers, while others seems to be part of numbers.
 
 <figure>
-    <img src="/img/mnist-example/lda_100topics.svg"
+    <img src="/img/mnist-example/lda_100topics.png"
          alt="LDA 100 topics"
          class="full-width" />
     <figcaption>100 topics in the MNIST dataset using vanilla LDA</figcaption>
@@ -201,7 +201,7 @@ methods. The following figure illustrates 100 topics, as they were inferred
 using Fast Supervised LDA.
 
 <figure>
-    <img src="/img/mnist-example/fslda_100topics.svg"
+    <img src="/img/mnist-example/fslda_100topics.png"
          alt="fsLDA 100 topics"
          class="full-width" />
     <figcaption>100 topics in the MNIST dataset using fsLDA</figcaption>
