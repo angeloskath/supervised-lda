@@ -55,3 +55,59 @@ make check
 # Build the benchmarks (they must be run manually)
 make bench
 ```
+
+Bash completion
+---------------
+
+The [console applications](/console-applications/) do provide an extensive help
+but to make things even easier we provide a bash completion script. One can
+find this script at the project root under the name `bash_completion.sh` and
+install it manually but for standard platforms we also provide the custom make
+target `autocomplete`.
+
+### Automatic installation
+
+The following code assumes that CMake was able to find the `bash_completion.d`
+folder and will attempt to install the autocomplete script automatically via
+`make autocomplete`.
+
+```bash
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j4
+sudo make install
+sudo make autocomplete
+# Reopen the shell or source /etc/bash_completion.d/ldaplusplus
+lda [Tab]
+lda tra
+lda tra[Tab][Tab]
+train    transform
+lda train --[Tab][Tab]
+--compute_likelihood  --e_step_tolerance    --initialize_seeded   --random_state        --workers
+--continue            --help                --iterations          --snapshot_every      
+--e_step_iterations   --initialize_random   --quiet               --topics
+```
+
+### Manual installation
+
+The following commands can be used to install manually the autocomplete script
+in any UNIX like environment (Mac OSX for instance). We assume that the current
+directory is the project root.
+
+```bash
+mkdir -p ~/bin
+cp bash_completion.sh ~/bin/ldaplusplus_completion.sh
+echo >>~/.bash_profile
+echo "# LDA++ autocomplete" >>~/.bash_profile
+echo "source \${HOME}/bin/ldaplusplus_completion.sh" >>~/.bash_profile
+source ~/bin/ldaplusplus_completion.sh
+# Now we are all set
+lda [Tab]
+lda tra
+lda tra[Tab][Tab]
+train    transform
+lda train --[Tab][Tab]
+--compute_likelihood  --e_step_tolerance    --initialize_seeded   --random_state        --workers
+--continue            --help                --iterations          --snapshot_every      
+--e_step_iterations   --initialize_random   --quiet               --topics
+```

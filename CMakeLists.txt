@@ -6,8 +6,8 @@ project(LDA++)
 # 1. Build the ldaplusplus library (as a shared library by default).
 #    The sources are explicitly defined in the ${SOURCES} variable and the
 #    target is ldaplusplus.
-# 2. Build the slda executable linking it with the ldaplusplus library and the
-#    rest of the required libraries
+# 2. Build the lda, slda and fslda executables linking them with the
+#    ldaplusplus library and the docopt library
 # 3. Set up the install target so that the library can be installed and used by
 #    others
 # 4. Build the tests in a single executable `test_all`. The test sources are
@@ -26,7 +26,10 @@ project(LDA++)
 #     $ sudo make install
 
 # Set the compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+# TODO: Change -Wall to a cross platform option
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 # Set options for the compilation
 option(BUILD_SHARED_LIBS "Build library as a shared object" ON)
@@ -34,8 +37,9 @@ option(BUILD_SHARED_LIBS "Build library as a shared object" ON)
 # Search for the following dependencies
 # - Eigen
 # - Threads
-# - Docopt (if not available slda won't be built)
+# - Docopt (if not available console apps won't be built)
 # - GTest (if not available tests won't be compiled)
+# - BashCompletion (if not available bash_completion won't be installed)
 #
 # The following variables will be defined and used where needed
 # - EIGEN_INCLUDE_DIRS
@@ -44,12 +48,14 @@ option(BUILD_SHARED_LIBS "Build library as a shared object" ON)
 # - DOCOPT_LIBRARIES
 # - GTEST_INCLUDE_DIRS
 # - GTEST_BOTH_LIBRARIES
+# - BASHCOMPLETION_PATH
 #
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Eigen REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Docopt)
 find_package(GTest)
+find_package(BashCompletion)
 
 # Bring the headers into the project
 include_directories(
@@ -101,8 +107,9 @@ target_link_libraries(ldaplusplus ${CMAKE_THREAD_LIBS_INIT})
 # problems (so I've heard :-) not sure) for windows builds
 # set_target_properties(ldaplusplus_static PROPERTIES OUTPUT_NAME ldaplusplus)
 
-# Create command application for unsupervised_lda executable
+# Create targets to build the console applications
 if (DOCOPT_FOUND)
+    set(HAVE_CONSOLE_APPLICATIONS ON)
     set(APPLICATION_SOURCES
         src/applications/lda_io.cpp
         src/applications/EpochProgress.cpp
@@ -137,6 +144,15 @@ install(TARGETS ${TARGETS_FOR_INSTALL}
 install(DIRECTORY include/ DESTINATION include
         PATTERN "test" EXCLUDE
         PATTERN "applications" EXCLUDE)
+
+# If we can automatically install bash completion then provide a custom target
+# that does just that
+if (HAVE_CONSOLE_APPLICATIONS AND BASHCOMPLETION_FOUND)
+    add_custom_target(autocomplete
+        cp "${PROJECT_SOURCE_DIR}/bash_completion.sh"
+        "${BASHCOMPLETION_PATH}/ldaplusplus"
+        DEPENDS lda slda fslda)
+endif()
 
 # Build the tests
 # We need to explicitly define a test the same way we explicitly define a

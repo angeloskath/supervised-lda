@@ -617,3 +617,10 @@ The rest of the arguments, namely **e_step_iterations**, **e_step_tolerance**,
 **compute_likelihood**, **regularization_penalty**, **m_step_iterations** and
 **m_step_tolerance** are already explained in [lda](#lda-application) and
 [slda](#slda-application).
+
+Bash completion
+---------------
+
+In the [installation](/installation/#bash-completion) page you can also see how
+you could install a provided bash completion script to autocomplete the options
+and commands for faster and easier usage of the console applications.
