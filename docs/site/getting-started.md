@@ -245,9 +245,7 @@ int main() {
     fslda.fit(X, y);
 
     // Extract the top words of the unsupervised model
-    auto model = std::static_pointer_cast<parameters::ModelParameters<double> >(
-        lda.model_parameters()
-    );
+    auto model = lda.model_parameters<parameters::ModelParameters<> >();
     VectorXi top_words(model->beta.rows());
     for (int i=0; i<model->beta.rows(); i++) {
         model->beta.row(i).maxCoeff(&top_words[i]);
@@ -259,21 +257,17 @@ int main() {
     // lda model (because we do not know the class labels for the untransformed
     // data)
     LDA<double> transformer = LDABuilder<double>().initialize_topics_from_model(
-        std::static_pointer_cast<parameters::ModelParameters<double> >(
-            slda.model_parameters()
-        )
+        slda.model_parameters<parameters::ModelParameters<> >()
     );
     MatrixXd Z = transformer.transform(X);
     std::cout << "The topic mixtures for the first document" << std::endl
               << Z.col(0) << std::endl << std::endl;
 
-    
+
     // Predict the class labels using the fslda model (again we will be using
     // an unsupervised model because we do not know the class labels
     // beforehand)
-    auto sup_model = std::static_pointer_cast<parameters::SupervisedModelParameters<double> >(
-        fslda.model_parameters()
-    );
+    auto sup_model = fslda.model_parameters<parameters::SupervisedModelParameters<> >();
     LDA<double> predictor = LDABuilder<double>()
             .initialize_topics_from_model(sup_model)
             .initialize_eta_from_model(sup_model);
