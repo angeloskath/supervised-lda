@@ -21,7 +21,7 @@ namespace ldaplusplus {
  * An LDABuilderInterface is an interface for any class that can be cast into an LDA
  * instance.
  */
-template <typename Scalar>
+template <typename Scalar = double>
 class LDABuilderInterface
 {
     public:
@@ -58,7 +58,7 @@ class LDABuilderInterface
  *                      initialize_topics_from_model(model).
  *                      initialize_eta_from_model(model);
  */
-template <typename Scalar>
+template <typename Scalar = double>
 class LDABuilder : public LDABuilderInterface<Scalar>
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;

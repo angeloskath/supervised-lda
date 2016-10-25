@@ -31,7 +31,7 @@ namespace ldaplusplus {
  *    through a single event dispatcher.
  * 4. It provides a very simple interface (borrowed from scikit-learn)
  */
-template <typename Scalar>
+template <typename Scalar = double>
 class LDA
 {
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;

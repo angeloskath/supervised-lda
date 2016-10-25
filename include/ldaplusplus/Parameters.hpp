@@ -23,7 +23,7 @@ struct Parameters
  * the documents over topics distribution and the topics over words
  * distributions.
  */
-template <typename Scalar>
+template <typename Scalar = double>
 struct ModelParameters : public Parameters
 {
     ModelParameters() {}
@@ -43,7 +43,7 @@ struct ModelParameters : public Parameters
  * SupervisedModelParameters adds the extra logistic regression parameters to
  * model parameters.
  */
-template <typename Scalar>
+template <typename Scalar = double>
 struct SupervisedModelParameters : public ModelParameters<Scalar>
 {
     SupervisedModelParameters() {}
@@ -63,7 +63,7 @@ struct SupervisedModelParameters : public ModelParameters<Scalar>
  * The variational parameters are (duh) the variational parameters of the LDA
  * model.
  */
-template <typename Scalar>
+template <typename Scalar = double>
 struct VariationalParameters : public Parameters
 {
     VariationalParameters() {}
@@ -83,7 +83,7 @@ struct VariationalParameters : public Parameters
  * The supervised correspondence variational parameters add a variational
  * parameter for sampling a topic assignment to predict the class.
  */
-template <typename Scalar>
+template <typename Scalar = double>
 struct SupervisedCorrespondenceVariationalParameters : public VariationalParameters<Scalar>
 {
     SupervisedCorrespondenceVariationalParameters() {}
