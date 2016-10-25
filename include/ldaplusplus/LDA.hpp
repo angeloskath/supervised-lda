@@ -178,6 +178,11 @@ class LDA
             return model_parameters_;
         }
 
+        template <typename P>
+        const std::shared_ptr<P> model_parameters() {
+            return std::static_pointer_cast<P>(model_parameters_);
+        }
+
     protected:
         /**
          * Generate a Corpus from a pair of X, y matrices
