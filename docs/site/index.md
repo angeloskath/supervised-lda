@@ -8,7 +8,7 @@ Among the already implemented LDA variations are:
 
 * [Unsupervised LDA](http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf)
 * [Supervised LDA (sLDA)](http://www.cs.cmu.edu/~chongw/papers/WangBleiFeiFei2009.pdf)
-* [Fast supervised LDA (fsLDA)](http://mug.ee.auth.gr/discovering-micro-events-from-video-data-using-topic-modeling/)
+* [Fast supervised LDA (fsLDA)](http://mug.ee.auth.gr/discovering-micro-events-video-data-using-topic-modeling/)
 
 ## Why LDA++?
 
