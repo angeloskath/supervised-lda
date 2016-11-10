@@ -20,7 +20,7 @@ inference procedure followed for the available LDA models.
 
 **Efficient multithreaded implementations** enable the inference of topics even
 for large-scale datasets. Check our [research
-page](http://mug.ee.auth.gr/discovering-micro-events-from-video-data-using-topic-modeling/)
+page](http://mug.ee.auth.gr/discovering-micro-events-video-data-using-topic-modeling/)
 for our new method to infer topics in a supervised manner, which is tested on
 UCF-101 video dataset.
 
