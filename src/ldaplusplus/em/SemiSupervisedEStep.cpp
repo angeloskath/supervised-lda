@@ -1,8 +1,7 @@
 #include "ldaplusplus/em/SemiSupervisedEStep.hpp"
 
 namespace ldaplusplus {
-
-using em::SemiSupervisedEStep;
+namespace em {
 
 template <typename Scalar>
 SemiSupervisedEStep<Scalar>::SemiSupervisedEStep(
@@ -51,4 +50,5 @@ void SemiSupervisedEStep<Scalar>::e_step() {
 template class SemiSupervisedEStep<float>;
 template class SemiSupervisedEStep<double>;
 
-}
+} // namespace em
+} // namespace ldaplusplus

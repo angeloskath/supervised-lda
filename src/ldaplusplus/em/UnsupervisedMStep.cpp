@@ -1,8 +1,7 @@
 #include "ldaplusplus/em/UnsupervisedMStep.hpp"
 
 namespace ldaplusplus {
-
-using em::UnsupervisedMStep;
+namespace em {
 
 
 template <typename Scalar>
@@ -42,4 +41,5 @@ template class UnsupervisedMStep<float>;
 template class UnsupervisedMStep<double>;
 
 
-}
+} // namespace em
+} // namespace ldaplusplus

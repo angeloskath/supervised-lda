@@ -3,8 +3,7 @@
 #include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
-
-using em::MultinomialSupervisedMStep;
+namespace em {
 
 
 template <typename Scalar>
@@ -76,4 +75,5 @@ void MultinomialSupervisedMStep<Scalar>::doc_m_step(
 template class MultinomialSupervisedMStep<float>;
 template class MultinomialSupervisedMStep<double>;
 
-}
+} // namespace em
+} // namespace ldaplusplus

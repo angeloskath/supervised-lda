@@ -3,8 +3,7 @@
 #include "ldaplusplus/utils.hpp"
 
 namespace ldaplusplus {
-
-using em::CorrespondenceSupervisedMStep;
+namespace em {
 
 
 template <typename Scalar>
@@ -83,4 +82,5 @@ void CorrespondenceSupervisedMStep<Scalar>::doc_m_step(
 template class CorrespondenceSupervisedMStep<float>;
 template class CorrespondenceSupervisedMStep<double>;
 
-}
+} // namespace em
+} // namespace ldaplusplus
