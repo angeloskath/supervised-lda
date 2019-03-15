@@ -61,8 +61,6 @@ find_package(BashCompletion)
 include_directories(
     include
     ${EIGEN_INCLUDE_DIRS}
-    ${DOCOPT_INCLUDE_DIRS}
-    ${GTEST_INCLUDE_DIRS}
 )
 
 # And add the sources explicitly, see 
@@ -109,6 +107,7 @@ target_link_libraries(ldaplusplus ${CMAKE_THREAD_LIBS_INIT})
 
 # Create targets to build the console applications
 if (DOCOPT_FOUND)
+    include_directories(${DOCOPT_INCLUDE_DIRS})
     set(HAVE_CONSOLE_APPLICATIONS ON)
     set(APPLICATION_SOURCES
         src/applications/lda_io.cpp
@@ -158,6 +157,7 @@ endif()
 # We need to explicitly define a test the same way we explicitly define a
 # source file
 if (GTEST_FOUND)
+    include_directories(${GTEST_INCLUDE_DIRS})
     set(TEST_FILES
         test/test_approximate_supervised_expectation_step.cpp
         test/test_corpus.cpp

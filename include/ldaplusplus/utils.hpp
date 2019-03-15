@@ -4,6 +4,7 @@
 #include <cmath>
 #include <memory>
 #include <mutex>
+#include <array>
 
 #include <Eigen/Core>
 

@@ -2,6 +2,7 @@
 #define _LDAPLUSPLUS_OPTIMIZATION_SECOND_ORDER_LOGISTIC_REGRESSION_APPROXIMATION_HPP_
 
 #include <cmath>
+#include <vector>
 
 #include <Eigen/Core>
 
