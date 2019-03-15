@@ -595,8 +595,8 @@ class ThreadSafePRNG
 {
     public:
         typedef typename PRNG::result_type result_type;
-        static result_type min() { return PRNG::min(); }
-        static result_type max() { return PRNG::max(); }
+        static constexpr result_type min() { return PRNG::min(); }
+        static constexpr result_type max() { return PRNG::max(); }
 
         ThreadSafePRNG(int random_state) {
             prng_mutex_ = std::make_shared<std::mutex>();
